@@ -1,0 +1,38 @@
+spring:
+  profiles:
+    active: dev
+  aop:
+    proxy-target-class: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    druid:
+      min-evictable-idle-time-millis: 100000
+      aop-patterns: com.unitedratings.ikcrm.service.*
+      filter:
+        stat:
+          db-type: mysql
+          log-slow-sql: true
+          slow-sql-millis: 2000
+        wall:
+          enabled: false
+          db-type: mysql
+          config:
+            delete-allow: false
+            drop-table-allow: false
+      stat-view-servlet:
+        login-username: admin
+        login-password: 12345
+        url-pattern: /druid/*
+  thymeleaf:
+    cache: false
+    mode: LEGACYHTML5
+management:
+  security:
+    enabled: false
+  address: /manage
+server:
+  port: 8081

@@ -1,0 +1,50 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.6.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+version = '1.0-SNAPSHOT'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+bootRun{
+	addResources
+}
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+	compile('org.springframework.boot:spring-boot-starter-web')
+	//shiro
+	//compile('org.apache.shiro:shiro-spring-boot-starter:1.4.0')
+	//thymeleaf
+	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
+	compile 'net.sourceforge.nekohtml:nekohtml:1.9.22'
+	//cruid
+	compile 'com.alibaba:druid-spring-boot-starter:1.1.2'
+	//fastjson
+	compile 'com.alibaba:fastjson:1.2.35'
+	//math
+	compile 'org.ujmp:ujmp-core:0.3.0'
+	compile 'org.ujmp:ujmp-gui:0.3.0'
+	compile 'org.ujmp:ujmp-poi:0.3.0'
+	compile 'org.ujmp:ujmp-commonsmath:0.3.0'
+	//热启动 dev使用
+	//runtime 'org.springframework.boot:spring-boot-devtools'
+	runtime('mysql:mysql-connector-java')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
