@@ -19,6 +19,8 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.TextStyle;
+import java.time.temporal.TemporalField;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -169,6 +171,12 @@ public class Generic {
         System.out.println(normalDistribution.sample());
         System.out.println(normalDistribution.probability(0,1));
         System.out.println(normalDistribution.inverseCumulativeProbability(0.84));
+    }
+
+    @Test
+    public void testTime(){
+        System.out.println(LocalDate.now().getYear());
+        System.out.println(LocalDate.now().getMonth().getValue());
     }
 
 }

@@ -28,6 +28,8 @@ public class PortfolioStatisticalResult {
 
     private String resultFilePath;
 
+    private String fileName;
+
     public Long getId() {
         return id;
     }
@@ -98,5 +100,13 @@ public class PortfolioStatisticalResult {
 
     public void setResultFilePath(String resultFilePath) {
         this.resultFilePath = resultFilePath;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
