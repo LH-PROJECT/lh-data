@@ -1,5 +1,6 @@
 package com.unitedratings.lhcrm.core;
 
+import com.unitedratings.lhcrm.config.FileConfig;
 import com.unitedratings.lhcrm.domains.PortfolioStatisticalResult;
 import com.unitedratings.lhcrm.entity.UploadRecord;
 import com.unitedratings.lhcrm.web.model.AnalysisResult;
@@ -27,6 +28,8 @@ public class AnalysisResultHandler extends LoopThread {
     private static int parallelThreadNum;
 
     private static int beginMultiThreadThreshold;
+
+    private static FileConfig fileConfig;
 
     @PostConstruct
     public void startUp(){
@@ -61,7 +64,7 @@ public class AnalysisResultHandler extends LoopThread {
                 try {
                     long begin = System.currentTimeMillis();
                     UploadRecord record = analysisResult.getRecord();
-                    Future<PortfolioStatisticalResult> monteResultFuture = executorEngine.submit(new AnalysisResultMerge(record,parallelThreadNum,beginMultiThreadThreshold));
+                    Future<PortfolioStatisticalResult> monteResultFuture = executorEngine.submit(new AnalysisResultMerge(record,parallelThreadNum,beginMultiThreadThreshold,fileConfig));
                     PortfolioStatisticalResult portfolioStatisticalResult = monteResultFuture.get();
                     resultMap.put(record.getId(),portfolioStatisticalResult);
                     analysisResult.setResult(portfolioStatisticalResult);
@@ -84,5 +87,9 @@ public class AnalysisResultHandler extends LoopThread {
 
     public static void setBeginMultiThreadThreshold(int beginMultiThreadThreshold) {
         AnalysisResultHandler.beginMultiThreadThreshold = beginMultiThreadThreshold;
+    }
+
+    public static void setFileConfig(FileConfig fileConfig) {
+        AnalysisResultHandler.fileConfig = fileConfig;
     }
 }

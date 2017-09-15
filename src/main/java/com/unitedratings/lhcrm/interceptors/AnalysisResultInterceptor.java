@@ -38,4 +38,6 @@ public class AnalysisResultInterceptor extends TimeoutDeferredResultProcessingIn
             deferredResult.setResult((T)statisticalResult);
         }
     }
+
+
 }

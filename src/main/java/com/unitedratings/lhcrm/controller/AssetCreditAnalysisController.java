@@ -1,13 +1,14 @@
 package com.unitedratings.lhcrm.controller;
 
+import com.unitedratings.lhcrm.config.FileConfig;
 import com.unitedratings.lhcrm.config.TaskExecutorConfig;
-import com.unitedratings.lhcrm.constants.Constant;
 import com.unitedratings.lhcrm.core.AnalysisResultHandler;
 import com.unitedratings.lhcrm.entity.PortfolioAnalysisResult;
 import com.unitedratings.lhcrm.entity.UploadRecord;
 import com.unitedratings.lhcrm.service.interfaces.PortfolioAnalysisServiceSV;
 import com.unitedratings.lhcrm.service.interfaces.UploadServiceSV;
 import com.unitedratings.lhcrm.utils.DateUtil;
+import com.unitedratings.lhcrm.utils.FileUtil;
 import com.unitedratings.lhcrm.web.model.AnalysisResult;
 import com.unitedratings.lhcrm.web.model.ResponseData;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -27,12 +28,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Date;
 
 @RestController
 @RequestMapping("/assetCreditAnalysis")
 public class AssetCreditAnalysisController {
+
+    @Autowired
+    private FileConfig fileConfig;
 
     @Autowired
     private UploadServiceSV uploadService;
@@ -76,9 +79,8 @@ public class AssetCreditAnalysisController {
         AnalysisResult result = new AnalysisResult();
         UploadRecord record = uploadService.getUploadRecordById(id);
         if(record!=null){
-            record.setSummaryType(2);
-            record.setBeginCalculateDate(Date.from(LocalDate.of(2017,5,1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
             result.setRecord(record);
+            AnalysisResultHandler.setFileConfig(fileConfig);
             AnalysisResultHandler.setParallelThreadNum(taskExecutorConfig.getParallelThreadNum());
             AnalysisResultHandler.setBeginMultiThreadThreshold(taskExecutorConfig.getParallelThreadNum());
             AnalysisResultHandler.addAnalysisResult(result);
@@ -97,8 +99,9 @@ public class AssetCreditAnalysisController {
         PortfolioAnalysisResult analysisResult = analysisService.findLastAnalysisResultByRecordId(id);
         if(analysisResult!=null){
             String resultFilePath = analysisResult.getResultFilePath();
-            String fileName = new String(resultFilePath.getBytes("utf-8"),"ISO-8859-1");
-            File file = new File(Constant.RESULT_PATH + File.separator + resultFilePath);
+            String realFileName = analysisResult.getUploadRecordId()+"_"+FileUtil.extractFileName(resultFilePath);
+            String fileName = new String(realFileName.getBytes("utf-8"),"ISO-8859-1");
+            File file = new File(fileConfig.getResultPath() + File.separator + resultFilePath);
             if(file.exists()){
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentDispositionFormData("attachment",fileName, Charset.forName("UTF-8"));
@@ -121,8 +124,9 @@ public class AssetCreditAnalysisController {
     private String uploadFile(MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
         String suffix = fileName.substring(fileName.lastIndexOf('.'));
-        String newFileName = fileName.substring(0,fileName.lastIndexOf('.')) + "_" + DateUtil.getTimestamp() + suffix;
-        BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(new File(Constant.UPLOAD_PATH +File.separator + newFileName)));
+        String childPath = FileUtil.createChildPath(fileConfig.getUploadPath());
+        String newFileName = childPath+File.separator+fileName.substring(0,fileName.lastIndexOf('.')) + "_" + DateUtil.getTimestamp() + suffix;
+        BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(new File(fileConfig.getUploadPath() +File.separator + newFileName)));
         fileOut.write(file.getBytes());
         fileOut.flush();
         fileOut.close();

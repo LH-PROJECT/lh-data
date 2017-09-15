@@ -1,146 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
+
 <head>
-    <meta charset="UTF-8">
     <title>联合信用评级crm系统</title>
-    <!-- 引入Vue -->
-    <script src="https://unpkg.com/vue"></script>
-    <!-- 引入样式 -->
-    <link rel="stylesheet" th:href="@{/styles/iview.css}">
-    <!-- 引入组件库 -->
-    <script th:src="@{/js/iview.js}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+    <link rel="stylesheet" th:href="@{/dist/main.e1a87bc63633498289b7.css}">
 </head>
+
 <body>
-<div id="app">
-    <div class="layout">
-        <i-Menu mode="horizontal" @on-select="gotoPage" theme="primary" :active-name="selectedMenu">
-            <div class="layout-logo"></div>
-            <div class="layout-nav">
-                <Menu-item  name="1">
-                    <Icon type="ios-navigate"></Icon>
-                    驾驶舱管理
-                </Menu-item>
-                <Menu-item name="2">
-                    <Icon type="ios-keypad"></Icon>
-                    经营分析
-                </Menu-item>
-                <Menu-item name="3">
-                    <Icon type="ios-analytics"></Icon>
-                    销售分析
-                </Menu-item>
-                <Menu-item name="4">
-                    <Icon type="ios-paper"></Icon>
-                    客户分析
-                </Menu-item>
-                <Menu-item name="5">
-                    <Icon type="ios-paper"></Icon>
-                    财务分析
-                </Menu-item>
-                <Submenu name="6" style="text-align: center">
-                    <template slot="title">
-                        <Icon type="stats-bars"></Icon>
-                        客户全景
-                    </template>
-                    <Menu-item name="6-1">统一视图</Menu-item>
-                    <Menu-item name="6-2">流失客户</Menu-item>
-                </Submenu>
-                <Menu-item name="7">
-                    <Icon type="ios-paper"></Icon>
-                    舆情分析
-                </Menu-item>
-            </div>
-            <div class="layout-right">
-                <Dropdown>
-                    <a href="javascript:void(0)" >
-                        <Icon size="20px" type="person"></Icon>
-                    </a>
-                    <Dropdown-menu slot="list" class="dropdown-main">
-                        <Dropdown-item>驴打滚</Dropdown-item>
-                        <Dropdown-item>炸酱面</Dropdown-item>
-                        <Dropdown-item disabled>豆汁儿</Dropdown-item>
-                        <Dropdown-item>冰糖葫芦</Dropdown-item>
-                        <Dropdown-item divided>北京烤鸭</Dropdown-item>
-                    </Dropdown-menu>
-                </Dropdown>
-            </div>
-        </i-Menu>
-        <slot class="layout-content">
-            内容区域
-        </slot>
-        <div class="layout-copy">
-            2011-2016 &copy; unitedratings.com
-        </div>
-    </div>
-</div>
+    <div id="app"></div>
+    <script type="text/javascript" th:src="@{/dist/vendors.e1a87bc63633498289b7.js}"></script>
+    <script type="text/javascript" th:src="@{/dist/main.e1a87bc63633498289b7.js}"></script>
 </body>
-<script>
-    new Vue({
-        data:function () {
-            return {
-                selectedMenu:null,
-            }
-        },
-        components:{
-            Menu:Menu
-        },
-        methods:{
-            gotoPage:function(val){
-                this.selectedMenu=val;
-                console.log(this.selectedMenu);
-            }
-        }
-    });
-</script>
-<style>
-    .layout>menu{
-        height: 80px;
-        line-height: 80px;
-    }
-    .layout{
-        border: 1px solid #d7dde4;
-        background: #f5f7f9;
-    }
-    .layout-logo{
-        width: 100px;
-        height: 30px;
-        background: image('../images/u69.png');
-        border-radius: 3px;
-        float: left;
-        position: relative;
-        top: 17px;
-        left: 20px;
-        margin-right: 20px;
-    }
-    .dropdown-main{
-        min-width: 120px;
-    }
-    .layout-right{
-        width: 100px;
-        margin: 0 20px;
-        float: right;
-        text-align: center;
-    }
-    .layout-breadcrumb{
-        padding: 10px 15px 0;
-    }
-    .layout-content{
-        min-height: 550px;
-        height: 100%;
-        margin: 15px;
-        overflow: hidden;
-        background: #fff;
-        border-radius: 4px;
-    }
-    .layout-content-main{
-        padding: 10px;
-    }
-    .layout-copy{
-        text-align: center;
-        padding: 10px 0 20px;
-        color: #9ea7b4;
-    }
-    .layout-ceiling-main a{
-        color: #9ba7b5;
-    }
-</style>
+
 </html>

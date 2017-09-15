@@ -1,3 +1,7 @@
+file:
+  upload-path: /Users/wangyongxin/Desktop
+  result-path: /Users/wangyongxin/Desktop/result
+  template-path: /Users/wangyongxin/Desktop
 task:
   parallel-thread-num: 4
   begin-multi-thread-threshold: 400000

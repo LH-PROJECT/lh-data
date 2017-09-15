@@ -1,10 +1,9 @@
 package com.unitedratings.lhcrm.core;
 
-import com.alibaba.fastjson.JSON;
 import com.unitedratings.lhcrm.business.CreditPortfolioRiskAnalysis;
+import com.unitedratings.lhcrm.config.FileConfig;
 import com.unitedratings.lhcrm.constants.Constant;
 import com.unitedratings.lhcrm.domains.*;
-import com.unitedratings.lhcrm.entity.PortfolioAnalysisResult;
 import com.unitedratings.lhcrm.entity.UploadRecord;
 import com.unitedratings.lhcrm.excelprocess.AssetsExcelProcess;
 import com.unitedratings.lhcrm.utils.AssetAnalysisUtil;
@@ -18,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -39,8 +37,11 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
 
     private int threshold = 400000;
 
-    public AnalysisResultMerge(UploadRecord uploadRecord,int parallel,int threshold){
+    private FileConfig config;
+
+    public AnalysisResultMerge(UploadRecord uploadRecord,int parallel,int threshold,FileConfig fileConfig){
         this.record = uploadRecord;
+        this.config = fileConfig;
         if(parallel>1){
             this.parallelNum = parallel;
         }
@@ -70,7 +71,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
         portfolioStatisticalResult.setAverageDefaultRate(StatUtils.sum(result.getDefaultRate(),1,result.getDefaultRate().length - 1)/num);
         portfolioStatisticalResult.setUploadRecordId(record.getId());
         //结果输出至excel
-        String filePath = ExcelUtil.outputPortfolioAnalysisResult(portfolioStatisticalResult,info,num);
+        String filePath = ExcelUtil.outputPortfolioAnalysisResult(portfolioStatisticalResult,info,num,this.config);
         portfolioStatisticalResult.setResultFilePath(filePath);
         return portfolioStatisticalResult;
     }
@@ -132,7 +133,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
      * @throws IOException
      */
     private AssetPoolInfo assetPoolExcelProcess() throws InvalidFormatException, IOException {
-        File file = new File(Constant.UPLOAD_PATH + File.separator + record.getFileName());
+        File file = new File(this.config.getUploadPath() + File.separator + record.getFileName());
         AssetPool assetPool = new AssetPool();
         AssetPoolInfo info = new AssetPoolInfo();
         info.setReservesMoney(record.getReservesMoney());

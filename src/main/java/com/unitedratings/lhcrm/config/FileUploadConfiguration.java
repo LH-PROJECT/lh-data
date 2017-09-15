@@ -1,5 +1,6 @@
 package com.unitedratings.lhcrm.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,9 +14,12 @@ import java.io.File;
 @Configuration
 public class FileUploadConfiguration {
 
+    @Autowired
+    private FileConfig fileConfig;
+
     @Bean
     public MultipartConfigElement multipartConfigElement(){
-        String location = this.getClass().getResource("/").getPath()+"upload";
+        String location = fileConfig.getUploadPath()+File.separator+"temp";
         MultipartConfigFactory configFactory = new MultipartConfigFactory();
         File tempFileLocation = new File(location);
         if(!tempFileLocation.exists()){

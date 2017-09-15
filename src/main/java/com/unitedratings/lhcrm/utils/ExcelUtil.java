@@ -1,9 +1,8 @@
 package com.unitedratings.lhcrm.utils;
 
-import com.unitedratings.lhcrm.constants.Constant;
+import com.unitedratings.lhcrm.config.FileConfig;
 import com.unitedratings.lhcrm.constants.SummaryType;
 import com.unitedratings.lhcrm.domains.*;
-import org.apache.commons.math3.stat.StatUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
@@ -78,9 +77,11 @@ public class ExcelUtil {
      * @param portfolioStatisticalResult
      * @param info
      * @param num
+     * @param config
      */
-    public static String outputPortfolioAnalysisResult(PortfolioStatisticalResult portfolioStatisticalResult, AssetPoolInfo info, Integer num) throws IOException, InvalidFormatException {
-        File template = ResourceUtils.getFile("classpath:输出模板.xlsx");
+    public static String outputPortfolioAnalysisResult(PortfolioStatisticalResult portfolioStatisticalResult, AssetPoolInfo info, Integer num, FileConfig config) throws IOException, InvalidFormatException {
+        //File template = ResourceUtils.getFile("classpath:输出模板.xlsx");
+        File template = new File(config.getTemplatePath()+File.separator+"输出模板.xlsx");
         OPCPackage pkg = OPCPackage.open(template);
         XSSFWorkbook workbook = new XSSFWorkbook(pkg);
         MonteSummaryResult monteSummaryResult = portfolioStatisticalResult.getMonteSummaryResult();
@@ -91,8 +92,9 @@ public class ExcelUtil {
         PortfolioDefaultDistribution distribution = portfolioStatisticalResult.getPortfolioDefaultDistribution();
         processSheet1(workbook, distribution);
         //输出
-        String filePath = portfolioStatisticalResult.getUploadRecordId()+"_"+System.currentTimeMillis()+".xlsx";
-        FileOutputStream os = new FileOutputStream(new File(Constant.RESULT_PATH+File.separator+filePath));
+        String childPath = FileUtil.createChildPath(config.getResultPath());
+        String filePath = childPath+File.separator+portfolioStatisticalResult.getUploadRecordId()+"_"+System.currentTimeMillis()+".xlsx";
+        FileOutputStream os = new FileOutputStream(new File(config.getResultPath()+File.separator+filePath));
         workbook.write(os);
         os.flush();
         os.close();
