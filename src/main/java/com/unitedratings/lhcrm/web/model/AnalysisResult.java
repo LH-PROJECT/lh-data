@@ -1,19 +1,18 @@
 package com.unitedratings.lhcrm.web.model;
 
 import com.unitedratings.lhcrm.domains.PortfolioStatisticalResult;
-import com.unitedratings.lhcrm.entity.UploadRecord;
+import com.unitedratings.lhcrm.entity.SimulationRecord;
 import org.springframework.web.context.request.async.DeferredResult;
 
 public class AnalysisResult extends DeferredResult<PortfolioStatisticalResult> {
 
-    private UploadRecord record;
+    private SimulationRecord record;
 
-    public UploadRecord getRecord() {
+    public SimulationRecord getRecord() {
         return record;
     }
 
-    public void setRecord(UploadRecord record) {
+    public void setRecord(SimulationRecord record) {
         this.record = record;
     }
-
 }

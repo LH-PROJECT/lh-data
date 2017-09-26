@@ -18,9 +18,6 @@ import java.util.List;
 @Configuration
 public class WebConfig extends WebMvcConfigurerAdapter {
 
-    @Autowired
-    private AnalysisResultInterceptor analysisResultInterceptor;
-
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("index");
@@ -45,7 +42,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
         configurer.setDefaultTimeout(10*60*1000);
         configurer.setTaskExecutor(taskExecutor());
-        configurer.registerDeferredResultInterceptors(analysisResultInterceptor);
+        //configurer.registerDeferredResultInterceptors(analysisResultInterceptor);
     }
 
 

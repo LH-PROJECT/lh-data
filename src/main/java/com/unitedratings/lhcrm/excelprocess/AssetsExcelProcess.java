@@ -4,6 +4,7 @@ import com.unitedratings.lhcrm.constants.SummaryType;
 import com.unitedratings.lhcrm.domains.AssetPool;
 import com.unitedratings.lhcrm.domains.AssetPoolInfo;
 import com.unitedratings.lhcrm.domains.LoanRecord;
+import com.unitedratings.lhcrm.entity.*;
 import com.unitedratings.lhcrm.utils.DateUtil;
 import com.unitedratings.lhcrm.utils.ExcelUtil;
 import com.unitedratings.lhcrm.utils.MathUtil;
@@ -13,8 +14,11 @@ import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.web.multipart.MultipartFile;
 import org.ujmp.core.Matrix;
 import org.ujmp.core.calculation.Calculation;
 import org.ujmp.core.objectmatrix.impl.DefaultDenseObjectMatrix2D;
@@ -25,7 +29,6 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -60,13 +63,13 @@ public class AssetsExcelProcess {
                     break;
                 case 3:
                     //处理理想违约概率矩阵信息sheet
-                    processPerfectDefaultRateSheet(workbook.getSheetAt(index),assetPool.getAssetPoolInfo());
+                    //processPerfectDefaultRateSheet(workbook.getSheetAt(index),assetPool.getAssetPoolInfo());
                     break;
                 case 4:
-                    //处理理想违约概率矩阵信息sheet(临时使用，季度数据)
-                    if(assetPool.getAssetPoolInfo().getSummaryType() == SummaryType.QUARTER.getValue()){
+                    //处理条件违约概率矩阵信息sheet(临时使用，季度数据)
+                    /*if(assetPool.getAssetPoolInfo().getSummaryType() == SummaryType.QUARTER.getValue()){
                         processConditionDefaultRateSheet(workbook.getSheetAt(index),assetPool.getAssetPoolInfo());
-                    }
+                    }*/
                     break;
                 default:
                     break;
@@ -165,9 +168,9 @@ public class AssetsExcelProcess {
      * @param assetPoolInfo
      */
     private static void processAmortisationSheet(XSSFSheet sheet, AssetPoolInfo assetPoolInfo) {
-        //获取分期摊还信息sheet有效行列数,模板中第0、1索引行为表头信息，有效数据从第2索引行开始
-        final int dataBeginRow = 2;
-        final int dataBeginCol = 6;
+        //获取分期摊还信息sheet有效行列数,模板中第0、1索引行为表头信息，有效数据从第2索引行开始（需要1索引行表头信息，所以数据从第1所银行开始）
+        final int dataBeginRow = 1;
+        final int dataBeginCol = 0;
         //确定有效行列
         int[] validRowAndColSize = ExcelUtil.getRegularValidRowAndColSize(sheet, dataBeginRow, dataBeginCol,true);
         int validRowSize = validRowAndColSize[0];
@@ -211,13 +214,13 @@ public class AssetsExcelProcess {
                 //封装贷款信息实体
                 loanRecords.add(assembleLoanRecord(row));
                 //封装资产池矩阵
-                cellDataProcess(dataBeginRow,dataBeginCol, validColSize, df, dateFormat, matrix, r, row);
+                //cellDataProcess(dataBeginRow,dataBeginCol, validColSize, df, dateFormat, matrix, r, row);
             }
         }
         assetPool.setLoanRecords(loanRecords);
-        AssetPoolInfo assetPoolInfo = assetPool.getAssetPoolInfo();
-        assetPoolInfo.setLoanNum(loanRecords.size());
-        assembleAssetPoolInfo(matrix,assetPoolInfo);
+        //AssetPoolInfo assetPoolInfo = assetPool.getAssetPoolInfo();
+        //assetPoolInfo.setLoanNum(loanRecords.size());
+        //assembleAssetPoolInfo(matrix,assetPoolInfo);
     }
 
     /**
@@ -314,6 +317,7 @@ public class AssetsExcelProcess {
             maturity[i] = DateUtil.calculatePeriods(assetPoolInfo.getSummaryType(),assetPoolInfo.getBeginCalculateDate(),DateUtil.parseDate(maturityMatrix.getAsString(i,0),"yyyy-MM-dd"));
         }
         assetPoolInfo.setMaturity(maturity);
+        /*
         //获取最终回收率,矩阵第33列(需要计算，临时使用模板提供的)
         Matrix finalRecoveryRateMatrix = matrix.selectColumns(Calculation.Ret.LINK,33);
         double[] finalRecoveryRate = new double[size];
@@ -326,24 +330,175 @@ public class AssetsExcelProcess {
             Matrix conditionMatrix = matrix.selectColumns(Calculation.Ret.LINK,35,36,37,38);
             assetPoolInfo.setConditionMatrix(conditionMatrix);
         }
+        */
         //计算加权平均借款期限
         double[] yearMaturity = new double[size];
         for(int i = 0;i<maturityMatrix.getRowCount();i++){
             yearMaturity[i] = DateUtil.calculatePeriods(SummaryType.YEAR.getValue(),assetPoolInfo.getBeginCalculateDate(),DateUtil.parseDate(maturityMatrix.getAsString(i,0),"yyyy-MM-dd"));
         }
+        assetPoolInfo.setYearMaturity(yearMaturity);
         assetPoolInfo.setWeightedAverageMaturity(MathUtil.calculateWeightedAverageMaturity(assetPoolInfo.getPrincipal(),yearMaturity));
     }
 
     /**
-     * 封装贷款记录（待完善）
+     * 封装贷款记录
      * @param row
      * @return
      */
     private static LoanRecord assembleLoanRecord(Row row) {
         LoanRecord loanRecord = new LoanRecord();
+        loanRecord.setDebtorInfo(assembleDebtorInfo(row));
+        loanRecord.setGuarantorInfo(assembleGuarantorInfo(row));
+        return loanRecord;
+    }
+
+    /**
+     * 封装保证人信息
+     * @param row
+     * @return
+     */
+    private static GuarantorInfo assembleGuarantorInfo(Row row) {
+        DecimalFormat df = new DecimalFormat("0");
+        GuarantorInfo guarantorInfo = new GuarantorInfo();
+        guarantorInfo.setGuaranteeMode(row.getCell(15).getStringCellValue());
+        guarantorInfo.setGuaranteeName(row.getCell(16).getStringCellValue());
+        guarantorInfo.setLiabilityForm(row.getCell(17).getStringCellValue());
+        guarantorInfo.setGuaranteeRatio(row.getCell(18).getNumericCellValue());
+        guarantorInfo.setGuaranteeCreditLevel(row.getCell(19).getStringCellValue());
+        guarantorInfo.setGuaranteeIndustryCode(Long.parseLong(df.format(row.getCell(20).getNumericCellValue())));
+        guarantorInfo.setGuaranteeBelongArea(row.getCell(21).getStringCellValue());
+        guarantorInfo.setGuaranteeNum(Integer.parseInt(df.format(row.getCell(22).getNumericCellValue())));
+        return guarantorInfo;
+    }
+
+    /**
+     * 封装借款人信息
+     * @param row
+     * @return
+     */
+    private static DebtorInfo assembleDebtorInfo(Row row) {
+        DebtorInfo debtorInfo = new DebtorInfo();
         DecimalFormat df = new DecimalFormat("0");
         String formatLoanSerial = df.format(row.getCell(0).getNumericCellValue());
-        loanRecord.setLoanSerial(Long.parseLong(formatLoanSerial));
-        return loanRecord;
+        debtorInfo.setLoanSerial(Long.parseLong(formatLoanSerial));
+        debtorInfo.setBorrowerSerial(Long.parseLong(df.format(row.getCell(1).getNumericCellValue())));
+        debtorInfo.setIndustryCode(Long.parseLong(df.format(row.getCell(2).getNumericCellValue())));
+        debtorInfo.setCreditLevel(row.getCell(3).getStringCellValue());
+        debtorInfo.setMaturityDate(row.getCell(4).getDateCellValue());
+        debtorInfo.setLoanBalance(row.getCell(5).getNumericCellValue());
+        debtorInfo.setLendingRate(row.getCell(6).getNumericCellValue());
+        debtorInfo.setAssetSelfRecoveryRate(row.getCell(7).getNumericCellValue());
+        debtorInfo.setBorrowerArea(row.getCell(8).getStringCellValue());
+        debtorInfo.setLoanProvideDate(row.getCell(9).getDateCellValue());
+        String isAmortize = row.getCell(10).getStringCellValue();
+        if("是".equals(isAmortize)){
+            debtorInfo.setAmortize(true);
+        }else {
+            debtorInfo.setAmortize(false);
+        }
+        String governmentFunded = row.getCell(13).getStringCellValue();
+        if("是".equals(governmentFunded)){
+            debtorInfo.setGovernmentFunded(true);
+        }else {
+            debtorInfo.setGovernmentFunded(false);
+        }
+        debtorInfo.setDefaultMagnification(row.getCell(14).getNumericCellValue());
+        debtorInfo.setBorrowerIndustry(row.getCell(25).getStringCellValue());
+        debtorInfo.setCurrentMarketValue(row.getCell(26).getNumericCellValue());
+        debtorInfo.setBorrowerName(row.getCell(27).getStringCellValue());
+        //考虑保证人的回收率（结果输出）
+        //debtorInfo.setGuaranteeRecoveryRate(row.getCell(28).getNumericCellValue());
+        debtorInfo.setRelevanceForGuaranteeAndLender(row.getCell(30).getNumericCellValue());
+        debtorInfo.setMortgageRecoveryRate(row.getCell(31).getNumericCellValue());
+        debtorInfo.setDebtLevel(row.getCell(32).getStringCellValue());
+        //最终回收率（结果输出）
+        //debtorInfo.setFinalRecoveryRate(row.getCell(33).getNumericCellValue());
+        //累计回收率（结果输出）
+        //debtorInfo.setTotalDefaultRate(row.getCell(34).getNumericCellValue());
+        debtorInfo.setDepositAmount(row.getCell(42).getNumericCellValue());
+
+        return debtorInfo;
+    }
+
+    /**
+     * 处理上传的资产池excel
+     * @param file
+     * @param portfolio
+     */
+    public static void processAssetsExcel(MultipartFile file, Portfolio portfolio) throws IOException, InvalidFormatException {
+        final OPCPackage pkg = OPCPackage.open(file.getInputStream());
+        final XSSFWorkbook workbook = new XSSFWorkbook(pkg);
+        AssetPool assetPool = new AssetPool();
+        AssetPoolInfo assetPoolInfo = new AssetPoolInfo();
+        assetPool.setAssetPoolInfo(assetPoolInfo);
+        for(int index=0;index<workbook.getNumberOfSheets();index++){
+            switch (index){
+                //规定第1、2、3个sheet分别为资产池信息sheet、分期摊还信息sheet
+                case 0:
+                    //处理资产池信息sheet
+                    processAssetPoolSheet(workbook.getSheetAt(index),assetPool);
+                    portfolio.setRecordList(assetPool.getLoanRecords());
+                    break;
+                case 1:
+                    //处理分期摊还信息sheet
+                    portfolio.setAmortization(assembleAmortization(workbook.getSheetAt(index),portfolio));
+                    break;
+                default:
+                    break;
+            }
+        }
+        pkg.close();
+    }
+
+    /**
+     * 封装分期摊还信息
+     * @param sheet
+     * @param portfolio
+     * @return
+     */
+    private static Amortization assembleAmortization(XSSFSheet sheet, Portfolio portfolio) {
+        Amortization amortization = new Amortization();
+        XSSFRow row = sheet.getRow(1);
+        final int dataBeginRow = 2;
+        final int dataBeginCol = 6;
+        //确定有效行列
+        int[] validRowAndColSize = ExcelUtil.getRegularValidRowAndColSize(sheet, dataBeginRow, dataBeginCol,true);
+        int validRowSize = validRowAndColSize[0];
+        int validColSize = validRowAndColSize[1];
+        StringBuilder dateStr = new StringBuilder();
+        for(int i=dataBeginCol;i<dataBeginCol+validColSize;i++){
+            XSSFCell cell = row.getCell(i);
+            if(cell!=null){
+                dateStr.append(DateUtil.formatDate(cell.getDateCellValue(),"yyyy-MM-dd")).append(",");
+            }
+            if(i==dataBeginCol+validColSize-1){
+                amortization.setAmortizationDate(dateStr.substring(0, dateStr.length() - 1));
+            }
+        }
+        //处理数据
+        List<AmortizationInfo> infoList = new ArrayList<>();
+        for (int r = dataBeginRow; r < validRowSize + dataBeginRow; r++) {
+            Row tempRow = sheet.getRow(r);
+            if (tempRow != null) {
+                //封装分期摊还信息
+                AmortizationInfo amortizationInfo = new AmortizationInfo();
+                amortizationInfo.setLoanSerial(new Double(tempRow.getCell(0).getNumericCellValue()).longValue());
+                StringBuilder sb = new StringBuilder();
+                for (int c = dataBeginCol; c < validColSize+dataBeginCol; c++) {
+                    Cell cell = tempRow.getCell(c);
+                    if (cell != null) {
+                        if(Cell.CELL_TYPE_NUMERIC==cell.getCellType()){
+                            sb.append(cell.getNumericCellValue()).append(",");
+                        }
+                    }
+                    if(c == validColSize+dataBeginCol-1){
+                        amortizationInfo.setAmortization(sb.substring(0,sb.length()-1));
+                    }
+                }
+                infoList.add(amortizationInfo);
+            }
+        }
+        amortization.setAmortizationInfoList(infoList);
+        return amortization;
     }
 }

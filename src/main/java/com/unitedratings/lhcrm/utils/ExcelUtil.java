@@ -93,7 +93,7 @@ public class ExcelUtil {
         processSheet1(workbook, distribution);
         //输出
         String childPath = FileUtil.createChildPath(config.getResultPath());
-        String fileName = portfolioStatisticalResult.getUploadRecordId()+"_"+System.currentTimeMillis()+".xlsx";
+        String fileName = portfolioStatisticalResult.getPortfolioId()+"_"+System.currentTimeMillis()+".xlsx";
         String filePath = childPath+File.separator+fileName;
         portfolioStatisticalResult.setFileName(fileName);
         FileOutputStream os = new FileOutputStream(new File(config.getResultPath()+File.separator+filePath));

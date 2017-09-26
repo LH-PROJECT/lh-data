@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface PortfolioAnalysisResultDao extends JpaRepository<PortfolioAnalysisResult,Long> {
-    List<PortfolioAnalysisResult> findByUploadRecordIdOrderByCreateTimeDesc(Long id);
+    List<PortfolioAnalysisResult> findByPortfolioIdOrderByCreateTimeDesc(Long id);
 }

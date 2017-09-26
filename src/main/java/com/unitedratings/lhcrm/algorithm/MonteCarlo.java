@@ -85,7 +85,6 @@ public class MonteCarlo {
                     p = p - amortisation.getAsDouble(i,k);
                     k++;
                 }
-
             }
 
             double balanceSum = StatUtils.sum(balance);
@@ -95,7 +94,11 @@ public class MonteCarlo {
 
             Integer defaultRateIndex = MathUtil.ceil(balanceSum / totalPrincipal * precision);
             defaultRate[defaultRateIndex] += 1;
-            Integer recoveryRateIndex = MathUtil.ceil(balanceRSum/totalPrincipal*precision);
+            Integer recoveryRateIndex = MathUtil.ceil(balanceRSum / totalPrincipal * precision);
+            if(recoveryRateIndex<0){
+                System.out.println("recoveryRateIndex:"+recoveryRateIndex);
+                recoveryRateIndex = 0;
+            }
             recoveryRate[recoveryRateIndex] += 1 ;
             Integer lossRateIndex = MathUtil.ceil(Math.max(0,StatUtils.sum(balanceL)-reservesMoney)/totalPrincipal*precision);
             lossRate[lossRateIndex] += 1;
@@ -105,12 +108,12 @@ public class MonteCarlo {
 
         //按季度计算违约比率
         if(sumDefault > 0){
+            double[] outamor = new double[loanNum];
             for(int j=0;j<quarterNum;j++){
                 double vertAmount = 0;
-                double[] outamor = new double[loanNum];
                 for(int i = 0; i< loanNum; i++){
-                    if(j>1){
-                        outamor[i] = outamor[i] + amortisation.getAsDouble(i,j);
+                    if(j>=1){
+                        outamor[i] = outamor[i] + amortisation.getAsDouble(i,j-1);
                     }else {
                         outamor[i] = 0;
                     }
