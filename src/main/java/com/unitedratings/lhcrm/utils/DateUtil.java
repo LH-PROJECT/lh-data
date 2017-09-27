@@ -38,16 +38,16 @@ public class DateUtil {
         double period = 0;
         switch (summaryType){
             case 1://按年
-                period = Math.ceil(days/365);
+                period = (double) days/365;
                 break;
             case 2://按季度
-                period = Math.ceil(days/90);
+                period = (double) days/90;
                 break;
             case 3://按月
-                period = Math.ceil(days/30);
+                period = (double) days/30;
                 break;
-            case 4://按月
-                period = Math.ceil(days/7);
+            case 4://按周
+                period = (double) days/7;
                 break;
             case 5://按天
                 period = days;

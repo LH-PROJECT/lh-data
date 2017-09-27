@@ -13,7 +13,7 @@ public class MathUtil {
      * @return
      */
     public static Integer getMaxQuarter(double[] arr) {
-        return new Double(org.ujmp.core.util.MathUtil.max(arr)).intValue();
+        return (int) Math.ceil(org.ujmp.core.util.MathUtil.max(arr));
     }
 
     /**

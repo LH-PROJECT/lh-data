@@ -33,10 +33,10 @@ public class AssetAnalysisUtil {
         double[] targetLossRate = new double[length];
         for(int i=0;i<length;i++){
             if(year<=1){
-                targetDefaultProbability[i] = perfectDefaultRate.getAsDouble(ceil,i);
+                targetDefaultProbability[i] = perfectDefaultRate.getAsDouble(ceil-1,i);
             }else {
-                double defaultRateLow = perfectDefaultRate.getAsDouble(floor, i);
-                double defaultRateUp = perfectDefaultRate.getAsDouble(ceil, i);
+                double defaultRateLow = perfectDefaultRate.getAsDouble(floor-1, i);
+                double defaultRateUp = perfectDefaultRate.getAsDouble(ceil-1, i);
                 if(defaultRateLow == defaultRateUp){
                     targetDefaultProbability[i] = defaultRateUp;
                 }else {
