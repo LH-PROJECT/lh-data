@@ -169,8 +169,8 @@ public class AssetsExcelProcess {
      */
     private static void processAmortisationSheet(XSSFSheet sheet, AssetPoolInfo assetPoolInfo) {
         //获取分期摊还信息sheet有效行列数,模板中第0、1索引行为表头信息，有效数据从第2索引行开始（需要1索引行表头信息，所以数据从第1所银行开始）
-        final int dataBeginRow = 2;
-        final int dataBeginCol = 6;
+        final int dataBeginRow = 1;
+        final int dataBeginCol = 0;
         //确定有效行列
         int[] validRowAndColSize = ExcelUtil.getRegularValidRowAndColSize(sheet, dataBeginRow, dataBeginCol,true);
         int validRowSize = validRowAndColSize[0];
