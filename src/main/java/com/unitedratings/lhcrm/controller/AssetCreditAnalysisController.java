@@ -3,14 +3,9 @@ package com.unitedratings.lhcrm.controller;
 import com.unitedratings.lhcrm.config.FileConfig;
 import com.unitedratings.lhcrm.config.TaskExecutorConfig;
 import com.unitedratings.lhcrm.core.AnalysisResultHandler;
-import com.unitedratings.lhcrm.entity.Portfolio;
 import com.unitedratings.lhcrm.entity.PortfolioAnalysisResult;
-import com.unitedratings.lhcrm.entity.SimulationRecord;
 import com.unitedratings.lhcrm.entity.UploadRecord;
-import com.unitedratings.lhcrm.excelprocess.AssetsExcelProcess;
 import com.unitedratings.lhcrm.service.interfaces.PortfolioAnalysisServiceSV;
-import com.unitedratings.lhcrm.service.interfaces.PortfolioServiceSV;
-import com.unitedratings.lhcrm.service.interfaces.SimulationRecordServiceSV;
 import com.unitedratings.lhcrm.service.interfaces.UploadServiceSV;
 import com.unitedratings.lhcrm.utils.DateUtil;
 import com.unitedratings.lhcrm.utils.FileUtil;
@@ -23,12 +18,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.time.LocalDate;
 import java.util.Date;
 
 @RestController
@@ -47,13 +46,6 @@ public class AssetCreditAnalysisController {
     @Autowired
     private PortfolioAnalysisServiceSV analysisService;
 
-    @Autowired
-    private PortfolioServiceSV portfolioService;
-
-    @Autowired
-    private SimulationRecordServiceSV simulationRecordService;
-
-
     /**
      * 上传待分析文件
      * @param file
@@ -62,28 +54,13 @@ public class AssetCreditAnalysisController {
      * @throws IOException
      */
     @RequestMapping("/upload")
-    public ResponseData<Portfolio> upload(MultipartFile file,UploadRecord record) throws IOException, InvalidFormatException {
-        ResponseData<Portfolio> responseData = null;
+    public ResponseData<Long> upload(MultipartFile file,UploadRecord record) throws IOException {
+        ResponseData<Long> responseData = null;
         if(file!=null){
-            //保存上传文件
             record.setFileName(uploadFile(file));
             record.setCreateTime(new Date());
-            //保存上传记录
             UploadRecord saved = uploadService.save(record);
-            //处理excel，保存资产池信息
-            Portfolio portfolio = new Portfolio();
-            portfolio.setUploadRecordId(saved.getId());
-            portfolio.setReservesMoney(record.getReservesMoney());
-            portfolio.setBeginCalculateDate(record.getBeginCalculateDate());
-            portfolio.setSimulationNum(0);
-            portfolio.setMultiplier(1.0);
-            portfolio.setPortfolioName("工银租赁");
-            portfolio.setProjectName("项目一");
-            portfolio.setProjectId(1l);
-            portfolio.setCurrentState("begin");
-            AssetsExcelProcess.processAssetsExcel(file,portfolio);
-            portfolioService.savePortfolio(portfolio);
-            responseData = new ResponseData<>(ResponseData.AJAX_STATUS_SUCCESS,"上传成功",portfolio);
+            responseData = new ResponseData<>(ResponseData.AJAX_STATUS_SUCCESS,"上传成功",saved.getId());
         }else {
             responseData = new ResponseData<>(ResponseData.AJAX_STATUS_FAILURE,"上传文件不存在",null);
         }
@@ -92,28 +69,20 @@ public class AssetCreditAnalysisController {
 
     /**
      * 开始分析
+     * @param id
      * @return
+     * @throws IOException
+     * @throws InvalidFormatException
      */
-    @PostMapping(value = "/analysis",consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public DeferredResult analysis(@RequestBody SimulationRecord simulationRecord){
+    @GetMapping("/analysis/{id}")
+    public DeferredResult analysis(@PathVariable("id") Long id) throws IOException, InvalidFormatException {
         AnalysisResult result = new AnalysisResult();
-        Portfolio portfolio = portfolioService.getPortfolioById(simulationRecord.getAttachableId());
-        if(portfolio!=null){
-            simulationRecord.setFinish(false);
-            simulationRecord.setCreateTime(new Date());
-            simulationRecord.setNum(100000);
-            simulationRecordService.saveSimulationRecord(simulationRecord);
-            result.setRecord(simulationRecord);
-            if(!AnalysisResultHandler.initFlag){
-                synchronized (AnalysisResultHandler.class){
-                    if(!AnalysisResultHandler.initFlag){
-                        AnalysisResultHandler.setFileConfig(fileConfig);
-                        AnalysisResultHandler.setParallelThreadNum(taskExecutorConfig.getParallelThreadNum());
-                        AnalysisResultHandler.setBeginMultiThreadThreshold(taskExecutorConfig.getParallelThreadNum());
-                        AnalysisResultHandler.initFlag = true;
-                    }
-                }
-            }
+        UploadRecord record = uploadService.getUploadRecordById(id);
+        if(record!=null){
+            result.setRecord(record);
+            AnalysisResultHandler.setFileConfig(fileConfig);
+            AnalysisResultHandler.setParallelThreadNum(taskExecutorConfig.getParallelThreadNum());
+            AnalysisResultHandler.setBeginMultiThreadThreshold(taskExecutorConfig.getParallelThreadNum());
             AnalysisResultHandler.addAnalysisResult(result);
         }
         return result;
@@ -127,10 +96,10 @@ public class AssetCreditAnalysisController {
      */
     @GetMapping("/download/{id}")
     public ResponseEntity<byte[]> downloadAnalysisResult(@PathVariable("id") Long id) throws Exception {
-        PortfolioAnalysisResult analysisResult = analysisService.findLastAnalysisResultByPortfolioId(id);
+        PortfolioAnalysisResult analysisResult = analysisService.findLastAnalysisResultByRecordId(id);
         if(analysisResult!=null){
             String resultFilePath = analysisResult.getResultFilePath();
-            String realFileName = analysisResult.getPortfolioId()+"_"+FileUtil.extractFileName(resultFilePath);
+            String realFileName = analysisResult.getUploadRecordId()+"_"+FileUtil.extractFileName(resultFilePath);
             String fileName = new String(realFileName.getBytes("utf-8"),"ISO-8859-1");
             File file = new File(fileConfig.getResultPath() + File.separator + resultFilePath);
             if(file.exists()){

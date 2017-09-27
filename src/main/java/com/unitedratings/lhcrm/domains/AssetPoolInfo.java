@@ -30,7 +30,6 @@ public class AssetPoolInfo {
      * 到期年限
      */
     private double[] maturity;
-    private double[] yearMaturity;
     private Matrix rrTime;
     /**
      * 贷款笔数
@@ -75,26 +74,6 @@ public class AssetPoolInfo {
     private Matrix conditionMatrix;
 
     private double weightedAverageMaturity;
-
-    /**
-     * 关联的理想违约率表id
-     */
-    private Integer idealDefaultId;
-
-    /**
-     * 资产违约率
-     */
-    private double[] assetDR;
-
-    /**
-     * 担保人违约率
-     */
-    private double[] scDR;
-
-    /**
-     * 债项违约率
-     */
-    private double[] loanPD;
 
     public long[] getLoanSerial() {
         return loanSerial;
@@ -230,45 +209,5 @@ public class AssetPoolInfo {
 
     public void setWeightedAverageMaturity(double weightedAverageMaturity) {
         this.weightedAverageMaturity = weightedAverageMaturity;
-    }
-
-    public Integer getIdealDefaultId() {
-        return idealDefaultId;
-    }
-
-    public void setIdealDefaultId(Integer idealDefaultId) {
-        this.idealDefaultId = idealDefaultId;
-    }
-
-    public double[] getYearMaturity() {
-        return yearMaturity;
-    }
-
-    public void setYearMaturity(double[] yearMaturity) {
-        this.yearMaturity = yearMaturity;
-    }
-
-    public double[] getAssetDR() {
-        return assetDR;
-    }
-
-    public void setAssetDR(double[] assetDR) {
-        this.assetDR = assetDR;
-    }
-
-    public double[] getScDR() {
-        return scDR;
-    }
-
-    public void setScDR(double[] scDR) {
-        this.scDR = scDR;
-    }
-
-    public double[] getLoanPD() {
-        return loanPD;
-    }
-
-    public void setLoanPD(double[] loanPD) {
-        this.loanPD = loanPD;
     }
 }

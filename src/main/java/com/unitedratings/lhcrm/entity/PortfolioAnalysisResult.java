@@ -4,13 +4,12 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(indexes = {@Index(columnList = "portfolioId")})
 public class PortfolioAnalysisResult {
 
     @Id
     @GeneratedValue
     private Long id;
-    private Long portfolioId;
+    private Long uploadRecordId;
     /**
      * 标准差
      */
@@ -41,12 +40,12 @@ public class PortfolioAnalysisResult {
         this.id = id;
     }
 
-    public Long getPortfolioId() {
-        return portfolioId;
+    public Long getUploadRecordId() {
+        return uploadRecordId;
     }
 
-    public void setPortfolioId(Long portfolioId) {
-        this.portfolioId = portfolioId;
+    public void setUploadRecordId(Long uploadRecordId) {
+        this.uploadRecordId = uploadRecordId;
     }
 
     public double getStandardDeviation() {

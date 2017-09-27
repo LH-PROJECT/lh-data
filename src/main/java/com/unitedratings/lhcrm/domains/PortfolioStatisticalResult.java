@@ -8,7 +8,7 @@ import java.util.Date;
 public class PortfolioStatisticalResult {
 
     private Long id;
-    private Long portfolioId;
+    private Long uploadRecordId;
     /**
      * 标准差
      */
@@ -38,12 +38,12 @@ public class PortfolioStatisticalResult {
         this.id = id;
     }
 
-    public Long getPortfolioId() {
-        return portfolioId;
+    public Long getUploadRecordId() {
+        return uploadRecordId;
     }
 
-    public void setPortfolioId(Long portfolioId) {
-        this.portfolioId = portfolioId;
+    public void setUploadRecordId(Long uploadRecordId) {
+        this.uploadRecordId = uploadRecordId;
     }
 
     public double getStandardDeviation() {

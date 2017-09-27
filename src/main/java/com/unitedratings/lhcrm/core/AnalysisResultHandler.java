@@ -2,13 +2,10 @@ package com.unitedratings.lhcrm.core;
 
 import com.unitedratings.lhcrm.config.FileConfig;
 import com.unitedratings.lhcrm.domains.PortfolioStatisticalResult;
-import com.unitedratings.lhcrm.entity.SimulationRecord;
-import com.unitedratings.lhcrm.service.interfaces.SimulationRecordServiceSV;
-import com.unitedratings.lhcrm.utils.SpringApplicationContextUtil;
+import com.unitedratings.lhcrm.entity.UploadRecord;
 import com.unitedratings.lhcrm.web.model.AnalysisResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -27,8 +24,6 @@ public class AnalysisResultHandler extends LoopThread {
     private static final ConcurrentHashMap<Long,PortfolioStatisticalResult> resultMap = new ConcurrentHashMap();
 
     private volatile AnalysisResultHandler handler;
-
-    public static volatile boolean initFlag = false;
 
     private static int parallelThreadNum;
 
@@ -68,28 +63,18 @@ public class AnalysisResultHandler extends LoopThread {
             executorEngine.execute(()->{
                 try {
                     long begin = System.currentTimeMillis();
-                    SimulationRecord record = analysisResult.getRecord();
+                    UploadRecord record = analysisResult.getRecord();
                     Future<PortfolioStatisticalResult> monteResultFuture = executorEngine.submit(new AnalysisResultMerge(record,parallelThreadNum,beginMultiThreadThreshold,fileConfig));
                     PortfolioStatisticalResult portfolioStatisticalResult = monteResultFuture.get();
                     resultMap.put(record.getId(),portfolioStatisticalResult);
                     analysisResult.setResult(portfolioStatisticalResult);
-                    record.setResult(portfolioStatisticalResult);
                     long end = System.currentTimeMillis();
-                    record.setConsumeTime(end-begin);
-                    record.setFinish(true);
-                    saveSimulationRecord(record);
                     LOGGER.info("任务[id={}]模拟执行耗时{}ms",record.getId(),end-begin);
                 } catch (InterruptedException|ExecutionException e) {
                     LOGGER.error("模拟过程异常",e);
                 }
             });
         }
-    }
-
-    private void saveSimulationRecord(SimulationRecord record) {
-        ApplicationContext applicationContext = SpringApplicationContextUtil.getContext();
-        SimulationRecordServiceSV simulationRecordService = applicationContext.getBean(SimulationRecordServiceSV.class);
-        simulationRecordService.updateSimulationRecord(record);
     }
 
     public static PortfolioStatisticalResult getPortfolioStatisticalResult(Long id){
