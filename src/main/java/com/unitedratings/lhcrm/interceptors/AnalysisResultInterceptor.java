@@ -23,7 +23,7 @@ public class AnalysisResultInterceptor extends TimeoutDeferredResultProcessingIn
             PortfolioStatisticalResult statisticalResult = (PortfolioStatisticalResult) result;
             PortfolioAnalysisResult portfolioAnalysisResult = new PortfolioAnalysisResult();
             portfolioAnalysisResult.setResultFilePath(statisticalResult.getResultFilePath());
-            portfolioAnalysisResult.setPortfolioId(statisticalResult.getPortfolioId());
+            portfolioAnalysisResult.setUploadRecordId(statisticalResult.getUploadRecordId());
             portfolioAnalysisResult.setStandardDeviation(statisticalResult.getStandardDeviation());
             portfolioAnalysisResult.setCreateTime(new Date());
             portfolioAnalysisResult.setAverageDefaultRate(statisticalResult.getAverageDefaultRate());
