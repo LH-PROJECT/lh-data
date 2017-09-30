@@ -85,4 +85,15 @@ public class DateUtil {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
         return time.format(formatter);
     }
+
+    /**
+     * 格式化时间
+     * @param date
+     * @param pattern
+     * @return
+     */
+    public static String formatDate(Date date, String pattern) {
+        DateFormat dateFormat = new SimpleDateFormat(pattern);
+        return dateFormat.format(date);
+    }
 }

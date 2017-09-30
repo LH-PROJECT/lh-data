@@ -6,7 +6,6 @@ import org.ujmp.core.DenseMatrix;
 import org.ujmp.core.Matrix;
 import org.ujmp.core.calculation.Calculation;
 import org.ujmp.core.doublematrix.impl.DefaultDenseDoubleMatrix2D;
-import org.ujmp.core.util.MathUtil;
 
 import java.util.Random;
 
@@ -38,12 +37,7 @@ public class MatrixUtil {
      * @return
      */
     public static Matrix calculateConditionProbability(AssetPoolInfo assetPoolInfo) {
-        /*
-        Matrix perfectDefaultRate = assetPoolInfo.getPerfectDefaultRate();
-        double[] maturity = assetPoolInfo.getMaturity();
-        assetPoolInfo.getLoanNum();
-        */
-        //暂时使用模板数据直接求逆
+        //求逆
         NormalDistribution normal = new NormalDistribution();
         Matrix conditionMatrix = assetPoolInfo.getConditionMatrix();
         DefaultDenseDoubleMatrix2D matrix = new DefaultDenseDoubleMatrix2D((int)conditionMatrix.getRowCount(),(int)conditionMatrix.getColumnCount());
