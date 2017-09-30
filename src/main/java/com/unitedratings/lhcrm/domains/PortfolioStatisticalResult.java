@@ -20,7 +20,7 @@ public class PortfolioStatisticalResult {
 
     private MonteSummaryResult monteSummaryResult;
 
-    private MonteResult monteResult;
+    private FinalMonteResult monteResult;
 
     private PortfolioDefaultDistribution portfolioDefaultDistribution;
 
@@ -70,11 +70,11 @@ public class PortfolioStatisticalResult {
         this.monteSummaryResult = monteSummaryResult;
     }
 
-    public MonteResult getMonteResult() {
+    public FinalMonteResult getMonteResult() {
         return monteResult;
     }
 
-    public void setMonteResult(MonteResult monteResult) {
+    public void setMonteResult(FinalMonteResult monteResult) {
         this.monteResult = monteResult;
     }
 

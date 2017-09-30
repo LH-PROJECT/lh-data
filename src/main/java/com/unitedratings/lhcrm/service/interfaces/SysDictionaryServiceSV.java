@@ -16,4 +16,5 @@ public interface SysDictionaryServiceSV {
 
     List<SysDictionary> getDictionaryListByParentId(Integer parentId);
 
+    SysDictionary getDictionaryById(Integer sponsorId);
 }

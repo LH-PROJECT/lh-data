@@ -202,25 +202,15 @@ public class AssetsExcelProcess {
         //确定有效行列
         int[] validRowAndColSize = ExcelUtil.getRegularValidRowAndColSize(sheet, dataBeginRow, dataBeginCol,false);
         int validRowSize = validRowAndColSize[0];
-        int validColSize = validRowAndColSize[1];
-        DecimalFormat df = new DecimalFormat("0");
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Matrix matrix = new DefaultDenseObjectMatrix2D(validRowSize, validColSize);
-        matrix.setLabel(sheet.getSheetName());
         List<LoanRecord> loanRecords = new ArrayList<>();
         for (int r = dataBeginRow; r < validRowSize + dataBeginRow; r++) {
             Row row = sheet.getRow(r);
             if (row != null) {
                 //封装贷款信息实体
                 loanRecords.add(assembleLoanRecord(row));
-                //封装资产池矩阵
-                //cellDataProcess(dataBeginRow,dataBeginCol, validColSize, df, dateFormat, matrix, r, row);
             }
         }
         assetPool.setLoanRecords(loanRecords);
-        //AssetPoolInfo assetPoolInfo = assetPool.getAssetPoolInfo();
-        //assetPoolInfo.setLoanNum(loanRecords.size());
-        //assembleAssetPoolInfo(matrix,assetPoolInfo);
     }
 
     /**
@@ -402,6 +392,7 @@ public class AssetsExcelProcess {
         }else {
             debtorInfo.setGovernmentFunded(false);
         }
+        //违约放大倍数（中间过程输出）
         debtorInfo.setDefaultMagnification(row.getCell(14).getNumericCellValue());
         debtorInfo.setBorrowerIndustry(row.getCell(25).getStringCellValue());
         debtorInfo.setCurrentMarketValue(row.getCell(26).getNumericCellValue());
@@ -410,7 +401,8 @@ public class AssetsExcelProcess {
         //debtorInfo.setGuaranteeRecoveryRate(row.getCell(28).getNumericCellValue());
         debtorInfo.setRelevanceForGuaranteeAndLender(row.getCell(30).getNumericCellValue());
         debtorInfo.setMortgageRecoveryRate(row.getCell(31).getNumericCellValue());
-        debtorInfo.setDebtLevel(row.getCell(32).getStringCellValue());
+        //债券等级（中间过程输出）
+        //debtorInfo.setDebtLevel(row.getCell(32).getStringCellValue());
         //最终回收率（结果输出）
         //debtorInfo.setFinalRecoveryRate(row.getCell(33).getNumericCellValue());
         //累计回收率（结果输出）

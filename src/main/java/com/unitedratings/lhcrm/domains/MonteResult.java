@@ -1,5 +1,7 @@
 package com.unitedratings.lhcrm.domains;
 
+import org.ujmp.core.Matrix;
+
 /**
  * 蒙特卡洛模拟结果实体
  */
@@ -17,11 +19,19 @@ public class MonteResult {
      * 存放损失率
      */
     private double[] lossRate;
-    /**
-     * 存放按季度的违约比率
-     */
-    private double[] defaultRateByPeriod;
 
+    /**
+     * 存放按年/季违约记录数据
+     */
+    private transient Matrix defaultRecordMatrix;
+    /**
+     * 总违约金额
+     */
+    private double sumDefault;
+    /**
+     * 总违约率
+     */
+    private double sumDefaultRate;
 
     public double[] getDefaultRate() {
         return defaultRate;
@@ -47,11 +57,27 @@ public class MonteResult {
         this.lossRate = lossRate;
     }
 
-    public double[] getDefaultRateByPeriod() {
-        return defaultRateByPeriod;
+    public Matrix getDefaultRecordMatrix() {
+        return defaultRecordMatrix;
     }
 
-    public void setDefaultRateByPeriod(double[] defaultRateByPeriod) {
-        this.defaultRateByPeriod = defaultRateByPeriod;
+    public void setDefaultRecordMatrix(Matrix defaultRecordMatrix) {
+        this.defaultRecordMatrix = defaultRecordMatrix;
+    }
+
+    public double getSumDefault() {
+        return sumDefault;
+    }
+
+    public void setSumDefault(double sumDefault) {
+        this.sumDefault = sumDefault;
+    }
+
+    public double getSumDefaultRate() {
+        return sumDefaultRate;
+    }
+
+    public void setSumDefaultRate(double sumDefaultRate) {
+        this.sumDefaultRate = sumDefaultRate;
     }
 }

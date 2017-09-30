@@ -9,7 +9,6 @@ import com.unitedratings.lhcrm.domains.*;
 import com.unitedratings.lhcrm.entity.*;
 import com.unitedratings.lhcrm.service.interfaces.*;
 import com.unitedratings.lhcrm.utils.*;
-import org.apache.commons.math3.stat.StatUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,9 +59,9 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
         AssetPoolInfo info = prepareAssetPoolInfo();
         long t2 = System.currentTimeMillis();
         LOGGER.info("数据预处理过程消耗{}ms",t2-t1);
-        Integer num = record.getNum();
+        Integer num = record.getNum() * 10000;
         //2、蒙特卡洛模拟
-        MonteResult result = monteCarloSimulation(info, num);
+        FinalMonteResult result = monteCarloSimulation(info, num);
         long t3 = System.currentTimeMillis();
         LOGGER.info("模拟过程消耗{}ms",t3-t2);
         //3、处理合并结果并输出
@@ -75,7 +74,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
         portfolioStatisticalResult.setMonteSummaryResult(monteSummaryResult);
         portfolioStatisticalResult.setPortfolioDefaultDistribution(distribution);
         portfolioStatisticalResult.setStandardDeviation(MathUtil.calculateStandardDeviation(result.getDefaultRate(),num));
-        portfolioStatisticalResult.setAverageDefaultRate(StatUtils.sum(result.getDefaultRate(),1,result.getDefaultRate().length - 1)/num);
+        portfolioStatisticalResult.setAverageDefaultRate(result.getSumDefaultRate()/num);
         portfolioStatisticalResult.setPortfolioId(record.getAttachableId());
         //3.3、结果输出至excel
         String filePath = ExcelUtil.outputPortfolioAnalysisResult(portfolioStatisticalResult,info,num,this.config);
@@ -160,20 +159,26 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                         }
                     }
                 }
-            }
-            for(int i=0;i<loanNum;i++){
-                if(scRating[i]==0){
-                    loanRating[i] = numRating[i];
-                }else {
-                    loanRating[i] = Math.min(numRating[i],scRating[i]);
+                for(int i=0;i<loanNum;i++){
+                    if(scRating[i]==0){
+                        loanRating[i] = numRating[i];
+                    }else {
+                        loanRating[i] = Math.min(numRating[i],scRating[i]);
+                    }
+                    SysDictionary dictionary = creditLevelList.get(loanRating[i] - 1);
+                    DebtorInfo debtorInfo = loanRecords.get(i).getDebtorInfo();
+                    debtorInfo.setDebtLevel(dictionary.getParamCode());
+                    debtorInfo.setDebtLevelCode(dictionary.getId());
                 }
+                //1、计算违约放大倍数
+                AssetAnalysisUtil.calDefaultMagnification(assetPool,numRating,scRating,loanRating);
+                //2、计算基础资产、担保人违约概率
+                AssetAnalysisUtil.calAssetAndGuaranteeDefaultRate(assetPool,numRating,scRating,loanRating);
+                //3、计算条件违约率
+                AssetAnalysisUtil.calConditionDefaultRate(assetPool,numRating);
+                //4、调整回收率
+                AssetAnalysisUtil.adjustDefaultRate(assetPool,numRating);
             }
-            //2、计算基础资产、担保人违约概率
-            AssetAnalysisUtil.calAssetAndGuaranteeDefaultRate(assetPool,numRating,scRating,loanRating);
-            //3、计算条件违约率
-            AssetAnalysisUtil.calConditionDefaultRate(assetPool,numRating);
-            //4、调整回收率
-            AssetAnalysisUtil.adjustDefaultRate(assetPool,numRating);
         }
     }
 
@@ -185,7 +190,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
      * @throws InterruptedException
      * @throws java.util.concurrent.ExecutionException
      */
-    private MonteResult monteCarloSimulation(AssetPoolInfo info, Integer num) throws InterruptedException, java.util.concurrent.ExecutionException {
+    private FinalMonteResult monteCarloSimulation(AssetPoolInfo info, Integer num) throws InterruptedException, java.util.concurrent.ExecutionException {
         MonteResult result = null;
         if(num<threshold){
             Future<MonteResult> future = ExecutorEngine.getExecutorEngine().submit(new CreditPortfolioRiskAnalysis(info, num, alreadyNum, Constant.PRECISION));
@@ -203,7 +208,11 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
             double[] defaultRate = new double[Constant.PRECISION];
             double[] lossRate = new double[Constant.PRECISION];
             double[] recoveryRate = new double[Constant.PRECISION];
-            double[] defaultRateByPeriod = null;
+            //违约记录矩阵
+            Matrix defaultRecord = null;
+            //总违约金额
+            double sumDefault = 0;
+            double sumDefaultRate = 0;
             for(Future<MonteResult> future:futures){
                 MonteResult monteResult = future.get();
                 for(int i=0;i<Constant.PRECISION;i++){
@@ -211,23 +220,65 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                     recoveryRate[i] += monteResult.getRecoveryRate()[i];
                     lossRate[i] += monteResult.getLossRate()[i];
                 }
-                if(defaultRateByPeriod==null){
-                    defaultRateByPeriod = monteResult.getDefaultRateByPeriod();
+                if(defaultRecord==null){
+                    defaultRecord = monteResult.getDefaultRecordMatrix();
                 }else {
-                    for(int i=0;i<defaultRateByPeriod.length;i++){
-                        defaultRateByPeriod[i] += monteResult.getDefaultRateByPeriod()[i];
-                    }
+                    defaultRecord = defaultRecord.plus(monteResult.getDefaultRecordMatrix());
                 }
-            }
-            for(int i=0;i<defaultRateByPeriod.length;i++){
-                defaultRateByPeriod[i]=defaultRateByPeriod[i]/parallelNum;
+                sumDefault += monteResult.getSumDefault();
+                sumDefaultRate += monteResult.getSumDefaultRate();
             }
             result.setDefaultRate(defaultRate);
             result.setRecoveryRate(recoveryRate);
             result.setLossRate(lossRate);
-            result.setDefaultRateByPeriod(defaultRateByPeriod);
+            result.setSumDefault(sumDefault);
+            result.setDefaultRecordMatrix(defaultRecord);
+            result.setSumDefaultRate(sumDefaultRate);
         }
-        return result;
+
+        if(result!=null){
+            //季度数
+            Integer quarter = MathUtil.getMaxQuarter(info.getMaturity());
+            //存放按季度的违约比率
+            double[] defaultRateByPeriod = new double[quarter];
+            double sumDefault = result.getSumDefault();
+            Matrix defaultRecord = result.getDefaultRecordMatrix();
+            //按季度计算违约比率
+            if(result.getSumDefault() > 0 && defaultRecord !=null){
+                Integer loanNum = info.getLoanNum();
+                Matrix amortisation = info.getAmortisation();
+                double[] secureAmount = info.getSecureAmount();
+                double[] principal = info.getPrincipal();
+                //double[] vertA = new double[quarter];
+                double[] outamor = new double[loanNum];
+                for(int j=0;j<quarter;j++){
+                    double vertAmount = 0;
+                    for(int i = 0; i< loanNum; i++){
+                        if(j>0){
+                            outamor[i] += amortisation.getAsDouble(i,j-1);
+                        }
+                        vertAmount += defaultRecord.getAsDouble(i,j)*Math.max(principal[i]-outamor[i]-secureAmount[i],0);
+                    }
+                    //vertA[j] = vertAmount;
+                    defaultRateByPeriod[j] = vertAmount/sumDefault;
+                }
+                /*double outSumDefault = StatUtils.sum(vertA);
+                for(int j=0;j<quarter;j++){
+                    defaultRateByPeriod[j] = vertA[j]/outSumDefault;
+                }*/
+            }
+            FinalMonteResult finalMonteResult = new FinalMonteResult();
+            finalMonteResult.setDefaultRateByPeriod(defaultRateByPeriod);
+            finalMonteResult.setDefaultRate(result.getDefaultRate());
+            finalMonteResult.setRecoveryRate(result.getRecoveryRate());
+            finalMonteResult.setLossRate(result.getLossRate());
+            finalMonteResult.setDefaultRecordMatrix(defaultRecord);
+            finalMonteResult.setSumDefault(sumDefault);
+            finalMonteResult.setSumDefaultRate(result.getSumDefaultRate());
+            return finalMonteResult;
+        }
+
+        return null;
     }
 
     /**
@@ -260,6 +311,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
         AssetPool assetPool = null;
         if(portfolio!=null){
             assetPool = new AssetPool();
+            assetPool.setPortfolio(portfolio);
             assetPool.setLoanRecords(portfolio.getRecordList());
             AssetPoolInfo info = new AssetPoolInfo();
             info.setLoanNum(portfolio.getRecordList().size());

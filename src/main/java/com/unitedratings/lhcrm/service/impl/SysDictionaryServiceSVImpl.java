@@ -46,4 +46,9 @@ public class SysDictionaryServiceSVImpl implements SysDictionaryServiceSV {
         return dictionaryDao.findAll(Example.of(dictionary));
     }
 
+    @Override
+    public SysDictionary getDictionaryById(Integer sponsorId) {
+        return dictionaryDao.findOne(sponsorId);
+    }
+
 }

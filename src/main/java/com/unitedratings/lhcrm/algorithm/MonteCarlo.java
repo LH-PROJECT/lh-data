@@ -6,6 +6,7 @@ import com.unitedratings.lhcrm.utils.MathUtil;
 import com.unitedratings.lhcrm.utils.MatrixUtil;
 import org.apache.commons.math3.stat.StatUtils;
 import org.ujmp.core.Matrix;
+import org.ujmp.core.enums.ValueType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -37,20 +38,19 @@ public class MonteCarlo {
         //保证金
         double[] secureAmount = assetPoolInfo.getSecureAmount();
         //违约次数记录存储矩阵
-        Matrix record = Matrix.Factory.zeros(loanNum,quarterNum);
+        Matrix record = Matrix.Factory.zeros(ValueType.INT,loanNum,quarterNum);
         //存放违约率
         double[] defaultRate = new double[precision];
         //存放回收率
         double[] recoveryRate = new double[precision];
         //存放损失率
         double[] lossRate = new double[precision];
-        //存放按季度的违约比率
-        double[] defaultRateByPeriod = new double[quarterNum];
         Matrix amortisation = assetPoolInfo.getAmortisation();
         final double totalPrincipal = StatUtils.sum(principal);
         double reservesMoney = assetPoolInfo.getReservesMoney();
         double sumDefault = 0;//总违约金额
-        double sumRecovery = 0;//总回收金额
+        //double sumRecovery = 0;//总回收金额
+        double sumDefaultRate = 0;//总违约率
         int count = 0;
         while (count++ < num){
             double[] balance = new double[loanNum];
@@ -70,17 +70,19 @@ public class MonteCarlo {
                 }
             }
             //判定每笔资产
-            for(int i = 0; i< loanNum; i++){
+            for(int i = 0; i < loanNum; i++){
                 double p = principal[i];
                 int k = 0;
-                double ceil = maturity[i];//需要计算的到期期限数，若为年，则表示期限年数
-                while (k<ceil){
+                int ceil = (int) Math.ceil(maturity[i]);//需要计算的到期期限数，若为年，则表示期限年数
+                boolean flag = true;
+                while (flag&&k<ceil){
                     if(randomM.getAsDouble(i,k) <= conInvM.getAsDouble(i,k)){
                         double last = record.getAsDouble(i, k);
                         record.setAsDouble(last+1,i,k);
                         balance[i] = Math.max(p-secureAmount[i],0);
                         balanceR[i] = balance[i] * rr[i];
                         balanceL[i] = balance[i] * (1-rr[i]);
+                        flag = false;
                     }
                     p = p - amortisation.getAsDouble(i,k);
                     k++;
@@ -90,43 +92,26 @@ public class MonteCarlo {
             double balanceSum = StatUtils.sum(balance);
             double balanceRSum = StatUtils.sum(balanceR);
             sumDefault += balanceSum;
-            sumRecovery += balanceRSum;
+            //sumRecovery += balanceRSum;
+            sumDefaultRate += balanceSum/totalPrincipal;
 
-            Integer defaultRateIndex = MathUtil.ceil(balanceSum / totalPrincipal * precision);
+            Integer defaultRateIndex = MathUtil.ceil(balanceSum / totalPrincipal * (precision-1));
             defaultRate[defaultRateIndex] += 1;
-            Integer recoveryRateIndex = MathUtil.ceil(balanceRSum / totalPrincipal * precision);
-            if(recoveryRateIndex<0){
-                System.out.println("recoveryRateIndex:"+recoveryRateIndex);
-                recoveryRateIndex = 0;
-            }
+            Integer recoveryRateIndex = MathUtil.ceil(balanceRSum / totalPrincipal * (precision-1));
             recoveryRate[recoveryRateIndex] += 1 ;
-            Integer lossRateIndex = MathUtil.ceil(Math.max(0,StatUtils.sum(balanceL)-reservesMoney)/totalPrincipal*precision);
+            Integer lossRateIndex = MathUtil.ceil(Math.max(0,StatUtils.sum(balanceL)-reservesMoney)/totalPrincipal*(precision-1));
             lossRate[lossRateIndex] += 1;
 
             alreadyNum.incrementAndGet();
         }
 
-        //按季度计算违约比率
-        if(sumDefault > 0){
-            double[] outamor = new double[loanNum];
-            for(int j=0;j<quarterNum;j++){
-                double vertAmount = 0;
-                for(int i = 0; i< loanNum; i++){
-                    if(j>=1){
-                        outamor[i] = outamor[i] + amortisation.getAsDouble(i,j-1);
-                    }else {
-                        outamor[i] = 0;
-                    }
-                    vertAmount = vertAmount + record.getAsDouble(i,j)*Math.max(principal[i]-outamor[i]-secureAmount[i],0);
-                }
-                defaultRateByPeriod[j] = vertAmount/sumDefault;
-            }
-        }
         MonteResult monteResult = new MonteResult();
         monteResult.setDefaultRate(defaultRate);
         monteResult.setRecoveryRate(recoveryRate);
         monteResult.setLossRate(lossRate);
-        monteResult.setDefaultRateByPeriod(defaultRateByPeriod);
+        monteResult.setDefaultRecordMatrix(record);
+        monteResult.setSumDefault(sumDefault);
+        monteResult.setSumDefaultRate(sumDefaultRate);
         return monteResult;
     }
 }

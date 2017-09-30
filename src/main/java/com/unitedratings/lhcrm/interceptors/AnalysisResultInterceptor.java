@@ -1,16 +1,14 @@
 package com.unitedratings.lhcrm.interceptors;
 
-import com.alibaba.fastjson.JSON;
+import com.unitedratings.lhcrm.domains.FinalMonteResult;
 import com.unitedratings.lhcrm.domains.PortfolioStatisticalResult;
-import com.unitedratings.lhcrm.entity.PortfolioAnalysisResult;
 import com.unitedratings.lhcrm.service.interfaces.PortfolioAnalysisServiceSV;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.context.request.async.TimeoutDeferredResultProcessingInterceptor;
-
-import java.util.Date;
 
 @Component
 public class AnalysisResultInterceptor extends TimeoutDeferredResultProcessingInterceptor {
@@ -18,7 +16,7 @@ public class AnalysisResultInterceptor extends TimeoutDeferredResultProcessingIn
     @Autowired
     private PortfolioAnalysisServiceSV analysisServiceSV;
 
-    @Override
+    /*@Override
     public <T> void afterCompletion(NativeWebRequest request, DeferredResult<T> deferredResult) throws Exception {
         Object result = deferredResult.getResult();
         if(result instanceof PortfolioStatisticalResult){
@@ -37,7 +35,15 @@ public class AnalysisResultInterceptor extends TimeoutDeferredResultProcessingIn
             statisticalResult.setId(analysisResult.getId());
             deferredResult.setResult((T)statisticalResult);
         }
+    }*/
+
+    @Override
+    public <T> void postProcess(NativeWebRequest request, DeferredResult<T> deferredResult, Object concurrentResult) throws Exception {
+        if(concurrentResult instanceof PortfolioStatisticalResult){
+            PortfolioStatisticalResult statisticalResult = (PortfolioStatisticalResult) concurrentResult;
+            FinalMonteResult finalMonteResult = new FinalMonteResult();
+            BeanUtils.copyProperties(statisticalResult.getMonteResult(), finalMonteResult,"defaultRecordMatrix");
+            statisticalResult.setMonteResult(finalMonteResult);
+        }
     }
-
-
 }

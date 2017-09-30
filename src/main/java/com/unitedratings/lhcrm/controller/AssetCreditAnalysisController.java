@@ -24,7 +24,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -57,26 +56,23 @@ public class AssetCreditAnalysisController {
     /**
      * 上传待分析文件
      * @param file
-     * @param record
+     * @param portfolio
      * @return
      * @throws IOException
      */
     @RequestMapping("/upload")
-    public ResponseData<Portfolio> upload(MultipartFile file,UploadRecord record) throws IOException, InvalidFormatException {
+    public ResponseData<Portfolio> upload(MultipartFile file,Portfolio portfolio) throws IOException, InvalidFormatException {
         ResponseData<Portfolio> responseData = null;
         if(file!=null){
             //保存上传文件
+            UploadRecord record = new UploadRecord();
             record.setFileName(uploadFile(file));
             record.setCreateTime(new Date());
             //保存上传记录
             UploadRecord saved = uploadService.save(record);
             //处理excel，保存资产池信息
-            Portfolio portfolio = new Portfolio();
             portfolio.setUploadRecordId(saved.getId());
-            portfolio.setReservesMoney(record.getReservesMoney());
-            portfolio.setBeginCalculateDate(record.getBeginCalculateDate());
             portfolio.setSimulationNum(0);
-            portfolio.setMultiplier(1.0);
             portfolio.setPortfolioName("工银租赁");
             portfolio.setProjectName("项目一");
             portfolio.setProjectId(1l);
@@ -95,13 +91,12 @@ public class AssetCreditAnalysisController {
      * @return
      */
     @PostMapping(value = "/analysis",consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public DeferredResult analysis(@RequestBody SimulationRecord simulationRecord){
+    public AnalysisResult analysis(@RequestBody SimulationRecord simulationRecord){
         AnalysisResult result = new AnalysisResult();
         Portfolio portfolio = portfolioService.getPortfolioById(simulationRecord.getAttachableId());
         if(portfolio!=null){
             simulationRecord.setFinish(false);
             simulationRecord.setCreateTime(new Date());
-            simulationRecord.setNum(100000);
             simulationRecordService.saveSimulationRecord(simulationRecord);
             result.setRecord(simulationRecord);
             if(!AnalysisResultHandler.initFlag){

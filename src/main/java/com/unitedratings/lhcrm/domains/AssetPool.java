@@ -1,10 +1,14 @@
 package com.unitedratings.lhcrm.domains;
 
+import com.unitedratings.lhcrm.entity.Portfolio;
+
 import java.util.List;
 
 public class AssetPool {
 
     private AssetPoolInfo assetPoolInfo;
+
+    private Portfolio portfolio;
 
     private List<LoanRecord> loanRecords;
 
@@ -14,6 +18,14 @@ public class AssetPool {
 
     public void setAssetPoolInfo(AssetPoolInfo assetPoolInfo) {
         this.assetPoolInfo = assetPoolInfo;
+    }
+
+    public Portfolio getPortfolio() {
+        return portfolio;
+    }
+
+    public void setPortfolio(Portfolio portfolio) {
+        this.portfolio = portfolio;
     }
 
     public List<LoanRecord> getLoanRecords() {

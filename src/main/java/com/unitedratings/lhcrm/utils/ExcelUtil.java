@@ -4,16 +4,15 @@ import com.unitedratings.lhcrm.config.FileConfig;
 import com.unitedratings.lhcrm.constants.SummaryType;
 import com.unitedratings.lhcrm.domains.*;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.util.ResourceUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
@@ -82,10 +81,10 @@ public class ExcelUtil {
     public static String outputPortfolioAnalysisResult(PortfolioStatisticalResult portfolioStatisticalResult, AssetPoolInfo info, Integer num, FileConfig config) throws IOException, InvalidFormatException {
         //File template = ResourceUtils.getFile("classpath:输出模板.xlsx");
         File template = new File(config.getTemplatePath()+File.separator+"输出模板.xlsx");
-        OPCPackage pkg = OPCPackage.open(template);
-        XSSFWorkbook workbook = new XSSFWorkbook(pkg);
+        FileInputStream fis = new FileInputStream(template);
+        XSSFWorkbook workbook = new XSSFWorkbook(fis);
         MonteSummaryResult monteSummaryResult = portfolioStatisticalResult.getMonteSummaryResult();
-        MonteResult monteResult  = portfolioStatisticalResult.getMonteResult();
+        FinalMonteResult monteResult  = portfolioStatisticalResult.getMonteResult();
         //处理填充sheet0---模拟结果输出
         processSheet0(portfolioStatisticalResult, info, num, workbook, monteSummaryResult, monteResult);
         //处理填充sheet1---组合风险缝隙结果输出
@@ -100,7 +99,7 @@ public class ExcelUtil {
         workbook.write(os);
         os.flush();
         os.close();
-        pkg.close();
+        fis.close();
         return filePath;
     }
 
@@ -143,7 +142,7 @@ public class ExcelUtil {
      * @param monteResult
      * @return
      */
-    private static void processSheet0(PortfolioStatisticalResult portfolioStatisticalResult, AssetPoolInfo info, Integer num, XSSFWorkbook workbook, MonteSummaryResult monteSummaryResult, MonteResult monteResult) {
+    private static void processSheet0(PortfolioStatisticalResult portfolioStatisticalResult, AssetPoolInfo info, Integer num, XSSFWorkbook workbook, MonteSummaryResult monteSummaryResult, FinalMonteResult monteResult) {
         XSSFSheet sheet0 = workbook.getSheetAt(0);
         XSSFCell cell1 = sheet0.getRow(4).getCell(9);
         cell1.setCellValue("测试");

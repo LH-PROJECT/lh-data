@@ -1,5 +1,7 @@
 package com.unitedratings.lhcrm.config;
 
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.unitedratings.lhcrm.interceptors.AnalysisResultInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +20,12 @@ import java.util.List;
 @Configuration
 public class WebConfig extends WebMvcConfigurerAdapter {
 
+    /*@Autowired
+    private JsonReturnHandler handler;*/
+
+    @Autowired
+    private AnalysisResultInterceptor analysisResultInterceptor;
+
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("index");
@@ -33,7 +41,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder()
-                .indentOutput(true);
+                .indentOutput(true)
+                .filters(new SimpleFilterProvider().addFilter("Matrix",SimpleBeanPropertyFilter.filterOutAllExcept("defaultRecordMatrix")));
         converters.add(new MappingJackson2HttpMessageConverter(builder.build()));
     }
 
@@ -42,9 +51,13 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
         configurer.setDefaultTimeout(10*60*1000);
         configurer.setTaskExecutor(taskExecutor());
-        //configurer.registerDeferredResultInterceptors(analysisResultInterceptor);
+        configurer.registerDeferredResultInterceptors(analysisResultInterceptor);
     }
 
+    /*@Override
+    public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> returnValueHandlers) {
+        returnValueHandlers.add(handler);
+    }*/
 
     @Bean
     public ThreadPoolTaskExecutor taskExecutor(){
