@@ -11,9 +11,9 @@ import com.unitedratings.lhcrm.utils.MathUtil;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -21,9 +21,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
 import org.ujmp.core.Matrix;
 import org.ujmp.core.calculation.Calculation;
+import org.ujmp.core.doublematrix.impl.DefaultDenseDoubleMatrix2D;
 import org.ujmp.core.objectmatrix.impl.DefaultDenseObjectMatrix2D;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -241,8 +243,6 @@ public class AssetsExcelProcess {
                     case Cell.CELL_TYPE_NUMERIC:
                         if(HSSFDateUtil.isCellDateFormatted(cell)){
                             matrix.setAsString(dateFormat.format(cell.getDateCellValue()),r-dataBeginRow, c-dataBeginCol);
-                        }else if(BuiltinFormats.getBuiltinFormat(0).equals(cell.getCellStyle().getDataFormatString())){
-                            matrix.setAsString(df.format(cell.getNumericCellValue()),r-dataBeginRow, c-dataBeginCol);
                         }else {
                             matrix.setAsDouble(cell.getNumericCellValue(), r-dataBeginRow, c-dataBeginCol);
                         }
@@ -399,7 +399,7 @@ public class AssetsExcelProcess {
         debtorInfo.setBorrowerName(row.getCell(27).getStringCellValue());
         //考虑保证人的回收率（结果输出）
         //debtorInfo.setGuaranteeRecoveryRate(row.getCell(28).getNumericCellValue());
-        debtorInfo.setRelevanceForGuaranteeAndLender(row.getCell(30).getNumericCellValue());
+        debtorInfo.setRelevanceForGuaranteeAndLender(ExcelUtil.getCellValue(row.getCell(30), Double.class));
         debtorInfo.setMortgageRecoveryRate(row.getCell(31).getNumericCellValue());
         //债券等级（中间过程输出）
         //debtorInfo.setDebtLevel(row.getCell(32).getStringCellValue());
@@ -492,5 +492,40 @@ public class AssetsExcelProcess {
         }
         amortization.setAmortizationInfoList(infoList);
         return amortization;
+    }
+
+    /**
+     * 处理随机数矩阵信息sheet
+     */
+    public static List<Matrix> processRandomSheet() throws InvalidFormatException, IOException {
+        File template = new File("/Users/wangyongxin/Desktop/random.xlsx");
+        FileInputStream fis = new FileInputStream(template);
+        final XSSFWorkbook workbook = new XSSFWorkbook(fis);
+        Sheet sheet = workbook.getSheetAt(0);
+        List<Matrix> list = new ArrayList<>();
+        int lo = 8;
+        for(int i=0;i<1000;i++){
+            int dataBeginRow = lo*i;
+            int dataBeginCol = 0;
+            //确定有效行列
+            int[] validRowAndColSize = ExcelUtil.getRegularValidRowAndColSize(sheet, dataBeginRow, dataBeginCol,true);
+            int validRowSize = 7;
+            int validColSize = validRowAndColSize[1];
+            //处理数据
+            Matrix matrix = new DefaultDenseDoubleMatrix2D(validRowSize, validColSize);
+            matrix.setLabel(sheet.getSheetName());
+            DecimalFormat df = new DecimalFormat("0");
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            for (int r = dataBeginRow; r < validRowSize + dataBeginRow; r++) {
+                Row tempRow = sheet.getRow(r);
+                if (tempRow != null) {
+                    //封装资产相关系数矩阵信息矩阵
+                    cellDataProcess(dataBeginRow, dataBeginCol,validColSize, df, dateFormat, matrix, r, tempRow);
+                }
+            }
+            list.add(matrix);
+        }
+        fis.close();
+        return list;
     }
 }

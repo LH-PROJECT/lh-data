@@ -1,5 +1,6 @@
 package com.unitedratings.lhcrm;
 
+import com.unitedratings.lhcrm.utils.DateUtil;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -18,7 +19,10 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -149,13 +153,17 @@ public class Generic {
         LocalDate date = LocalDate.of(2019,6,15);
         System.out.println(date.minusDays(43631));
         System.out.println(LocalDateTime.now());
+        System.out.println(ZoneId.systemDefault());
+        System.out.println(Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        System.out.println(DateUtil.calculateQuarter(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()),Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())));
+        Period period = Period.between(LocalDate.now(), date);
+        System.out.println(period.getYears()+":"+period.getMonths()+":"+period.getDays());
     }
 
     @Test
     public void tesMatrix(){
         DenseMatrix zeros = Matrix.Factory.zeros(12, 10);
         System.out.println(zeros.getValueCount());
-        System.out.println(ZoneId.systemDefault());
     }
 
     @Test
@@ -175,6 +183,13 @@ public class Generic {
     public void testTime(){
         System.out.println(LocalDate.now().getYear());
         System.out.println(LocalDate.now().getMonth().getValue());
+        long between = ChronoUnit.DAYS.between(LocalDate.of(2017, 9, 11), LocalDate.now());
+        System.out.println(between);
+    }
+
+    @Test
+    public void testMath(){
+        System.out.println(Math.pow(10,-4));
     }
 
 }

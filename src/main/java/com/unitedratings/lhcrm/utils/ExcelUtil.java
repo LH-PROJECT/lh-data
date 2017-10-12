@@ -10,6 +10,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -174,5 +175,45 @@ public class ExcelUtil {
             }
         }
 
+    }
+
+    /**
+     * 获取单元格对应值
+     * @param cell
+     * @param clazz
+     * @param <T>
+     * @return
+     */
+    public static <T> T getCellValue(Cell cell, Class<T> clazz) {
+        Object result = null;
+        if (cell!=null) {
+            switch (cell.getCellType()) {
+                case Cell.CELL_TYPE_BLANK:
+                    break;
+                case Cell.CELL_TYPE_BOOLEAN:
+                    result = cell.getBooleanCellValue();
+                    break;
+                case Cell.CELL_TYPE_ERROR:
+                    break;
+                case Cell.CELL_TYPE_FORMULA:
+                    result = cell.getCellFormula();
+                    break;
+                case Cell.CELL_TYPE_NUMERIC:
+                    result = cell.getNumericCellValue();
+                    break;
+                case Cell.CELL_TYPE_STRING:
+                    result = cell.getStringCellValue();
+                    break;
+                default:
+                    break;
+            }
+
+            if(result !=null){
+                if(!StringUtils.isEmpty(result)){
+                    return clazz.cast(result);
+                }
+            }
+        }
+        return null;
     }
 }

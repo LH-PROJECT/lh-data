@@ -15,7 +15,7 @@ public class GuarantorInfo {
     @Column(length = 20)
     private String guaranteeModeCode;
     private Integer guaranteeModeId;
-    @Column(length = 50)
+    @Column(length = 100)
     private String guaranteeName;
     @Column(length = 30)
     private String liabilityForm;

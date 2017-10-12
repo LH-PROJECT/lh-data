@@ -23,6 +23,7 @@ public class MatrixUtil {
     public static Matrix getRandomCovMatrix(Matrix cov, Integer loanNum, Integer quarterNum) {
         DenseMatrix matrix = Matrix.Factory.zeros(loanNum, quarterNum);
         Random random = new Random();
+        //NormalDistributionRandomGenerator random = new NormalDistributionRandomGenerator();
         for(int i=0;i<loanNum;i++){
             for(int j = 0;j<quarterNum;j++){
                 matrix.setAsDouble(random.nextGaussian(),i,j);
@@ -45,6 +46,7 @@ public class MatrixUtil {
             double value = conditionMatrix.getAsDouble(c);
             if(value>0){
                 matrix.setAsDouble(normal.inverseCumulativeProbability(value),c);
+                //matrix.setAsDouble(MathUtil.inverseCumulativeProbability(value),c);
             }
         }
         return matrix;

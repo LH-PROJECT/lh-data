@@ -55,9 +55,9 @@ public class AssetAnalysisUtil {
                 }
             }
             int position = Math.max((int) Math.floor(num * targetDefaultProbability[i]),1);
-            targetDefaultRate[i] =  (double) MathUtil.getProbabilityIndex(result.getDefaultRate(),position)/Constant.PRECISION;
-            targetRecoveryRate[i] = (double) MathUtil.getProbabilityIndex(result.getRecoveryRate(),position)/Constant.PRECISION;
-            targetLossRate[i] = (double) MathUtil.getProbabilityIndex(result.getLossRate(),position)/Constant.PRECISION;
+            targetDefaultRate[i] =  (double) MathUtil.getProbabilityIndex(result.getDefaultRate(),position)/(Constant.PRECISION-1);
+            targetRecoveryRate[i] = (double) MathUtil.getProbabilityIndex(result.getRecoveryRate(),position)/(Constant.PRECISION-1);
+            targetLossRate[i] = (double) MathUtil.getProbabilityIndex(result.getLossRate(),position)/(Constant.PRECISION-1);
         }
         MonteSummaryResult monteSummaryResult = new MonteSummaryResult();
         monteSummaryResult.setTargetDefaultProbability(targetDefaultProbability);
@@ -345,7 +345,7 @@ public class AssetAnalysisUtil {
             for (int j=0;j<loanNum;j++){
                 DebtorInfo debtorInfo_j = portfolio.getRecordList().get(j).getDebtorInfo();
                 double coefficient = 0;
-                if(debtorInfo_i.getIndustryCode()==debtorInfo_j.getIndustryCode()){
+                if(debtorInfo_i.getIndustryCode().equals(debtorInfo_j.getIndustryCode())){
                     if(debtorInfo_i.getBorrowerArea().equals(debtorInfo_j.getBorrowerArea())){
                         coefficient = assetCorrelationCoefficient.get("sameArea_sameIndustry")*portfolio.getMultiplier();
                     }else {

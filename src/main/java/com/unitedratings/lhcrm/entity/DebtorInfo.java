@@ -66,9 +66,9 @@ public class DebtorInfo {
      * 累计违约率
      */
     private Double totalDefaultRate;
-    @Column(length = 150)
+    @Column(length = 1000)
     private String defaultRateBySection;
-    @Column(length = 150)
+    @Column(length = 1000)
     private String recoveryRateBySection;
     /**
      * 保证金金额

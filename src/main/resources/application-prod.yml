@@ -1,7 +1,7 @@
 file:
-  upload-path: /files/upload
-  result-path: /files/result
-  template-path: /files/template
+  upload-path: /data/applications/lhcdo/files/upload
+  result-path: /data/applications/lhcdo/files/result
+  template-path: /data/applications/lhcdo/files/template
 task:
   parallel-thread-num: 8
   begin-multi-thread-threshold: 400000

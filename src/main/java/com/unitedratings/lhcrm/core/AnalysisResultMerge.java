@@ -198,7 +198,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
         }else {
             result = new MonteResult();
             List<CreditPortfolioRiskAnalysis> taskList = new ArrayList<>();
-            if(num>threshold*10){//超过400w次，并行数加倍
+            if(num>=threshold*10){//超过400w次，并行数加倍
                 parallelNum *= 2;
             }
             for(int i=0;i<parallelNum;i++){
@@ -228,6 +228,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                 sumDefault += monteResult.getSumDefault();
                 sumDefaultRate += monteResult.getSumDefaultRate();
             }
+            defaultRecord.setLabel("违约记录矩阵");
             result.setDefaultRate(defaultRate);
             result.setRecoveryRate(recoveryRate);
             result.setLossRate(lossRate);
@@ -346,7 +347,8 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                 String amortizationStr = amortizationInfo.getAmortization();
                 if(!StringUtils.isEmpty(amortizationStr)){
                     String[] amortizationArr = amortizationStr.split(",");
-                    for(int j=0;j<Math.ceil(info.getMaturity()[i]);j++){
+                    int ceil = (int) Math.ceil(info.getMaturity()[i]);
+                    for(int j=0;j<ceil;j++){
                         amortizationMatrix.setAsDouble(Double.parseDouble(amortizationArr[j]),i,j);
                     }
                 }

@@ -95,11 +95,11 @@ public class MonteCarlo {
             //sumRecovery += balanceRSum;
             sumDefaultRate += balanceSum/totalPrincipal;
 
-            Integer defaultRateIndex = MathUtil.ceil(balanceSum / totalPrincipal * (precision-1));
+            Integer defaultRateIndex = MathUtil.round(balanceSum / totalPrincipal * (precision-1));
             defaultRate[defaultRateIndex] += 1;
-            Integer recoveryRateIndex = MathUtil.ceil(balanceRSum / totalPrincipal * (precision-1));
+            Integer recoveryRateIndex = MathUtil.round(balanceRSum / totalPrincipal * (precision-1));
             recoveryRate[recoveryRateIndex] += 1 ;
-            Integer lossRateIndex = MathUtil.ceil(Math.max(0,StatUtils.sum(balanceL)-reservesMoney)/totalPrincipal*(precision-1));
+            Integer lossRateIndex = MathUtil.round(Math.max(0,StatUtils.sum(balanceL)-reservesMoney)/totalPrincipal*(precision-1));
             lossRate[lossRateIndex] += 1;
 
             alreadyNum.incrementAndGet();

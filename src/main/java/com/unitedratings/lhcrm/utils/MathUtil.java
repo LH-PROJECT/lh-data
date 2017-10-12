@@ -22,8 +22,8 @@ public class MathUtil {
      * @param num
      * @return
      */
-    public static Integer ceil(double num){
-        return new Double(Math.ceil(num)).intValue();
+    public static Integer round(double num){
+        return new Double(Math.round(num)).intValue();
     }
 
     /**
@@ -53,7 +53,7 @@ public class MathUtil {
         for(int i=arr.length-1;i>=0;i--){
             count += arr[i];
             if(count>position){
-                if(i==arr.length-1){
+                if(i==arr.length-1||i==0){
                     return i;
                 }else {
                     return i+1;
@@ -126,4 +126,105 @@ public class MathUtil {
         }
         return integral;
     }
+
+    /**
+     * 一元正态分布累计函数
+     * @param x
+     * @return
+     */
+    public static double normalDistributionFunction(double x){
+        double a0 = 0.5;
+        double a1 = 0.398942280444;
+        double a2 = 0.399903438505;
+        double a3 = 5.75885480458;
+        double a4 = 29.8213557808;
+        double a5 = 2.62433121679;
+        double a6 = 48.6959930692;
+        double a7 = 5.92885724438;
+
+        double b0 = 0.398942280385;
+        double b1 = 3.8052 * FastMath.pow(10,-8);
+        double b2 = 1.00000615302;
+        double b3 = 3.98064794 * FastMath.pow(10,-4);
+        double b4 = 1.98615381364;
+        double b5 = 0.151679116635;
+        double b6 = 5.29330324926;
+        double b7 = 4.8385912808;
+        double b8 = 15.1508972451;
+        double b9 = 0.742380924027;
+        double b10 = 30.789933034;
+        double b11 = 3.99019417011;
+
+        double zabs = FastMath.abs(x);
+        double q = 0;
+        if(zabs<=12.7){
+            double y = a0*x*x;
+            double pdf = FastMath.exp(-y)*b0;
+            if(zabs<=1.28){
+                double temp = y + a3 - a4 / (y + a5 + a6 / (y + a7));
+                q = a0 - zabs * (a1 - a2 * y / temp);
+            }else {
+                double temp = (zabs - b5 + b6 / (zabs + b7 - b8 / (zabs + b9 + b10 / (zabs + b11))));
+                q = pdf / (zabs - b1 + (b2 / (zabs + b3 + b4 / temp)));
+            }
+        }
+
+        if(x<0){
+            return q;
+        }else {
+            return 1-q;
+        }
+    }
+
+
+    /**
+     * 一元正态累计分布逆函数
+     * @param p
+     * @return
+     */
+    public static double inverseCumulativeProbability(double p){
+        double a1 = -39.6968302866538;
+        double a2 = 220.946098424521;
+        double a3 = -275.928510446969;
+        double a4 = 138.357751867269;
+        double a5 = -30.6647980661472;
+        double a6 = 2.50662827745924;
+
+        double b1 = -54.4760987982241;
+        double b2 = 161.585836858041;
+        double b3 = -155.698979859887;
+        double b4 = 66.8013118877197;
+        double b5 = -13.2806815528857;
+
+        double c1 = -0.00778489400243029;
+        double c2 = -0.322396458041136;
+        double c3 = -2.40075827716184;
+        double c4 = -2.54973253934373;
+        double c5 = 4.37466414146497;
+        double c6 = 2.93816398269878;
+
+        double d1 = 0.00778469570904146;
+        double d2 = 0.32246712907004;
+        double d3 = 2.445134137143;
+        double d4 = 3.75440866190742;
+
+        double p_low = 0.02425;
+        double p_high = 1 - p_low;
+
+        double result = 0;
+        if(p<p_low){
+            double q = FastMath.sqrt(-2 * FastMath.log(p));
+            result = (((((c1 * q + c2) * q + c3) * q + c4) * q + c5) * q + c6) / ((((d1 * q + d2) * q + d3) * q + d4) * q + 1);
+        }else if(p<=p_high){
+            double q = p - 0.5;
+            double R = q * q;
+            result = (((((a1 * R + a2) * R + a3) * R + a4) * R + a5) * R + a6) * q / (((((b1 * R + b2) * R + b3) * R + b4) * R + b5) * R + 1);
+        }else if(p<1){
+            double q = FastMath.sqrt(-2 * FastMath.log(1 - p));
+            result = -(((((c1 * q + c2) * q + c3) * q + c4) * q + c5) * q + c6) / ((((d1 * q + d2) * q + d3) * q + d4) * q + 1);
+        }
+
+        return result;
+    }
+
 }

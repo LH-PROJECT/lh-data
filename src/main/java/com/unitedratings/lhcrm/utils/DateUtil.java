@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -32,6 +33,7 @@ public class DateUtil {
         final LocalDate begin = LocalDateTime.ofInstant(beginCalculateDate.toInstant(), ZoneId.systemDefault()).toLocalDate();
         final LocalDate end = LocalDateTime.ofInstant(endDate.toInstant(), ZoneId.systemDefault()).toLocalDate();
         final long days = end.toEpochDay() - begin.toEpochDay();
+        //final Period p = Period.between(begin, end);
         if(days<0){
             return 0;
         }
@@ -42,6 +44,17 @@ public class DateUtil {
                 break;
             case 2://按季度
                 period = (double) days/90;
+                /*if(p.getYears()>0){
+                    period = p.getYears()*4;
+                }
+                if(p.getMonths()%3==0){
+                    period += p.getMonths()/3;
+                    if(p.getDays()>0){
+                        period += 1;
+                    }
+                }else {
+                    period += p.getMonths()/3 + 1;
+                }*/
                 break;
             case 3://按月
                 period = (double) days/30;
@@ -54,6 +67,38 @@ public class DateUtil {
                 break;
             default:
                 break;
+        }
+        return period;
+    }
+
+    /**
+     * 获取相差季度数
+     * @param beginCalculateDate
+     * @param endDate
+     * @return
+     */
+    public static double calculateQuarter(Date beginCalculateDate, Date endDate) {
+        if(beginCalculateDate==null||endDate==null){
+            return 0;
+        }
+
+        final LocalDate begin = LocalDateTime.ofInstant(beginCalculateDate.toInstant(), ZoneId.systemDefault()).toLocalDate();
+        final LocalDate end = LocalDateTime.ofInstant(endDate.toInstant(), ZoneId.systemDefault()).toLocalDate();
+        final Period p = Period.between(begin, end);
+
+        double period = 0;
+
+        if(p.getYears()>0){
+            period = p.getYears()*4;
+        }
+
+        if(p.getMonths()%3==0){
+            period += p.getMonths()/3;
+            if(p.getDays()>0){
+                period += 1;
+            }
+        }else {
+            period += p.getMonths()/3 + 1;
         }
         return period;
     }
