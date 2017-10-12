@@ -9,6 +9,7 @@ executor:
   core-pool-size: 10
   max-pool-size: 100
   keep-alive-time: 60
+  queue-capacity: 200
 spring:
   datasource:
     url: jdbc:mysql://172.16.6.2:3306/lhcdo?useUnicode=true&characterEncoding=utf8&useSSL=false
@@ -17,3 +18,5 @@ spring:
     druid:
       initial-size: 10
       max-active: 50
+  jpa:
+    show-sql: false

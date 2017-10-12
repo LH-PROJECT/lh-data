@@ -9,7 +9,6 @@ import com.unitedratings.lhcrm.excelprocess.AssetsExcelProcess;
 import com.unitedratings.lhcrm.utils.MathUtil;
 import com.unitedratings.lhcrm.utils.MatrixUtil;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
@@ -22,7 +21,6 @@ import org.ujmp.core.calculation.Calculation;
 import org.ujmp.core.objectmatrix.impl.DefaultDenseObjectMatrix2D;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -132,7 +130,7 @@ public class CreditPortfolioRiskAnalysisTest {
     }
 
     @Test
-    public void tesRandomDefaultRate() throws IOException, InvalidFormatException {
+    public void tesRandomDefaultRate() throws Exception {
         File file = new File("/Users/wangyongxin/Desktop/模板.xlsx");
         AssetPool assetPool = new AssetPool();
         AssetPoolInfo assetPoolInfo = new AssetPoolInfo();

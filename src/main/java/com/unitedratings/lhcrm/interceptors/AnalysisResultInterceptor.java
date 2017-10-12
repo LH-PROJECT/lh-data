@@ -2,6 +2,7 @@ package com.unitedratings.lhcrm.interceptors;
 
 import com.unitedratings.lhcrm.domains.FinalMonteResult;
 import com.unitedratings.lhcrm.domains.PortfolioStatisticalResult;
+import com.unitedratings.lhcrm.exception.BusinessException;
 import com.unitedratings.lhcrm.service.interfaces.PortfolioAnalysisServiceSV;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,26 +17,6 @@ public class AnalysisResultInterceptor extends TimeoutDeferredResultProcessingIn
     @Autowired
     private PortfolioAnalysisServiceSV analysisServiceSV;
 
-    /*@Override
-    public <T> void afterCompletion(NativeWebRequest request, DeferredResult<T> deferredResult) throws Exception {
-        Object result = deferredResult.getResult();
-        if(result instanceof PortfolioStatisticalResult){
-            PortfolioStatisticalResult statisticalResult = (PortfolioStatisticalResult) result;
-            PortfolioAnalysisResult portfolioAnalysisResult = new PortfolioAnalysisResult();
-            portfolioAnalysisResult.setResultFilePath(statisticalResult.getResultFilePath());
-            portfolioAnalysisResult.setPortfolioId(statisticalResult.getPortfolioId());
-            portfolioAnalysisResult.setStandardDeviation(statisticalResult.getStandardDeviation());
-            portfolioAnalysisResult.setCreateTime(new Date());
-            portfolioAnalysisResult.setAverageDefaultRate(statisticalResult.getAverageDefaultRate());
-            portfolioAnalysisResult.setPortfolioDefaultDistribution(JSON.toJSONString(statisticalResult.getPortfolioDefaultDistribution()));
-            portfolioAnalysisResult.setMonteResult(JSON.toJSONString(statisticalResult.getMonteResult()));
-            portfolioAnalysisResult.setMonteSummaryResult(JSON.toJSONString(statisticalResult.getMonteSummaryResult()));
-            PortfolioAnalysisResult analysisResult = analysisServiceSV.saveAnalysisResult(portfolioAnalysisResult);
-            statisticalResult.setCreateTime(analysisResult.getCreateTime());
-            statisticalResult.setId(analysisResult.getId());
-            deferredResult.setResult((T)statisticalResult);
-        }
-    }*/
 
     @Override
     public <T> void postProcess(NativeWebRequest request, DeferredResult<T> deferredResult, Object concurrentResult) throws Exception {
@@ -44,6 +25,15 @@ public class AnalysisResultInterceptor extends TimeoutDeferredResultProcessingIn
             FinalMonteResult finalMonteResult = new FinalMonteResult();
             BeanUtils.copyProperties(statisticalResult.getMonteResult(), finalMonteResult,"defaultRecordMatrix");
             statisticalResult.setMonteResult(finalMonteResult);
+        }
+    }
+
+    @Override
+    public <T> void afterCompletion(NativeWebRequest request, DeferredResult<T> deferredResult) throws Exception {
+        Object result = deferredResult.getResult();
+        if(result instanceof Exception){
+            Exception ex = (Exception) result;
+            throw ex;
         }
     }
 }

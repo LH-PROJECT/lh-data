@@ -61,7 +61,7 @@ public class AssetCreditAnalysisController {
      * @throws IOException
      */
     @RequestMapping("/upload")
-    public ResponseData<Portfolio> upload(MultipartFile file,Portfolio portfolio) throws IOException, InvalidFormatException {
+    public ResponseData<Portfolio> upload(MultipartFile file,Portfolio portfolio) throws Exception {
         ResponseData<Portfolio> responseData = null;
         if(file!=null){
             //保存上传文件
@@ -72,10 +72,8 @@ public class AssetCreditAnalysisController {
             UploadRecord saved = uploadService.save(record);
             //处理excel，保存资产池信息
             portfolio.setUploadRecordId(saved.getId());
+            //当前资产池已模拟次数
             portfolio.setSimulationNum(0);
-            portfolio.setPortfolioName("工银租赁");
-            portfolio.setProjectName("项目一");
-            portfolio.setProjectId(1l);
             portfolio.setCurrentState("begin");
             AssetsExcelProcess.processAssetsExcel(file,portfolio);
             portfolioService.savePortfolio(portfolio);

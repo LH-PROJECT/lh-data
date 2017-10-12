@@ -8,6 +8,7 @@ public class ExecutorThreadPoolConfig {
     private int corePoolSize;
     private int maxPoolSize;
     private int keepAliveTime;
+    private int queueCapacity;
 
     public int getCorePoolSize() {
         return corePoolSize;
@@ -31,5 +32,13 @@ public class ExecutorThreadPoolConfig {
 
     public void setKeepAliveTime(int keepAliveTime) {
         this.keepAliveTime = keepAliveTime;
+    }
+
+    public int getQueueCapacity() {
+        return queueCapacity;
+    }
+
+    public void setQueueCapacity(int queueCapacity) {
+        this.queueCapacity = queueCapacity;
     }
 }

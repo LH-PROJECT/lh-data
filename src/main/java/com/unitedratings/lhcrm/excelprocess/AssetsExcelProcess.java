@@ -5,6 +5,7 @@ import com.unitedratings.lhcrm.domains.AssetPool;
 import com.unitedratings.lhcrm.domains.AssetPoolInfo;
 import com.unitedratings.lhcrm.domains.LoanRecord;
 import com.unitedratings.lhcrm.entity.*;
+import com.unitedratings.lhcrm.exception.BusinessException;
 import com.unitedratings.lhcrm.utils.DateUtil;
 import com.unitedratings.lhcrm.utils.ExcelUtil;
 import com.unitedratings.lhcrm.utils.MathUtil;
@@ -45,7 +46,7 @@ public class AssetsExcelProcess {
      * @throws InvalidFormatException
      * @throws IOException
      */
-    public static void processAssetsExcel(File file, AssetPool assetPool) throws InvalidFormatException, IOException {
+    public static void processAssetsExcel(File file, AssetPool assetPool) throws Exception {
         final OPCPackage pkg = OPCPackage.open(file);
         final XSSFWorkbook workbook = new XSSFWorkbook(pkg);
         for(int index=0;index<workbook.getNumberOfSheets();index++){
@@ -197,22 +198,26 @@ public class AssetsExcelProcess {
      * @param sheet
      * @param assetPool
      */
-    private static void processAssetPoolSheet(XSSFSheet sheet, AssetPool assetPool) {
-        //获取资产池sheet有效行列数,模板中第0-2索引行为表头信息，有效数据从第3索引行开始
-        final int dataBeginRow = 3;
-        final int dataBeginCol = 0;
-        //确定有效行列
-        int[] validRowAndColSize = ExcelUtil.getRegularValidRowAndColSize(sheet, dataBeginRow, dataBeginCol,false);
-        int validRowSize = validRowAndColSize[0];
-        List<LoanRecord> loanRecords = new ArrayList<>();
-        for (int r = dataBeginRow; r < validRowSize + dataBeginRow; r++) {
-            Row row = sheet.getRow(r);
-            if (row != null) {
-                //封装贷款信息实体
-                loanRecords.add(assembleLoanRecord(row));
+    private static void processAssetPoolSheet(XSSFSheet sheet, AssetPool assetPool) throws BusinessException {
+        try {
+            //获取资产池sheet有效行列数,模板中第0-2索引行为表头信息，有效数据从第3索引行开始
+            final int dataBeginRow = 3;
+            final int dataBeginCol = 0;
+            //确定有效行列
+            int[] validRowAndColSize = ExcelUtil.getRegularValidRowAndColSize(sheet, dataBeginRow, dataBeginCol,false);
+            int validRowSize = validRowAndColSize[0];
+            List<LoanRecord> loanRecords = new ArrayList<>();
+            for (int r = dataBeginRow; r < validRowSize + dataBeginRow; r++) {
+                Row row = sheet.getRow(r);
+                if (row != null) {
+                    //封装贷款信息实体
+                    loanRecords.add(assembleLoanRecord(row));
+                }
             }
+            assetPool.setLoanRecords(loanRecords);
+        } catch (Exception e) {
+            throw new BusinessException("000007","处理资产池信息sheet过程异常",e);
         }
-        assetPool.setLoanRecords(loanRecords);
     }
 
     /**
@@ -417,7 +422,7 @@ public class AssetsExcelProcess {
      * @param file
      * @param portfolio
      */
-    public static void processAssetsExcel(MultipartFile file, Portfolio portfolio) throws IOException, InvalidFormatException {
+    public static void processAssetsExcel(MultipartFile file, Portfolio portfolio) throws Exception {
         final OPCPackage pkg = OPCPackage.open(file.getInputStream());
         final XSSFWorkbook workbook = new XSSFWorkbook(pkg);
         AssetPool assetPool = new AssetPool();
@@ -448,49 +453,54 @@ public class AssetsExcelProcess {
      * @param portfolio
      * @return
      */
-    private static Amortization assembleAmortization(XSSFSheet sheet, Portfolio portfolio) {
-        Amortization amortization = new Amortization();
-        XSSFRow row = sheet.getRow(1);
-        final int dataBeginRow = 2;
-        final int dataBeginCol = 6;
-        //确定有效行列
-        int[] validRowAndColSize = ExcelUtil.getRegularValidRowAndColSize(sheet, dataBeginRow, dataBeginCol,true);
-        int validRowSize = validRowAndColSize[0];
-        int validColSize = validRowAndColSize[1];
-        StringBuilder dateStr = new StringBuilder();
-        for(int i=dataBeginCol;i<dataBeginCol+validColSize;i++){
-            XSSFCell cell = row.getCell(i);
-            if(cell!=null){
-                dateStr.append(DateUtil.formatDate(cell.getDateCellValue(),"yyyy-MM-dd")).append(",");
+    private static Amortization assembleAmortization(XSSFSheet sheet, Portfolio portfolio) throws BusinessException {
+        Amortization amortization = null;
+        try {
+            amortization = new Amortization();
+            XSSFRow row = sheet.getRow(1);
+            final int dataBeginRow = 2;
+            final int dataBeginCol = 6;
+            //确定有效行列
+            int[] validRowAndColSize = ExcelUtil.getRegularValidRowAndColSize(sheet, dataBeginRow, dataBeginCol,true);
+            int validRowSize = validRowAndColSize[0];
+            int validColSize = validRowAndColSize[1];
+            StringBuilder dateStr = new StringBuilder();
+            for(int i=dataBeginCol;i<dataBeginCol+validColSize;i++){
+                XSSFCell cell = row.getCell(i);
+                if(cell!=null){
+                    dateStr.append(DateUtil.formatDate(cell.getDateCellValue(),"yyyy-MM-dd")).append(",");
+                }
+                if(i==dataBeginCol+validColSize-1){
+                    amortization.setAmortizationDate(dateStr.substring(0, dateStr.length() - 1));
+                }
             }
-            if(i==dataBeginCol+validColSize-1){
-                amortization.setAmortizationDate(dateStr.substring(0, dateStr.length() - 1));
-            }
-        }
-        //处理数据
-        List<AmortizationInfo> infoList = new ArrayList<>();
-        for (int r = dataBeginRow; r < validRowSize + dataBeginRow; r++) {
-            Row tempRow = sheet.getRow(r);
-            if (tempRow != null) {
-                //封装分期摊还信息
-                AmortizationInfo amortizationInfo = new AmortizationInfo();
-                amortizationInfo.setLoanSerial(new Double(tempRow.getCell(0).getNumericCellValue()).longValue());
-                StringBuilder sb = new StringBuilder();
-                for (int c = dataBeginCol; c < validColSize+dataBeginCol; c++) {
-                    Cell cell = tempRow.getCell(c);
-                    if (cell != null) {
-                        if(Cell.CELL_TYPE_NUMERIC==cell.getCellType()){
-                            sb.append(cell.getNumericCellValue()).append(",");
+            //处理数据
+            List<AmortizationInfo> infoList = new ArrayList<>();
+            for (int r = dataBeginRow; r < validRowSize + dataBeginRow; r++) {
+                Row tempRow = sheet.getRow(r);
+                if (tempRow != null) {
+                    //封装分期摊还信息
+                    AmortizationInfo amortizationInfo = new AmortizationInfo();
+                    amortizationInfo.setLoanSerial(new Double(tempRow.getCell(0).getNumericCellValue()).longValue());
+                    StringBuilder sb = new StringBuilder();
+                    for (int c = dataBeginCol; c < validColSize+dataBeginCol; c++) {
+                        Cell cell = tempRow.getCell(c);
+                        if (cell != null) {
+                            if(Cell.CELL_TYPE_NUMERIC==cell.getCellType()){
+                                sb.append(cell.getNumericCellValue()).append(",");
+                            }
+                        }
+                        if(c == validColSize+dataBeginCol-1){
+                            amortizationInfo.setAmortization(sb.substring(0,sb.length()-1));
                         }
                     }
-                    if(c == validColSize+dataBeginCol-1){
-                        amortizationInfo.setAmortization(sb.substring(0,sb.length()-1));
-                    }
+                    infoList.add(amortizationInfo);
                 }
-                infoList.add(amortizationInfo);
             }
+            amortization.setAmortizationInfoList(infoList);
+        } catch (Exception e) {
+            throw new BusinessException("000006","处理分期摊还sheet过程异常",e);
         }
-        amortization.setAmortizationInfoList(infoList);
         return amortization;
     }
 

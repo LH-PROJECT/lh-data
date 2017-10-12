@@ -26,7 +26,7 @@ public class ExecutorEngine {
     public boolean initPool(){
         if(executor==null){
             synchronized (ExecutorEngine.class){
-                executor = new ThreadPoolExecutor(config.getCorePoolSize(), config.getMaxPoolSize(), config.getKeepAliveTime(), TimeUnit.SECONDS,new LinkedBlockingQueue<>());
+                executor = new ThreadPoolExecutor(config.getCorePoolSize(), config.getMaxPoolSize(), config.getKeepAliveTime(), TimeUnit.SECONDS,new LinkedBlockingQueue<>(config.getQueueCapacity()));
             }
         }
         return true;

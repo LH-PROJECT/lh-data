@@ -6,7 +6,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
     druid:

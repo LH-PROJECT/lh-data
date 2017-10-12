@@ -81,6 +81,7 @@ public class AnalysisResultHandler extends LoopThread {
                     LOGGER.info("任务[id={}]模拟执行耗时{}ms",record.getId(),end-begin);
                 } catch (InterruptedException|ExecutionException e) {
                     LOGGER.error("模拟过程异常",e);
+                    analysisResult.setErrorResult(e);
                 }
             });
         }
