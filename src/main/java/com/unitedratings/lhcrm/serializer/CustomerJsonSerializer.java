@@ -28,7 +28,7 @@ public class CustomerJsonSerializer {
      * @param filter 转换时过滤哪些字段
      */
     public void filter(Class<?> clazz, String include, String filter) {
-        if (clazz == null) return;
+        if (clazz == null) {return;}
         if (include != null && include.length() > 0) {
             mapper.setFilterProvider(new SimpleFilterProvider().addFilter(DYNC_INCLUDE,
                     SimpleBeanPropertyFilter.filterOutAllExcept(include.split(","))));

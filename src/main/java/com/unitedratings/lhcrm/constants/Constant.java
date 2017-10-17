@@ -9,4 +9,8 @@ public class Constant {
 
     public static final int PRECISION = 10001;
 
+    public static final String SESSION_USER_KEY = "loginUser";
+    public static final String ACCESS_TOKEN = "Authorization";
+    public static final String DEFAULT_PASSWORD = "wsed#21";
+
 }

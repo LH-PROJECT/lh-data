@@ -176,7 +176,7 @@ public class AssetAnalysisUtil {
         Matrix perfectDefaultRate = assetPoolInfo.getPerfectDefaultRate();
         Matrix yearConMatrix = getConMatrix(numRating, loanRecords, assetPoolInfo, yearMaturity,perfectDefaultRate,SummaryType.YEAR.getValue());
         yearConMatrix.setLabel("按年条件违约率");
-        if(SummaryType.QUARTER.getValue()==assetPoolInfo.getSummaryType()){
+        if(SummaryType.QUARTER.getValue().equals(assetPoolInfo.getSummaryType())){
             Matrix quarterPerfectDefaultRate = new DefaultDenseDoubleMatrix2D(40,(int)perfectDefaultRate.getColumnCount());
             quarterPerfectDefaultRate.setLabel("按季度季度理想违约率");
             for(int i=0;i<perfectDefaultRate.getColumnCount();i++){
@@ -225,7 +225,7 @@ public class AssetAnalysisUtil {
             }
             if(maturity[i]<=1){
                 double defaultRate = conMatrix.getAsDouble(i,0) * maturity[i];
-                if(SummaryType.QUARTER.getValue()==summaryType){
+                if(SummaryType.QUARTER.getValue().equals(summaryType)){
                     defaultRate = defaultRate * 4;
                 }
                 conMatrix.setAsDouble(defaultRate,i,0);
@@ -237,7 +237,7 @@ public class AssetAnalysisUtil {
                     double up = perfectDefaultRate.getAsDouble(j, numRating[i]-1);
                     double low = perfectDefaultRate.getAsDouble(j-1, numRating[i]-1);
                     //处理最后一年/季度
-                    if(SummaryType.YEAR.getValue()==summaryType&&j==ceil-1){
+                    if(SummaryType.YEAR.getValue().equals(summaryType)&&j==ceil-1){
                         up = low + (up-low)*(maturity[i]-j);
                     }
 
