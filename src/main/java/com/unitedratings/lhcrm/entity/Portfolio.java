@@ -28,6 +28,7 @@ public class Portfolio {
     @Column(length = 20)
     private String sponsorName;
     private Integer idealDefaultId;
+    private Integer userId;
     @Transient
     private List<LoanRecord> recordList;
     @Transient
@@ -151,5 +152,13 @@ public class Portfolio {
 
     public void setAmortization(Amortization amortization) {
         this.amortization = amortization;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 }

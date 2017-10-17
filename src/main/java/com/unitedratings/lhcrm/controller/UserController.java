@@ -5,6 +5,8 @@ import com.unitedratings.lhcrm.constants.Constant;
 import com.unitedratings.lhcrm.entity.User;
 import com.unitedratings.lhcrm.service.interfaces.UserServiceSV;
 import com.unitedratings.lhcrm.web.model.ResponseData;
+import com.unitedratings.lhcrm.web.model.UserModel;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -20,14 +22,13 @@ public class UserController {
 
     @NoNeedCheckLogin
     @PostMapping("/login")
-    public ResponseData<User> login(@RequestBody User user, HttpServletRequest request){
+    public ResponseData<UserModel> login(@RequestBody User user, HttpServletRequest request){
         if(!StringUtils.isEmpty(user.getUsername())&&!StringUtils.isEmpty(user.getPassword())){
             User u = userService.loginUser(user);
             if(u!=null){
                 request.getSession().setAttribute(Constant.SESSION_USER_KEY,u);
-                User result = new User();
-                result.setUsername(u.getUsername());
-                result.setAccessToken(u.getAccessToken());
+                UserModel result = new UserModel();
+                BeanUtils.copyProperties(u,result);
                 return new ResponseData<>(ResponseData.AJAX_STATUS_SUCCESS,"登陆成功",result);
             }
         }

@@ -18,6 +18,7 @@ public class SimulationRecord<T> {
     private Long consumeTime;
     private Integer summaryType;
     private Long resultId;
+    private Integer userId;
     @Transient
     private T result;
 
@@ -99,5 +100,13 @@ public class SimulationRecord<T> {
 
     public void setResult(T result) {
         this.result = result;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 }
