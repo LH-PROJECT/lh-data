@@ -57,7 +57,7 @@ public class MonteCarlo {
             double[] balanceR = new double[loanNum];
             double[] balanceL = new double[loanNum];
             //获取随机相关系数矩阵
-            Matrix randomM = MatrixUtil.getRandomCovMatrix(cov, loanNum,quarterNum);
+            Matrix randomM = MatrixUtil.getRandomCovMatrix(cov, loanNum,quarterNum,alreadyNum.get());
             //统一同一贷款人在随机矩阵中的值
             long[] ids = assetPoolInfo.getIds();
             for(int i = 0; i< loanNum -1; i++){

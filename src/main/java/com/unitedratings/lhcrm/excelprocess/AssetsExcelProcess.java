@@ -12,27 +12,30 @@ import com.unitedratings.lhcrm.utils.MathUtil;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.ujmp.core.Matrix;
 import org.ujmp.core.calculation.Calculation;
 import org.ujmp.core.doublematrix.impl.DefaultDenseDoubleMatrix2D;
 import org.ujmp.core.objectmatrix.impl.DefaultDenseObjectMatrix2D;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 /**
  * 资产池违约概率模型excel模板处理类
@@ -508,34 +511,147 @@ public class AssetsExcelProcess {
      * 处理随机数矩阵信息sheet
      */
     public static List<Matrix> processRandomSheet() throws InvalidFormatException, IOException {
-        File template = new File("/Users/wangyongxin/Desktop/random.xlsx");
+        File template = new File("/Users/wangyongxin/Desktop/random2.xlsx");
         FileInputStream fis = new FileInputStream(template);
         final XSSFWorkbook workbook = new XSSFWorkbook(fis);
         Sheet sheet = workbook.getSheetAt(0);
+        int validRowSize = sheet.getLastRowNum()+1;
+        final int loanNum = 60;//贷款笔数
+        final int quarter = 8;//最大季度数
         List<Matrix> list = new ArrayList<>();
-        int lo = 8;
-        for(int i=0;i<1000;i++){
-            int dataBeginRow = lo*i;
-            int dataBeginCol = 0;
-            //确定有效行列
-            int[] validRowAndColSize = ExcelUtil.getRegularValidRowAndColSize(sheet, dataBeginRow, dataBeginCol,true);
-            int validRowSize = 7;
-            int validColSize = validRowAndColSize[1];
+        for(int r=0;r<validRowSize;r++){
             //处理数据
-            Matrix matrix = new DefaultDenseDoubleMatrix2D(validRowSize, validColSize);
+            Matrix matrix = new DefaultDenseDoubleMatrix2D(loanNum, quarter);
             matrix.setLabel(sheet.getSheetName());
-            DecimalFormat df = new DecimalFormat("0");
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            for (int r = dataBeginRow; r < validRowSize + dataBeginRow; r++) {
-                Row tempRow = sheet.getRow(r);
-                if (tempRow != null) {
-                    //封装资产相关系数矩阵信息矩阵
-                    cellDataProcess(dataBeginRow, dataBeginCol,validColSize, df, dateFormat, matrix, r, tempRow);
+            Row tempRow = sheet.getRow(r);
+            if (tempRow != null) {
+                //封装随机数矩阵信息
+                for (int c = 0; c <= tempRow.getLastCellNum(); c++) {
+                    Cell cell = tempRow.getCell(c);
+                    if (cell != null) {
+                        int x = c%loanNum;
+                        int y = c/loanNum;
+                        switch (cell.getCellType()) {
+                            case Cell.CELL_TYPE_BLANK:
+                                break;
+                            case Cell.CELL_TYPE_BOOLEAN:
+                                matrix.setAsBoolean(cell.getBooleanCellValue(), x, y);
+                                break;
+                            case Cell.CELL_TYPE_ERROR:
+                                break;
+                            case Cell.CELL_TYPE_FORMULA:
+                                matrix.setAsString(cell.getCellFormula(), x, y);
+                                break;
+                            case Cell.CELL_TYPE_NUMERIC:
+                                matrix.setAsDouble(cell.getNumericCellValue(), x, y);
+                                break;
+                            case Cell.CELL_TYPE_STRING:
+                                matrix.setAsString(cell.getStringCellValue(), x, y);
+                                break;
+                            default:
+                                break;
+                        }
+
+                    }
                 }
             }
             list.add(matrix);
         }
         fis.close();
         return list;
+    }
+
+    /**
+     * 输出矩阵至excel
+     * @param matrixs
+     */
+    public static void outputMatrixToExcel(List<Matrix> matrixs) {
+        if(!CollectionUtils.isEmpty(matrixs)){
+            OutputStream os = null;
+            try {
+                String fileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))+".xlsx";
+                File file = new File("/Users/wangyongxin/Desktop/"+fileName);
+                boolean created = false;
+                if(!file.exists()){
+                    created = file.createNewFile();
+                }
+                if (created){
+                    Workbook workbook = new XSSFWorkbook();
+                    Iterator<Matrix> iterator = matrixs.iterator();
+                    while (iterator.hasNext()){
+                        createSheet(workbook, iterator.next());
+                    }
+                    os = new BufferedOutputStream(new FileOutputStream(file));
+                    workbook.write(os);
+                    os.flush();
+                    os.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if(os!=null){
+                    try {
+                        os.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 输出矩阵至excel
+     * @param matrix
+     */
+    public static void outputMatrixToExcel(Matrix matrix) {
+        OutputStream os = null;
+        try {
+            String fileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))+".xlsx";
+            File file = new File("/Users/wangyongxin/Desktop/"+fileName);
+            boolean created = false;
+            if(!file.exists()){
+                created = file.createNewFile();
+            }
+            if (created){
+                Workbook workbook = new XSSFWorkbook();
+                createSheet(workbook, matrix);
+                os = new BufferedOutputStream(new FileOutputStream(file));
+                workbook.write(os);
+                os.flush();
+                os.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(os!=null){
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private static void createSheet(Workbook workbook, Matrix matrix) {
+        Sheet sheet;
+        if(!StringUtils.isEmpty(matrix.getLabel())){
+            sheet = workbook.createSheet(matrix.getLabel());
+        }else {
+            sheet = workbook.createSheet();
+        }
+        CellStyle cellStyle = workbook.createCellStyle();
+        cellStyle.setAlignment(CellStyle.ALIGN_CENTER);
+        cellStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+        for (int r=0;r<matrix.getRowCount();r++){
+            Row row = sheet.createRow(r);
+            for(int c=0;c<matrix.getColumnCount();c++){
+                Cell cell = row.createCell(c);
+                cell.setCellValue(matrix.getAsDouble(r,c));
+                cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+                cell.setCellStyle(cellStyle);
+            }
+        }
     }
 }

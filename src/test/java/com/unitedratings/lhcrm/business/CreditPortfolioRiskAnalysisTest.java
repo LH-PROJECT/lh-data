@@ -139,7 +139,7 @@ public class CreditPortfolioRiskAnalysisTest {
         assetPoolInfo.setBeginCalculateDate(Date.from(LocalDate.of(2017,5,1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
         assetPool.setAssetPoolInfo(assetPoolInfo);
         AssetsExcelProcess.processAssetsExcel(file,assetPool);
-        Matrix randomCovMatrix = MatrixUtil.getRandomCovMatrix(assetPoolInfo.getCorrelation().chol(), assetPoolInfo.getLoanNum(), MathUtil.getMaxQuarter(assetPoolInfo.getMaturity()));
+       /* Matrix randomCovMatrix = MatrixUtil.getRandomCovMatrix(assetPoolInfo.getCorrelation().chol(), assetPoolInfo.getLoanNum(), MathUtil.getMaxQuarter(assetPoolInfo.getMaturity()));
         System.out.println(assetPoolInfo.getCorrelation());
         System.out.println(assetPoolInfo.getCorrelation().chol());
         randomCovMatrix.setLabel("随机相关系数矩阵");
@@ -152,7 +152,7 @@ public class CreditPortfolioRiskAnalysisTest {
         System.out.println(conditionMatrix);
         Matrix perfectDefaultRate = assetPoolInfo.getPerfectDefaultRate();
         perfectDefaultRate.setLabel("理想违约率表");
-        System.out.println(perfectDefaultRate);
+        System.out.println(perfectDefaultRate);*/
     }
 
 }

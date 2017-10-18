@@ -1,15 +1,31 @@
 package com.unitedratings.lhcrm.utils;
 
 import com.unitedratings.lhcrm.domains.AssetPoolInfo;
+import com.unitedratings.lhcrm.excelprocess.AssetsExcelProcess;
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.ujmp.core.DenseMatrix;
 import org.ujmp.core.Matrix;
 import org.ujmp.core.calculation.Calculation;
 import org.ujmp.core.doublematrix.impl.DefaultDenseDoubleMatrix2D;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 
 public class MatrixUtil {
+
+    private static List<Matrix> matrices;
+
+    static {
+        try {
+            matrices = AssetsExcelProcess.processRandomSheet();
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private MatrixUtil(){}
 
@@ -20,15 +36,16 @@ public class MatrixUtil {
      * @param quarterNum 季度数
      * @return 随机关联系数矩阵
      */
-    public static Matrix getRandomCovMatrix(Matrix cov, Integer loanNum, Integer quarterNum) {
-        DenseMatrix matrix = Matrix.Factory.zeros(loanNum, quarterNum);
+    public static Matrix getRandomCovMatrix(Matrix cov, Integer loanNum, Integer quarterNum,int num) {
+        Matrix matrix = matrices.get(num);
+        /*DenseMatrix matrix = Matrix.Factory.zeros(loanNum, quarterNum);
         Random random = new Random();
         //NormalDistributionRandomGenerator random = new NormalDistributionRandomGenerator();
         for(int i=0;i<loanNum;i++){
             for(int j = 0;j<quarterNum;j++){
                 matrix.setAsDouble(random.nextGaussian(),i,j);
             }
-        }
+        }*/
         return cov.mtimes(Calculation.Ret.NEW,true,matrix);
     }
 

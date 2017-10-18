@@ -7,6 +7,7 @@ import com.unitedratings.lhcrm.entity.DebtorInfo;
 import com.unitedratings.lhcrm.entity.GuarantorInfo;
 import com.unitedratings.lhcrm.entity.Portfolio;
 import com.unitedratings.lhcrm.entity.SysDictionary;
+import com.unitedratings.lhcrm.excelprocess.AssetsExcelProcess;
 import com.unitedratings.lhcrm.service.interfaces.SysDictionaryServiceSV;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.StatUtils;
@@ -16,6 +17,7 @@ import org.springframework.util.StringUtils;
 import org.ujmp.core.Matrix;
 import org.ujmp.core.doublematrix.impl.DefaultDenseDoubleMatrix2D;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -191,9 +193,14 @@ public class AssetAnalysisUtil {
                     quarterPerfectDefaultRate.setAsDouble(rate,j-1,i);
                 }
             }
+            AssetsExcelProcess.outputMatrixToExcel(quarterPerfectDefaultRate);
             Matrix quarterConMatrix = getConMatrix(numRating, loanRecords, assetPoolInfo, assetPoolInfo.getMaturity(), quarterPerfectDefaultRate,assetPoolInfo.getSummaryType());
             quarterConMatrix.setLabel("按季度条件违约率");
             assetPoolInfo.setConditionMatrix(quarterConMatrix);
+            List<Matrix> list = new ArrayList<>();
+            list.add(quarterPerfectDefaultRate);
+            list.add(quarterConMatrix);
+            AssetsExcelProcess.outputMatrixToExcel(list);
         }else {
             assetPoolInfo.setConditionMatrix(yearConMatrix);
         }
@@ -406,6 +413,9 @@ public class AssetAnalysisUtil {
                 }
                 if(serviceM>0){
                     double pSum = StatUtils.sum(assetPoolInfo.getPrincipal());
+                    String[] area = new String[recordList.size()];
+                    Long[] industry = new Long[recordList.size()];
+                    Long[] borrower = new Long[recordList.size()];
                     for(int i = 0;i<recordList.size();i++) {
                         int level = (numRating[i] - 1) / 3;
                         double defaultMagnification = serviceM;
@@ -414,7 +424,11 @@ public class AssetAnalysisUtil {
                         } else {
                             defaultMagnification = 1 + 0.1 * level * defaultMagnification;
                         }
-                        recordList.get(i).getDebtorInfo().setDefaultMagnification(defaultMagnification);
+                        DebtorInfo debtorInfo = recordList.get(i).getDebtorInfo();
+                        debtorInfo.setDefaultMagnification(defaultMagnification);
+                        area[i] = debtorInfo.getBorrowerArea();
+                        industry[i] = debtorInfo.getIndustryCode();
+                        borrower[i] = debtorInfo.getBorrowerSerial();
                     }
                     for(int i = 0;i<recordList.size();i++){
                         DebtorInfo debtorInfo_i = recordList.get(i).getDebtorInfo();
@@ -422,8 +436,9 @@ public class AssetAnalysisUtil {
                         double areaSum = debtorInfo_i.getLoanBalance();
                         for(int j=i+1;j<recordList.size();j++){
                             DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
-                            if(debtorInfo_i.getBorrowerArea().equals(debtorInfo_j.getBorrowerArea())){
+                            if(debtorInfo_j.getBorrowerArea().equals(area[i])&&area[i]!=null){
                                 areaSum += debtorInfo_j.getLoanBalance();
+                                area[i] = null;
                             }
                         }
                         double mtp_area = 0;
@@ -447,8 +462,9 @@ public class AssetAnalysisUtil {
                         double industrySum = debtorInfo_i.getLoanBalance();
                         for(int j=i+1;j<recordList.size();j++){
                             DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
-                            if(debtorInfo_i.getIndustryCode().equals(debtorInfo_j.getIndustryCode())){
+                            if(debtorInfo_j.getIndustryCode().equals(industry[i])&&industry[i]!=null){
                                 industrySum += debtorInfo_j.getLoanBalance();
+                                industry[i] = null;
                             }
                         }
                         double mtp_ind = 0;
@@ -472,8 +488,9 @@ public class AssetAnalysisUtil {
                         double obligorSum = debtorInfo_i.getLoanBalance();
                         for(int j=i+1;j<recordList.size();j++){
                             DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
-                            if(debtorInfo_i.getBorrowerSerial().equals(debtorInfo_j.getBorrowerSerial())){
+                            if(debtorInfo_j.getBorrowerSerial().equals(borrower[i])&&borrower[i]!=null){
                                 obligorSum += debtorInfo_j.getLoanBalance();
+                                borrower[i] = null;
                             }
                         }
                         rat = obligorSum/pSum;

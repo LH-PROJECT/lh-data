@@ -59,11 +59,15 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
         AssetPoolInfo info = prepareAssetPoolInfo();
         long t2 = System.currentTimeMillis();
         LOGGER.info("数据预处理过程消耗{}ms",t2-t1);
-        Integer num = record.getNum() * 10000;
+        //Integer num = record.getNum() * 10000;
+        Integer num = 5000;
         //2、蒙特卡洛模拟
         FinalMonteResult result = monteCarloSimulation(info, num);
         long t3 = System.currentTimeMillis();
         LOGGER.info("模拟过程消耗{}ms",t3-t2);
+        if(result!=null){
+            return null;
+        }
         PortfolioStatisticalResult portfolioStatisticalResult = null;
         try {
             //3、处理合并结果并输出
@@ -239,7 +243,6 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                     sumDefault += monteResult.getSumDefault();
                     sumDefaultRate += monteResult.getSumDefaultRate();
                 }
-                defaultRecord.setLabel("违约记录矩阵");
                 result.setDefaultRate(defaultRate);
                 result.setRecoveryRate(recoveryRate);
                 result.setLossRate(lossRate);
@@ -249,6 +252,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
             }
 
             if(result!=null){
+                result.getDefaultRecordMatrix().setLabel("违约记录矩阵");
                 //季度数
                 Integer quarter = MathUtil.getMaxQuarter(info.getMaturity());
                 //存放按季度的违约比率

@@ -1,5 +1,6 @@
 package com.unitedratings.lhcrm.controller;
 
+import com.unitedratings.lhcrm.annotation.NoNeedCheckLogin;
 import com.unitedratings.lhcrm.config.FileConfig;
 import com.unitedratings.lhcrm.config.TaskExecutorConfig;
 import com.unitedratings.lhcrm.core.AnalysisResultHandler;
@@ -117,6 +118,7 @@ public class AssetCreditAnalysisController {
      * @return
      * @throws Exception
      */
+    @NoNeedCheckLogin
     @GetMapping("/download/{id}")
     public ResponseEntity<byte[]> downloadAnalysisResult(@PathVariable("id") Long id) throws Exception {
         PortfolioAnalysisResult analysisResult = analysisService.findLastAnalysisResultByPortfolioId(id);
