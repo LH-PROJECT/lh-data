@@ -438,7 +438,7 @@ public class AssetAnalysisUtil {
                             DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
                             if(debtorInfo_j.getBorrowerArea().equals(area[i])&&area[i]!=null){
                                 areaSum += debtorInfo_j.getLoanBalance();
-                                area[i] = null;
+                                area[j] = null;
                             }
                         }
                         double mtp_area = 0;
@@ -464,7 +464,7 @@ public class AssetAnalysisUtil {
                             DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
                             if(debtorInfo_j.getIndustryCode().equals(industry[i])&&industry[i]!=null){
                                 industrySum += debtorInfo_j.getLoanBalance();
-                                industry[i] = null;
+                                industry[j] = null;
                             }
                         }
                         double mtp_ind = 0;
@@ -490,7 +490,7 @@ public class AssetAnalysisUtil {
                             DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
                             if(debtorInfo_j.getBorrowerSerial().equals(borrower[i])&&borrower[i]!=null){
                                 obligorSum += debtorInfo_j.getLoanBalance();
-                                borrower[i] = null;
+                                borrower[j] = null;
                             }
                         }
                         rat = obligorSum/pSum;
