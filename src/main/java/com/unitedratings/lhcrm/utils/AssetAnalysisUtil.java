@@ -193,14 +193,13 @@ public class AssetAnalysisUtil {
                     quarterPerfectDefaultRate.setAsDouble(rate,j-1,i);
                 }
             }
-            AssetsExcelProcess.outputMatrixToExcel(quarterPerfectDefaultRate);
             Matrix quarterConMatrix = getConMatrix(numRating, loanRecords, assetPoolInfo, assetPoolInfo.getMaturity(), quarterPerfectDefaultRate,assetPoolInfo.getSummaryType());
             quarterConMatrix.setLabel("按季度条件违约率");
             assetPoolInfo.setConditionMatrix(quarterConMatrix);
-            List<Matrix> list = new ArrayList<>();
+            /*List<Matrix> list = new ArrayList<>();
             list.add(quarterPerfectDefaultRate);
             list.add(quarterConMatrix);
-            AssetsExcelProcess.outputMatrixToExcel(list);
+            AssetsExcelProcess.outputMatrixToExcel(list);*/
         }else {
             assetPoolInfo.setConditionMatrix(yearConMatrix);
         }

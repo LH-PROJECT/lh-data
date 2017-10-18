@@ -511,7 +511,7 @@ public class AssetsExcelProcess {
      * 处理随机数矩阵信息sheet
      */
     public static List<Matrix> processRandomSheet() throws InvalidFormatException, IOException {
-        File template = new File("/Users/wangyongxin/Desktop/random2.xlsx");
+        File template = new File("/Users/wangyongxin/Desktop/random1.xlsx");
         FileInputStream fis = new FileInputStream(template);
         final XSSFWorkbook workbook = new XSSFWorkbook(fis);
         Sheet sheet = workbook.getSheetAt(0);
