@@ -196,10 +196,6 @@ public class AssetAnalysisUtil {
             Matrix quarterConMatrix = getConMatrix(numRating, loanRecords, assetPoolInfo, assetPoolInfo.getMaturity(), quarterPerfectDefaultRate,assetPoolInfo.getSummaryType());
             quarterConMatrix.setLabel("按季度条件违约率");
             assetPoolInfo.setConditionMatrix(quarterConMatrix);
-            /*List<Matrix> list = new ArrayList<>();
-            list.add(quarterPerfectDefaultRate);
-            list.add(quarterConMatrix);
-            AssetsExcelProcess.outputMatrixToExcel(list);*/
         }else {
             assetPoolInfo.setConditionMatrix(yearConMatrix);
         }
