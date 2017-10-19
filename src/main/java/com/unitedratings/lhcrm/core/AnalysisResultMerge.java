@@ -7,7 +7,6 @@ import com.unitedratings.lhcrm.constants.Constant;
 import com.unitedratings.lhcrm.constants.SummaryType;
 import com.unitedratings.lhcrm.domains.*;
 import com.unitedratings.lhcrm.entity.*;
-import com.unitedratings.lhcrm.excelprocess.AssetsExcelProcess;
 import com.unitedratings.lhcrm.exception.BusinessException;
 import com.unitedratings.lhcrm.service.interfaces.*;
 import com.unitedratings.lhcrm.utils.*;
@@ -60,8 +59,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
         AssetPoolInfo info = prepareAssetPoolInfo();
         long t2 = System.currentTimeMillis();
         LOGGER.info("数据预处理过程消耗{}ms",t2-t1);
-        //Integer num = record.getNum() * 10000;
-        Integer num = 5000;
+        Integer num = record.getNum() * 10000;
         //2、蒙特卡洛模拟
         FinalMonteResult result = monteCarloSimulation(info, num);
         long t3 = System.currentTimeMillis();
@@ -260,14 +258,13 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                 double[] defaultRateByPeriod = new double[quarter];
                 double sumDefault = result.getSumDefault();
                 Matrix defaultRecord = result.getDefaultRecordMatrix();
-                AssetsExcelProcess.outputMatrixToExcel(defaultRecord);
+                //AssetsExcelProcess.outputMatrixToExcel(defaultRecord);
                 //按季度计算违约比率
                 if(result.getSumDefault() > 0 && defaultRecord !=null){
                     Integer loanNum = info.getLoanNum();
                     Matrix amortisation = info.getAmortisation();
                     double[] secureAmount = info.getSecureAmount();
                     double[] principal = info.getPrincipal();
-                    //double[] vertA = new double[quarter];
                     double[] outamor = new double[loanNum];
                     for(int j=0;j<quarter;j++){
                         double vertAmount = 0;
@@ -277,13 +274,8 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                             }
                             vertAmount += defaultRecord.getAsDouble(i,j)*Math.max(principal[i]-outamor[i]-secureAmount[i],0);
                         }
-                        //vertA[j] = vertAmount;
                         defaultRateByPeriod[j] = vertAmount/sumDefault;
                     }
-                    /*double outSumDefault = StatUtils.sum(vertA);
-                    for(int j=0;j<quarter;j++){
-                        defaultRateByPeriod[j] = vertA[j]/outSumDefault;
-                    }*/
                 }
                 FinalMonteResult finalMonteResult = new FinalMonteResult();
                 finalMonteResult.setDefaultRateByPeriod(defaultRateByPeriod);
