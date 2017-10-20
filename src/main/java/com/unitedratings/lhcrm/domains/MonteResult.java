@@ -4,6 +4,7 @@ import org.ujmp.core.Matrix;
 
 /**
  * 蒙特卡洛模拟结果实体
+ * @author wangyongxin
  */
 public class MonteResult {
 

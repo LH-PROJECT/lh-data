@@ -4,6 +4,7 @@ import java.util.Date;
 
 /**
  * 组合分析统计实体
+ * @author wangyongxin
  */
 public class PortfolioStatisticalResult {
 

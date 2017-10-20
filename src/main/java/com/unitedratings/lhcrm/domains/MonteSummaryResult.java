@@ -1,5 +1,8 @@
 package com.unitedratings.lhcrm.domains;
 
+/**
+ * @author wangyongxin
+ */
 public class MonteSummaryResult {
 
     private double[] targetDefaultProbability;

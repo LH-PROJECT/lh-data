@@ -4,6 +4,9 @@ import org.ujmp.core.Matrix;
 
 import java.util.Date;
 
+/**
+ * @author wangyongxin
+ */
 public class AssetPoolInfo {
 
     /**

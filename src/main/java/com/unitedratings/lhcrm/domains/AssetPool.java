@@ -4,6 +4,9 @@ import com.unitedratings.lhcrm.entity.Portfolio;
 
 import java.util.List;
 
+/**
+ * @author wangyongxin
+ */
 public class AssetPool {
 
     private AssetPoolInfo assetPoolInfo;

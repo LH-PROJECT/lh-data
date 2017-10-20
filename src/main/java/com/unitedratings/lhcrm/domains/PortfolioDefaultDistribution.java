@@ -2,6 +2,7 @@ package com.unitedratings.lhcrm.domains;
 
 /**
  * 组合违约分布
+ * @author wangyongxin
  */
 public class PortfolioDefaultDistribution {
 

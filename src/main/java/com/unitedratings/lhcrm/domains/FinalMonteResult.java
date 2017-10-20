@@ -1,5 +1,8 @@
 package com.unitedratings.lhcrm.domains;
 
+/**
+ * @author wangyongxin
+ */
 public class FinalMonteResult extends MonteResult{
     /**
      * 存放按季度的违约比率

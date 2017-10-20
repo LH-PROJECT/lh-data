@@ -91,6 +91,26 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
         return portfolioStatisticalResult;
     }
 
+    private void statisticalAssetPool(AssetPool assetPool) {
+        List<LoanRecord> loanRecords = assetPool.getLoanRecords();
+        if(!CollectionUtils.isEmpty(loanRecords)){
+            Map<String,IndustryDistribution.IndustryStatical> map = new HashMap<>();
+            for(int i=0;i<loanRecords.size();i++){
+                LoanRecord loanRecord = loanRecords.get(i);
+                String industryName = loanRecord.getDebtorInfo().getBorrowerIndustry();
+                IndustryDistribution.IndustryStatical industryStatical = map.get(industryName);
+                if(industryStatical == null){
+                    industryStatical = IndustryDistribution.createIndustryStatical();
+                    industryStatical.setIndustryName(industryName);
+                }
+                industryStatical.setAmount(loanRecord.getDebtorInfo().getLoanBalance());
+                industryStatical.setDebtNum(1);
+                industryStatical.setLoanNum(1);
+                map.put(industryName,industryStatical);
+            }
+        }
+    }
+
     private void saveAnalysisResult(PortfolioStatisticalResult statisticalResult) throws BusinessException {
         try {
             ApplicationContext applicationContext = SpringApplicationContextUtil.getContext();
@@ -261,7 +281,6 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                     Matrix amortisation = info.getAmortisation();
                     double[] secureAmount = info.getSecureAmount();
                     double[] principal = info.getPrincipal();
-                    //double[] vertA = new double[quarter];
                     double[] outamor = new double[loanNum];
                     for(int j=0;j<quarter;j++){
                         double vertAmount = 0;
@@ -271,13 +290,8 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                             }
                             vertAmount += defaultRecord.getAsDouble(i,j)*Math.max(principal[i]-outamor[i]-secureAmount[i],0);
                         }
-                        //vertA[j] = vertAmount;
                         defaultRateByPeriod[j] = vertAmount/sumDefault;
                     }
-                    /*double outSumDefault = StatUtils.sum(vertA);
-                    for(int j=0;j<quarter;j++){
-                        defaultRateByPeriod[j] = vertA[j]/outSumDefault;
-                    }*/
                 }
                 FinalMonteResult finalMonteResult = new FinalMonteResult();
                 finalMonteResult.setDefaultRateByPeriod(defaultRateByPeriod);
@@ -310,6 +324,8 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
             //查询封装资产池信息
             AssetPool assetPool = assembleAssetPool();
             info = assetPool.getAssetPoolInfo();
+            //汇总资产池统计量
+            //statisticalAssetPool(assetPool);
             //封装理想违约率
             assembleIdealDefaultMatrix(info);
             //基础计算数据处理
