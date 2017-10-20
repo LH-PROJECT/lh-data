@@ -6,6 +6,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.Test;
@@ -125,7 +126,7 @@ public class Generic {
     @Test
     public void testPoi() throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream("/Users/wangyongxin/Downloads/CLO国兴租赁终版.xlsm"));
-        for(XSSFSheet sheet:workbook){
+        for(Sheet sheet:workbook){
             System.out.println("==========="+sheet.getSheetName()+"============");
             for(Row row:sheet){
                 for(Cell cell:row){

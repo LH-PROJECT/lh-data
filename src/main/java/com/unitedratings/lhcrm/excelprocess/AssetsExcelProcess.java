@@ -511,13 +511,13 @@ public class AssetsExcelProcess {
      * 处理随机数矩阵信息sheet
      */
     public static List<Matrix> processRandomSheet() throws InvalidFormatException, IOException {
-        File template = new File("/Users/wangyongxin/Desktop/random1.xlsx");
+        File template = new File("/Users/wangyongxin/Desktop/random2.xlsx");
         FileInputStream fis = new FileInputStream(template);
         final XSSFWorkbook workbook = new XSSFWorkbook(fis);
         Sheet sheet = workbook.getSheetAt(0);
         int validRowSize = sheet.getLastRowNum()+1;
-        final int loanNum = 60;//贷款笔数
-        final int quarter = 8;//最大季度数
+        final int loanNum = 18;//贷款笔数
+        final int quarter = 6;//最大季度数
         List<Matrix> list = new ArrayList<>();
         for(int r=0;r<validRowSize;r++){
             //处理数据

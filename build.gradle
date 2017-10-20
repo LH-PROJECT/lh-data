@@ -42,6 +42,7 @@ dependencies {
 	compile 'org.ujmp:ujmp-gui:0.3.0'
 	compile 'org.ujmp:ujmp-poi:0.3.0'
 	compile 'org.ujmp:ujmp-commonsmath:0.3.0'
+	//compile 'org.apache.poi:poi:3.17'
 	//热启动 dev使用
 	//runtime 'org.springframework.boot:spring-boot-devtools'
 	runtime('mysql:mysql-connector-java')

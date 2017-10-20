@@ -7,6 +7,7 @@ import com.unitedratings.lhcrm.constants.Constant;
 import com.unitedratings.lhcrm.constants.SummaryType;
 import com.unitedratings.lhcrm.domains.*;
 import com.unitedratings.lhcrm.entity.*;
+import com.unitedratings.lhcrm.excelprocess.AssetsExcelProcess;
 import com.unitedratings.lhcrm.exception.BusinessException;
 import com.unitedratings.lhcrm.service.interfaces.*;
 import com.unitedratings.lhcrm.utils.*;
@@ -59,9 +60,14 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
         AssetPoolInfo info = prepareAssetPoolInfo();
         long t2 = System.currentTimeMillis();
         LOGGER.info("数据预处理过程消耗{}ms",t2-t1);
-        Integer num = record.getNum() * 10000;
+        //Integer num = record.getNum() * 10000;
+        Integer num = 5000;
         //2、蒙特卡洛模拟
         FinalMonteResult result = monteCarloSimulation(info, num);
+        List<Matrix> list = new ArrayList<>();
+        list.add(info.getConditionMatrix());
+        list.add(result.getDefaultRecordMatrix());
+        AssetsExcelProcess.outputMatrixToExcel(list);
         long t3 = System.currentTimeMillis();
         LOGGER.info("模拟过程消耗{}ms",t3-t2);
         /*if(result!=null){
@@ -258,7 +264,6 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                 double[] defaultRateByPeriod = new double[quarter];
                 double sumDefault = result.getSumDefault();
                 Matrix defaultRecord = result.getDefaultRecordMatrix();
-                //AssetsExcelProcess.outputMatrixToExcel(defaultRecord);
                 //按季度计算违约比率
                 if(result.getSumDefault() > 0 && defaultRecord !=null){
                     Integer loanNum = info.getLoanNum();
