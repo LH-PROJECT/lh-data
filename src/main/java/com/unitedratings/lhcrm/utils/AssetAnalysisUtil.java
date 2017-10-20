@@ -224,7 +224,7 @@ public class AssetAnalysisUtil {
                 }
             }
             if(maturity[i]<=1){
-                double defaultRate = conMatrix.getAsDouble(i,0) * assetPoolInfo.getYearMaturity()[i];
+                double defaultRate = conMatrix.getAsDouble(i,0) * maturity[i];
                 if(SummaryType.QUARTER.getValue().equals(summaryType)){
                     defaultRate = defaultRate * 4;
                 }
@@ -308,12 +308,9 @@ public class AssetAnalysisUtil {
                 covAs[i] = debtorInfo.getRelevanceForGuaranteeAndLender();
             }
 
-            if(!"credit_loan".equals(guarantorInfo.getGuaranteeModeCode())){
-                //非信用贷款
-                if(!StringUtils.isEmpty(guarantorInfo.getGuaranteeIndustryCode())){
-                    //担保机构行业编码不为空,对应的担保比率必须不为空
-                    if(scDR[i]<=assetDR[i]){
-                        //当前担保人违约率小于当前资产违约率
+            if(!"credit_loan".equals(guarantorInfo.getGuaranteeModeCode())){//非信用贷款
+                if(!StringUtils.isEmpty(guarantorInfo.getGuaranteeIndustryCode())){//担保机构行业编码不为空,对应的担保比率必须不为空
+                    if(scDR[i]<=assetDR[i]){//当前担保人违约率小于当前资产违约率
                         double z1 = normal.inverseCumulativeProbability(assetDR[i]);
                         double z2 = normal.inverseCumulativeProbability(scDR[i]);
                         double y1 = MathUtil.binNormalDistributionCumulativeFunction(z1,z2,covAs[i]);
