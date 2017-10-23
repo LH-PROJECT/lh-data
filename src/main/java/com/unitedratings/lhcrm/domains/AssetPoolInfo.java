@@ -10,6 +10,11 @@ import java.util.Date;
 public class AssetPoolInfo {
 
     /**
+     * 资产池名称
+     */
+    private String portfolioName;
+
+    /**
      * 贷款编号
      */
     private long[] loanSerial;
@@ -273,5 +278,13 @@ public class AssetPoolInfo {
 
     public void setLoanPD(double[] loanPD) {
         this.loanPD = loanPD;
+    }
+
+    public String getPortfolioName() {
+        return portfolioName;
+    }
+
+    public void setPortfolioName(String portfolioName) {
+        this.portfolioName = portfolioName;
     }
 }

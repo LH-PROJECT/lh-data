@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 蒙特卡洛模拟结果收集统计器
+ * @author wangyongxin
  */
 public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult> {
 
@@ -259,7 +260,6 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                     sumDefault += monteResult.getSumDefault();
                     sumDefaultRate += monteResult.getSumDefaultRate();
                 }
-                defaultRecord.setLabel("违约记录矩阵");
                 result.setDefaultRate(defaultRate);
                 result.setRecoveryRate(recoveryRate);
                 result.setLossRate(lossRate);
@@ -269,6 +269,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
             }
 
             if(result!=null){
+                result.getDefaultRecordMatrix().setLabel("违约记录矩阵");
                 //季度数
                 Integer quarter = MathUtil.getMaxQuarter(info.getMaturity());
                 //存放按季度的违约比率
@@ -353,6 +354,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
             assetPool.setPortfolio(portfolio);
             assetPool.setLoanRecords(portfolio.getRecordList());
             AssetPoolInfo info = new AssetPoolInfo();
+            info.setPortfolioName(portfolio.getPortfolioName());
             info.setLoanNum(portfolio.getRecordList().size());
             info.setSummaryType(record.getSummaryType());
             info.setBeginCalculateDate(portfolio.getBeginCalculateDate());
