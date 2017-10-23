@@ -8,10 +8,13 @@ import com.unitedratings.lhcrm.entity.*;
 import com.unitedratings.lhcrm.exception.BusinessException;
 import com.unitedratings.lhcrm.utils.DateUtil;
 import com.unitedratings.lhcrm.utils.ExcelUtil;
+import com.unitedratings.lhcrm.utils.MassExcelDataRead;
 import com.unitedratings.lhcrm.utils.MathUtil;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -24,6 +27,7 @@ import org.ujmp.core.Matrix;
 import org.ujmp.core.calculation.Calculation;
 import org.ujmp.core.doublematrix.impl.DefaultDenseDoubleMatrix2D;
 import org.ujmp.core.objectmatrix.impl.DefaultDenseObjectMatrix2D;
+import org.xml.sax.SAXException;
 
 import java.io.*;
 import java.text.DateFormat;
@@ -39,6 +43,7 @@ import java.util.Random;
 
 /**
  * 资产池违约概率模型excel模板处理类
+ * @author wangyongxin
  */
 public class AssetsExcelProcess {
 
@@ -510,7 +515,7 @@ public class AssetsExcelProcess {
     /**
      * 处理随机数矩阵信息sheet
      */
-    public static List<Matrix> processRandomSheet() throws InvalidFormatException, IOException {
+    public static List<Matrix> processRandomSheet() throws IOException {
         File template = new File("/Users/wangyongxin/Desktop/random2.xlsx");
         FileInputStream fis = new FileInputStream(template);
         final XSSFWorkbook workbook = new XSSFWorkbook(fis);
@@ -559,6 +564,22 @@ public class AssetsExcelProcess {
         }
         fis.close();
         return list;
+    }
+
+    /**
+     * 处理数据量庞大的excel
+     * @return
+     * @throws OpenXML4JException
+     * @throws SAXException
+     * @throws IOException
+     */
+    public static List<Matrix> processMassRandomSheet() throws OpenXML4JException, SAXException, IOException {
+        File file = new File("/Users/wangyongxin/Desktop/random1.xlsx");
+        OPCPackage p = OPCPackage.open(file, PackageAccess.READ);
+        MassExcelDataRead massExcelDataRead = new MassExcelDataRead(p,60,8);
+        massExcelDataRead.process();
+        p.close();
+        return massExcelDataRead.getMatrices();
     }
 
     /**

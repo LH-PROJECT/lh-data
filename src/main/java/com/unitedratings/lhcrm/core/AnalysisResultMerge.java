@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 蒙特卡洛模拟结果收集统计器
+ * @author wangyongxin
  */
 public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult> {
 
@@ -60,8 +61,8 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
         AssetPoolInfo info = prepareAssetPoolInfo();
         long t2 = System.currentTimeMillis();
         LOGGER.info("数据预处理过程消耗{}ms",t2-t1);
-        //Integer num = record.getNum() * 10000;
-        Integer num = 5000;
+        Integer num = record.getNum() * 10000;
+        //Integer num = 5000;
         //2、蒙特卡洛模拟
         FinalMonteResult result = monteCarloSimulation(info, num);
         List<Matrix> list = new ArrayList<>();
@@ -340,6 +341,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
             assetPool.setPortfolio(portfolio);
             assetPool.setLoanRecords(portfolio.getRecordList());
             AssetPoolInfo info = new AssetPoolInfo();
+            info.setPortfolioName(portfolio.getPortfolioName());
             info.setLoanNum(portfolio.getRecordList().size());
             info.setSummaryType(record.getSummaryType());
             info.setBeginCalculateDate(portfolio.getBeginCalculateDate());

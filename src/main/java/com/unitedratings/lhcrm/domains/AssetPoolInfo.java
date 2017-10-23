@@ -4,7 +4,15 @@ import org.ujmp.core.Matrix;
 
 import java.util.Date;
 
+/**
+ * @author wangyongxin
+ */
 public class AssetPoolInfo {
+
+    /**
+     * 资产池名称
+     */
+    private String portfolioName;
 
     /**
      * 贷款编号
@@ -270,5 +278,13 @@ public class AssetPoolInfo {
 
     public void setLoanPD(double[] loanPD) {
         this.loanPD = loanPD;
+    }
+
+    public String getPortfolioName() {
+        return portfolioName;
+    }
+
+    public void setPortfolioName(String portfolioName) {
+        this.portfolioName = portfolioName;
     }
 }

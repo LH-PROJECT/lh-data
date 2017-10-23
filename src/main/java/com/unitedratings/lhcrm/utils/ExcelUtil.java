@@ -18,6 +18,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
+/**
+ * @author wangyongxin
+ */
 public class ExcelUtil {
 
     /**
@@ -93,7 +96,7 @@ public class ExcelUtil {
         processSheet1(workbook, distribution);
         //输出
         String childPath = FileUtil.createChildPath(config.getResultPath());
-        String fileName = portfolioStatisticalResult.getPortfolioId()+"_"+System.currentTimeMillis()+".xlsx";
+        String fileName = info.getPortfolioName()+"_"+DateUtil.getTimestamp()+".xlsx";
         String filePath = childPath+File.separator+fileName;
         portfolioStatisticalResult.setFileName(fileName);
         FileOutputStream os = new FileOutputStream(new File(config.getResultPath()+File.separator+filePath));
@@ -146,7 +149,7 @@ public class ExcelUtil {
     private static void processSheet0(PortfolioStatisticalResult portfolioStatisticalResult, AssetPoolInfo info, Integer num, XSSFWorkbook workbook, MonteSummaryResult monteSummaryResult, FinalMonteResult monteResult) {
         XSSFSheet sheet0 = workbook.getSheetAt(0);
         XSSFCell cell1 = sheet0.getRow(4).getCell(9);
-        cell1.setCellValue("测试");
+        cell1.setCellValue(info.getPortfolioName());
         XSSFCell cell2 = sheet0.getRow(5).getCell(9);
         cell2.setCellValue(info.getBeginCalculateDate());
         XSSFCell cell3 = sheet0.getRow(6).getCell(9);

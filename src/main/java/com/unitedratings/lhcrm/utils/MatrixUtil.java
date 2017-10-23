@@ -3,26 +3,26 @@ package com.unitedratings.lhcrm.utils;
 import com.unitedratings.lhcrm.domains.AssetPoolInfo;
 import com.unitedratings.lhcrm.excelprocess.AssetsExcelProcess;
 import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.ujmp.core.DenseMatrix;
+import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.ujmp.core.Matrix;
 import org.ujmp.core.calculation.Calculation;
 import org.ujmp.core.doublematrix.impl.DefaultDenseDoubleMatrix2D;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
 
+/**
+ * @author wangyongxin
+ */
 public class MatrixUtil {
 
     private static List<Matrix> matrices;
 
     static {
         try {
-            matrices = AssetsExcelProcess.processRandomSheet();
-        } catch (InvalidFormatException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+            matrices = AssetsExcelProcess.processMassRandomSheet();
+        } catch (IOException|SAXException|OpenXML4JException e) {
             e.printStackTrace();
         }
     }

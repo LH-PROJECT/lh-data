@@ -30,6 +30,9 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Date;
 
+/**
+ * @author wangyongxin
+ */
 @RestController
 @RequestMapping("/assetCreditAnalysis")
 public class AssetCreditAnalysisController {
@@ -73,6 +76,8 @@ public class AssetCreditAnalysisController {
             //处理excel，保存资产池信息
             portfolio.setUploadRecordId(saved.getId());
             //当前资产池已模拟次数
+            String originalFilename = file.getOriginalFilename();
+            portfolio.setPortfolioName(originalFilename.substring(0, originalFilename.lastIndexOf('.')));
             portfolio.setSimulationNum(0);
             portfolio.setCurrentState("begin");
             AssetsExcelProcess.processAssetsExcel(file,portfolio);
@@ -157,5 +162,4 @@ public class AssetCreditAnalysisController {
         fileOut.close();
         return newFileName;
     }
-
 }
