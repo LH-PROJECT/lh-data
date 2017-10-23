@@ -206,8 +206,8 @@ public class AssetsExcelProcess {
      */
     private static void processAssetPoolSheet(XSSFSheet sheet, AssetPool assetPool) throws BusinessException {
         try {
-            //获取资产池sheet有效行列数,模板中第0-2索引行为表头信息，有效数据从第3索引行开始
-            final int dataBeginRow = 3;
+            //获取资产池sheet有效行列数,模板中第0-1索引行为表头信息，有效数据从第3索引行开始
+            final int dataBeginRow = 2;
             final int dataBeginCol = 0;
             //确定有效行列
             int[] validRowAndColSize = ExcelUtil.getRegularValidRowAndColSize(sheet, dataBeginRow, dataBeginCol,false);
