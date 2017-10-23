@@ -129,12 +129,12 @@ public class AssetCreditAnalysisController {
         PortfolioAnalysisResult analysisResult = analysisService.findLastAnalysisResultByPortfolioId(id);
         if(analysisResult!=null){
             String resultFilePath = analysisResult.getResultFilePath();
-            String realFileName = analysisResult.getPortfolioId()+"_"+FileUtil.extractFileName(resultFilePath);
-            String fileName = new String(realFileName.getBytes("utf-8"),"ISO-8859-1");
+            String realFileName = FileUtil.extractFileName(resultFilePath);
+            //String fileName = new String(realFileName.getBytes("utf-8"),"ISO-8859-1");
             File file = new File(fileConfig.getResultPath() + File.separator + resultFilePath);
             if(file.exists()){
                 HttpHeaders headers = new HttpHeaders();
-                headers.setContentDispositionFormData("attachment",fileName, Charset.forName("UTF-8"));
+                headers.setContentDispositionFormData("attachment",realFileName, Charset.forName("UTF-8"));
                 headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
                 return new ResponseEntity<>(FileCopyUtils.copyToByteArray(file),headers, HttpStatus.CREATED);
             }else {

@@ -26,6 +26,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.function.IntConsumer;
+import java.util.stream.IntStream;
 
 public class Generic {
 
@@ -190,7 +192,13 @@ public class Generic {
 
     @Test
     public void testMath(){
-        System.out.println(Math.pow(10,-4));
+        //System.out.println(Math.pow(10,-4));
+        Random random = new Random();
+        /*for (int i=0;i<10;i++){
+            System.out.println(random.nextInt(42));
+        }*/
+        IntStream ints = random.ints(8, 10, 42);
+        ints.forEach(value -> System.out.println(value));
     }
 
 }

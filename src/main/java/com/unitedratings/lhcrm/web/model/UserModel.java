@@ -9,6 +9,8 @@ public class UserModel {
 
     private String username;
 
+    private String displayName;
+
     private String accessToken;
 
     public Integer getId() {
@@ -33,5 +35,13 @@ public class UserModel {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 }

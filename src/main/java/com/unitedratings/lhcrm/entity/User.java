@@ -18,9 +18,12 @@ public class User {
 
     @Column(length = 50,unique = true)
     private String username;
-
+    @Column(length = 50)
+    private String displayName;
     @Column(length = 50)
     private String password;
+    @Column(length = 10)
+    private String initPassword;
     @Column(length = 50)
     private String accessToken;
 
@@ -84,5 +87,21 @@ public class User {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getInitPassword() {
+        return initPassword;
+    }
+
+    public void setInitPassword(String initPassword) {
+        this.initPassword = initPassword;
     }
 }

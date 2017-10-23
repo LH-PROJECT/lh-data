@@ -32,7 +32,7 @@ public class FileUtil {
     public static String extractFileName(String resultFilePath) {
         String fileName = "";
         if(!StringUtils.isEmpty(resultFilePath)){
-            fileName = resultFilePath.substring(resultFilePath.lastIndexOf('_')+1);
+            fileName = resultFilePath.substring(resultFilePath.lastIndexOf(File.separator)+1);
         }
         return fileName;
     }

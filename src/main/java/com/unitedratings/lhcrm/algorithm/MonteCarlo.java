@@ -50,7 +50,7 @@ public class MonteCarlo {
         final double totalPrincipal = StatUtils.sum(principal);
         double reservesMoney = assetPoolInfo.getReservesMoney();
         double sumDefault = 0;//总违约金额
-        //double sumRecovery = 0;//总回收金额
+        double sumRecovery = 0;//总回收金额
         double sumDefaultRate = 0;//总违约率
         int count = 0;
         while (count++ < num){
@@ -93,7 +93,7 @@ public class MonteCarlo {
             double balanceSum = StatUtils.sum(balance);
             double balanceRSum = StatUtils.sum(balanceR);
             sumDefault += balanceSum;
-            //sumRecovery += balanceRSum;
+            sumRecovery += balanceRSum;
             sumDefaultRate += balanceSum/totalPrincipal;
 
             Integer defaultRateIndex = MathUtil.round(balanceSum / totalPrincipal * (precision-1));
@@ -112,6 +112,7 @@ public class MonteCarlo {
         monteResult.setLossRate(lossRate);
         monteResult.setDefaultRecordMatrix(record);
         monteResult.setSumDefault(sumDefault);
+        monteResult.setSumRecovery(sumRecovery);
         monteResult.setSumDefaultRate(sumDefaultRate);
         return monteResult;
     }

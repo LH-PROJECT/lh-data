@@ -2,6 +2,8 @@ package com.unitedratings.lhcrm.service.interfaces;
 
 import com.unitedratings.lhcrm.entity.User;
 
+import java.util.List;
+
 /**
  * @author wangyongxin
  */
@@ -26,4 +28,10 @@ public interface UserServiceSV {
      * @return
      */
     User queryUserByToken(String token);
+
+    /**
+     * 查询所有用户
+     * @return
+     */
+    List<User> getAllUser();
 }

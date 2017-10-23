@@ -17,11 +17,16 @@ public class PortfolioAnalysisResult {
     /**
      * 标准差
      */
-    private double standardDeviation;
+    private Double standardDeviation;
     /**
      * 平均违约概率
      */
-    private double averageDefaultRate;
+    private Double averageRecoveryRate;
+
+    /**
+     * 平均回收概率
+     */
+    private Double averageDefaultRate;
 
     @Lob
     private String monteSummaryResult;
@@ -50,14 +55,6 @@ public class PortfolioAnalysisResult {
 
     public void setPortfolioId(Long portfolioId) {
         this.portfolioId = portfolioId;
-    }
-
-    public double getStandardDeviation() {
-        return standardDeviation;
-    }
-
-    public void setStandardDeviation(double standardDeviation) {
-        this.standardDeviation = standardDeviation;
     }
 
     public String getMonteSummaryResult() {
@@ -100,11 +97,27 @@ public class PortfolioAnalysisResult {
         this.resultFilePath = resultFilePath;
     }
 
-    public double getAverageDefaultRate() {
+    public Double getStandardDeviation() {
+        return standardDeviation;
+    }
+
+    public void setStandardDeviation(Double standardDeviation) {
+        this.standardDeviation = standardDeviation;
+    }
+
+    public Double getAverageRecoveryRate() {
+        return averageRecoveryRate;
+    }
+
+    public void setAverageRecoveryRate(Double averageRecoveryRate) {
+        this.averageRecoveryRate = averageRecoveryRate;
+    }
+
+    public Double getAverageDefaultRate() {
         return averageDefaultRate;
     }
 
-    public void setAverageDefaultRate(double averageDefaultRate) {
+    public void setAverageDefaultRate(Double averageDefaultRate) {
         this.averageDefaultRate = averageDefaultRate;
     }
 }

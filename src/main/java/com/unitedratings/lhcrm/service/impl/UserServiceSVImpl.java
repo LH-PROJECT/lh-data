@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author wangyongxin
@@ -40,5 +41,10 @@ public class UserServiceSVImpl implements UserServiceSV {
     @Override
     public User queryUserByToken(String token) {
         return userDao.findByAccessToken(token);
+    }
+
+    @Override
+    public List<User> getAllUser() {
+        return userDao.findAll();
     }
 }

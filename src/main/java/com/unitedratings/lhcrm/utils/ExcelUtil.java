@@ -160,13 +160,15 @@ public class ExcelUtil {
         cell5.setCellValue(portfolioStatisticalResult.getAverageDefaultRate());
         XSSFCell cell6 = sheet0.getRow(9).getCell(9);
         cell6.setCellValue(portfolioStatisticalResult.getStandardDeviation());
+        XSSFCell cell7 = sheet0.getRow(10).getCell(9);
+        cell7.setCellValue(portfolioStatisticalResult.getAverageRecoveryRate());
         for(int i=0;i<20;i++){
             XSSFCell cell_1 = sheet0.getRow(5 + i).getCell(3);
             cell_1.setCellValue(monteSummaryResult.getTargetDefaultProbability()[i]);
             XSSFCell cell_2 = sheet0.getRow(5 + i).getCell(4);
             cell_2.setCellValue(monteSummaryResult.getTargetDefaultRate()[i]);
-            XSSFCell cell_3 = sheet0.getRow(5 + i).getCell(5);
-            cell_3.setCellValue(monteSummaryResult.getTargetRecoveryRate()[i]);
+            /*XSSFCell cell_3 = sheet0.getRow(5 + i).getCell(5);
+            cell_3.setCellValue(monteSummaryResult.getTargetRecoveryRate()[i]);*/
             XSSFCell cell_4 = sheet0.getRow(5 + i).getCell(6);
             cell_4.setCellValue(monteSummaryResult.getTargetLossRate()[i]);
         }

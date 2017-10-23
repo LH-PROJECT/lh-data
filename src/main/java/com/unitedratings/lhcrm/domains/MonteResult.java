@@ -30,6 +30,10 @@ public class MonteResult {
      */
     private double sumDefault;
     /**
+     * 总回收金额
+     */
+    private double sumRecovery;
+    /**
      * 总违约率
      */
     private double sumDefaultRate;
@@ -80,5 +84,13 @@ public class MonteResult {
 
     public void setSumDefaultRate(double sumDefaultRate) {
         this.sumDefaultRate = sumDefaultRate;
+    }
+
+    public double getSumRecovery() {
+        return sumRecovery;
+    }
+
+    public void setSumRecovery(double sumRecovery) {
+        this.sumRecovery = sumRecovery;
     }
 }

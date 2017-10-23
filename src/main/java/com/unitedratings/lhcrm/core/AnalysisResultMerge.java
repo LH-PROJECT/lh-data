@@ -78,6 +78,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
             portfolioStatisticalResult.setPortfolioDefaultDistribution(distribution);
             portfolioStatisticalResult.setStandardDeviation(MathUtil.calculateStandardDeviation(result.getDefaultRate(),num));
             portfolioStatisticalResult.setAverageDefaultRate(result.getSumDefaultRate()/num);
+            portfolioStatisticalResult.setAverageRecoveryRate(result.getAverageRecoveryRate());
             portfolioStatisticalResult.setPortfolioId(record.getAttachableId());
             //3.3、结果输出至excel
             String filePath = ExcelUtil.outputPortfolioAnalysisResult(portfolioStatisticalResult,info,num,this.config);
@@ -122,6 +123,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
             portfolioAnalysisResult.setStandardDeviation(statisticalResult.getStandardDeviation());
             portfolioAnalysisResult.setCreateTime(new Date());
             portfolioAnalysisResult.setAverageDefaultRate(statisticalResult.getAverageDefaultRate());
+            portfolioAnalysisResult.setAverageRecoveryRate(statisticalResult.getAverageRecoveryRate());
             portfolioAnalysisResult.setPortfolioDefaultDistribution(JSON.toJSONString(statisticalResult.getPortfolioDefaultDistribution()));
             portfolioAnalysisResult.setMonteResult(JSON.toJSONString(statisticalResult.getMonteResult()));
             portfolioAnalysisResult.setMonteSummaryResult(JSON.toJSONString(statisticalResult.getMonteSummaryResult()));
@@ -244,6 +246,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                 Matrix defaultRecord = null;
                 //总违约金额
                 double sumDefault = 0;
+                double sumRecovery = 0;
                 double sumDefaultRate = 0;
                 for(Future<MonteResult> future:futures){
                     MonteResult monteResult = future.get();
@@ -258,12 +261,14 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                         defaultRecord = defaultRecord.plus(monteResult.getDefaultRecordMatrix());
                     }
                     sumDefault += monteResult.getSumDefault();
+                    sumRecovery += monteResult.getSumRecovery();
                     sumDefaultRate += monteResult.getSumDefaultRate();
                 }
                 result.setDefaultRate(defaultRate);
                 result.setRecoveryRate(recoveryRate);
                 result.setLossRate(lossRate);
                 result.setSumDefault(sumDefault);
+                result.setSumRecovery(sumRecovery);
                 result.setDefaultRecordMatrix(defaultRecord);
                 result.setSumDefaultRate(sumDefaultRate);
             }
@@ -275,6 +280,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                 //存放按季度的违约比率
                 double[] defaultRateByPeriod = new double[quarter];
                 double sumDefault = result.getSumDefault();
+                double sumRecovery = result.getSumRecovery();
                 Matrix defaultRecord = result.getDefaultRecordMatrix();
                 //按季度计算违约比率
                 if(result.getSumDefault() > 0 && defaultRecord !=null){
@@ -301,6 +307,8 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                 finalMonteResult.setLossRate(result.getLossRate());
                 finalMonteResult.setDefaultRecordMatrix(defaultRecord);
                 finalMonteResult.setSumDefault(sumDefault);
+                finalMonteResult.setSumRecovery(sumRecovery);
+                finalMonteResult.setAverageRecoveryRate(sumRecovery/sumDefault);
                 finalMonteResult.setSumDefaultRate(result.getSumDefaultRate());
                 return finalMonteResult;
             }
