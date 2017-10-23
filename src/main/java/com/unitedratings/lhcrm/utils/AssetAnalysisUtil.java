@@ -19,6 +19,9 @@ import org.ujmp.core.doublematrix.impl.DefaultDenseDoubleMatrix2D;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author wangyongxin
+ */
 public class AssetAnalysisUtil {
 
     private AssetAnalysisUtil(){}

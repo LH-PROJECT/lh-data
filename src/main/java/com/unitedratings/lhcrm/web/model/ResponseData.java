@@ -2,6 +2,9 @@ package com.unitedratings.lhcrm.web.model;
 
 import java.io.Serializable;
 
+/**
+ * @author wangyongxin
+ */
 public class ResponseData<T> implements Serializable{
     private static final long serialVersionUID = 1L;
 

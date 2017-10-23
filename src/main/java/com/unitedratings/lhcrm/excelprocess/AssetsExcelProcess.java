@@ -8,8 +8,8 @@ import com.unitedratings.lhcrm.entity.*;
 import com.unitedratings.lhcrm.exception.BusinessException;
 import com.unitedratings.lhcrm.utils.DateUtil;
 import com.unitedratings.lhcrm.utils.ExcelUtil;
+import com.unitedratings.lhcrm.utils.MassExcelDataRead;
 import com.unitedratings.lhcrm.utils.MathUtil;
-import jdk.internal.org.xml.sax.SAXException;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
@@ -27,6 +27,7 @@ import org.ujmp.core.Matrix;
 import org.ujmp.core.calculation.Calculation;
 import org.ujmp.core.doublematrix.impl.DefaultDenseDoubleMatrix2D;
 import org.ujmp.core.objectmatrix.impl.DefaultDenseObjectMatrix2D;
+import org.xml.sax.SAXException;
 
 import java.io.*;
 import java.text.DateFormat;
@@ -570,7 +571,7 @@ public class AssetsExcelProcess {
      * @throws SAXException
      * @throws IOException
      */
-    public static List<Matrix> processMassRandomSheet() throws OpenXML4JException, SAXException, IOException {
+    public static List<Matrix> processMassRandomSheet() throws OpenXML4JException, IOException, SAXException {
         File file = new File("/Users/wangyongxin/Desktop/random1.xlsx");
         OPCPackage p = OPCPackage.open(file, PackageAccess.READ);
         MassExcelDataRead massExcelDataRead = new MassExcelDataRead(p,60,8);

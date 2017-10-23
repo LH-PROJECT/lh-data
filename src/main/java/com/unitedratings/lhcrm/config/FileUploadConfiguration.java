@@ -11,6 +11,9 @@ import org.springframework.web.filter.CorsFilter;
 import javax.servlet.MultipartConfigElement;
 import java.io.File;
 
+/**
+ * @author wangyongxin
+ */
 @Configuration
 public class FileUploadConfiguration {
 

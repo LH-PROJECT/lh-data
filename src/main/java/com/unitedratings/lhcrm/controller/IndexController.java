@@ -6,6 +6,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.concurrent.Callable;
 
+/**
+ * @author wangyongxin
+ */
 @RestController
 public class IndexController {
 

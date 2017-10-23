@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 蒙特卡洛模拟算法
+ * @author wangyongxin
  */
 public class MonteCarlo {
 

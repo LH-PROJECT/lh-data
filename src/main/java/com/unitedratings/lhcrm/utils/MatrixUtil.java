@@ -9,6 +9,9 @@ import org.ujmp.core.doublematrix.impl.DefaultDenseDoubleMatrix2D;
 
 import java.util.Random;
 
+/**
+ * @author wangyongxin
+ */
 public class MatrixUtil {
 
     private MatrixUtil(){}

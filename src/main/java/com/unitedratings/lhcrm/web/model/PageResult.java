@@ -5,6 +5,9 @@ import com.unitedratings.lhcrm.constants.Constant;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * @author wangyongxin
+ */
 public class PageResult<T> implements Serializable {
 
     // 记录总数

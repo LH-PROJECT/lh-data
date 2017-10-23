@@ -5,6 +5,9 @@ import org.apache.commons.math3.util.FastMath;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * @author wangyongxin
+ */
 public final class NormalDistributionRandomGenerator {
 
     private static boolean NOT_FIRST_TIME = false;

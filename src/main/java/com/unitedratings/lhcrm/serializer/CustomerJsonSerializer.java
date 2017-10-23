@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author wangyongxin
+ */
 @Component
 public class CustomerJsonSerializer {
 

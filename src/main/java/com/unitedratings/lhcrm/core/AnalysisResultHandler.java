@@ -16,6 +16,7 @@ import java.util.concurrent.*;
 
 /**
  * 蒙特卡洛模拟处理器
+ * @author wangyongxin
  */
 @Component
 public class AnalysisResultHandler extends LoopThread {

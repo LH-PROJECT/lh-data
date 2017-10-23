@@ -8,6 +8,9 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.context.request.async.TimeoutDeferredResultProcessingInterceptor;
 
+/**
+ * @author wangyongxin
+ */
 @Component
 public class AnalysisResultInterceptor extends TimeoutDeferredResultProcessingInterceptor {
 

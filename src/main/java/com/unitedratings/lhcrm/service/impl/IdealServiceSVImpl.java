@@ -14,6 +14,9 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
+/**
+ * @author wangyongxin
+ */
 @Service
 @Transactional
 public class IdealServiceSVImpl implements IdealServiceSV {

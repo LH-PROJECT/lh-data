@@ -1,5 +1,8 @@
 package com.unitedratings.lhcrm.web.model;
 
+/**
+ * @author wangyongxin
+ */
 public class UserModel {
 
     private Integer id;

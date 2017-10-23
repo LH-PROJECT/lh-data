@@ -7,6 +7,7 @@ package com.unitedratings.lhcrm.constants;
  * 3-按月汇总
  * 4-按周汇总
  * 5-按天汇总
+ * @author wangyongxin
  */
 public enum SummaryType {
 

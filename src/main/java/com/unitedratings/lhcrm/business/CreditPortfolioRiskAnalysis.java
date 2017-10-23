@@ -9,6 +9,9 @@ import org.ujmp.core.Matrix;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * @author wangyongxin
+ */
 public class CreditPortfolioRiskAnalysis implements Callable<MonteResult>{
 
     private Matrix cov;

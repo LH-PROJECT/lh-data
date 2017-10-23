@@ -5,6 +5,9 @@ import org.springframework.util.StringUtils;
 import java.io.File;
 import java.time.LocalDate;
 
+/**
+ * @author wangyongxin
+ */
 public class FileUtil {
 
     /**

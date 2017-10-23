@@ -2,6 +2,9 @@ package com.unitedratings.lhcrm.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * @author wangyongxin
+ */
 @ConfigurationProperties(prefix = "executor")
 public class ExecutorThreadPoolConfig {
 
