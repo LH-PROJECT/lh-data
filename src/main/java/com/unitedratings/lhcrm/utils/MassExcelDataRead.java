@@ -2,7 +2,6 @@ package com.unitedratings.lhcrm.utils;
 
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.eventusermodel.ReadOnlySharedStringsTable;
@@ -20,7 +19,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -38,8 +36,14 @@ public class MassExcelDataRead {
 
     private final List<Matrix> matrices = new ArrayList<>();
 
+    /**
+     * 矩阵行数
+     */
     private final int rowSize;
 
+    /**
+     * 矩阵列数
+     */
     private final int colSize;
 
     /**
@@ -147,13 +151,4 @@ public class MassExcelDataRead {
 
         }
     }
-
-    public static void main(String[] args) throws Exception {
-        File xlsxFile = new File("/Users/wangyongxin/Desktop/random1.xlsx");
-        OPCPackage p = OPCPackage.open(xlsxFile.getPath(), PackageAccess.READ);
-        MassExcelDataRead massExcelDataRead = new MassExcelDataRead(p,60,8);
-        massExcelDataRead.process();
-        p.close();
-    }
-
 }

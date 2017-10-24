@@ -1,7 +1,7 @@
 package com.unitedratings.lhcrm.utils;
 
+import com.unitedratings.lhcrm.constants.Constant;
 import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.util.FastMath;
 
 /**
@@ -70,14 +70,18 @@ public class MathUtil {
      * 计算标准差
      * @param defaultRate
      * @param num
+     * @param defaultRateMean
      * @return
      */
-    public static double calculateStandardDeviation(double[] defaultRate, Integer num) {
-        double[] actual = new double[defaultRate.length];
+    public static double calculateStandardDeviation(double[] defaultRate, Integer num, double defaultRateMean) {
+        double sum = 0;
         for(int i=0;i<defaultRate.length;i++){
-            actual[i] = defaultRate[i]*i/num;
+            if(defaultRate[i]>0){
+                double x = (double) i/(Constant.PRECISION - 1);
+                sum += (x-defaultRateMean)*(x-defaultRateMean)*defaultRate[i];
+            }
         }
-        return Math.sqrt(StatUtils.variance(actual));
+        return FastMath.sqrt(sum/(num-1));
     }
 
     /**

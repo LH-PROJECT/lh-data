@@ -76,8 +76,9 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
             portfolioStatisticalResult.setMonteResult(result);
             portfolioStatisticalResult.setMonteSummaryResult(monteSummaryResult);
             portfolioStatisticalResult.setPortfolioDefaultDistribution(distribution);
-            portfolioStatisticalResult.setStandardDeviation(MathUtil.calculateStandardDeviation(result.getDefaultRate(),num));
-            portfolioStatisticalResult.setAverageDefaultRate(result.getSumDefaultRate()/num);
+            final double defaultRateMean = result.getSumDefaultRate() / num;
+            portfolioStatisticalResult.setAverageDefaultRate(defaultRateMean);
+            portfolioStatisticalResult.setStandardDeviation(MathUtil.calculateStandardDeviation(result.getDefaultRate(),num,defaultRateMean));
             portfolioStatisticalResult.setAverageRecoveryRate(result.getAverageRecoveryRate());
             portfolioStatisticalResult.setPortfolioId(record.getAttachableId());
             //3.3、结果输出至excel
@@ -96,19 +97,28 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
     private void statisticalAssetPool(AssetPool assetPool) {
         List<LoanRecord> loanRecords = assetPool.getLoanRecords();
         if(!CollectionUtils.isEmpty(loanRecords)){
-            Map<String,IndustryDistribution.IndustryStatical> map = new HashMap<>();
+            Map<String,IndustryDistribution.IndustryStatical> industryMap = new HashMap<>();
             for(int i=0;i<loanRecords.size();i++){
                 LoanRecord loanRecord = loanRecords.get(i);
+                //行业分布
                 String industryName = loanRecord.getDebtorInfo().getBorrowerIndustry();
-                IndustryDistribution.IndustryStatical industryStatical = map.get(industryName);
+                IndustryDistribution.IndustryStatical industryStatical = industryMap.get(industryName);
                 if(industryStatical == null){
-                    industryStatical = IndustryDistribution.createIndustryStatical();
+                    IndustryDistribution industryDistribution = new IndustryDistribution();
+                    industryStatical = (IndustryDistribution.IndustryStatical) industryDistribution.createStatical();
                     industryStatical.setIndustryName(industryName);
+                    industryStatical.setAmount(loanRecord.getDebtorInfo().getLoanBalance());
+                    industryStatical.setDebtNum(1);
+                    industryStatical.setLoanNum(1);
+                }else {
+                    industryStatical.setAmount(industryStatical.getAmount()+loanRecord.getDebtorInfo().getLoanBalance());
+                    industryStatical.setDebtNum(industryStatical.getDebtNum()+1);
+                    industryStatical.setLoanNum(industryStatical.getLoanNum()+1);
                 }
-                industryStatical.setAmount(loanRecord.getDebtorInfo().getLoanBalance());
-                industryStatical.setDebtNum(1);
-                industryStatical.setLoanNum(1);
-                map.put(industryName,industryStatical);
+                industryMap.put(industryName,industryStatical);
+
+                //地区分布
+
             }
         }
     }
