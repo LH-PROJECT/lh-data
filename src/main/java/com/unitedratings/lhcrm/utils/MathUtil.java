@@ -234,4 +234,18 @@ public class MathUtil {
         return result;
     }
 
+    /**
+     * 求数组最小值
+     * @param arr
+     * @return
+     */
+    public static Double min(double[] arr) {
+        Double s = arr[0];
+        for(int i=0;i<arr.length-1;i++){
+            if(s>arr[i+1]){
+                s = arr[i+1];
+            }
+        }
+        return s;
+    }
 }

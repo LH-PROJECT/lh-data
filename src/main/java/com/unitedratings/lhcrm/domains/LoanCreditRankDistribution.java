@@ -4,43 +4,46 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 行业分布
+ * 贷款信用等级分布
  * @author wangyongxin
- * @createAt 2017-10-19 下午5:48
+ * @createAt 2017-10-24 下午2:56
  **/
-public final class IndustryDistribution extends Distribution{
-
+public class LoanCreditRankDistribution extends Distribution{
     @Override
     protected String[] getHeader() {
-        return new String[]{INDUSTRY,DEBT_NUM,LOAN_NUM,LOAN_BALANCE,PROPORTION};
+        return new String[]{CREDIT_LEVEL,DEBT_NUM,LOAN_NUM,LOAN_BALANCE,PROPORTION};
     }
 
     @Override
     protected Statistical createStatisticalInternal() {
-        return new IndustryStatistical();
+        return new LoanCreditRankStatistical();
     }
 
-    /**
-     * 行业统计
-     */
-    public class IndustryStatistical extends Statistical{
+    public class LoanCreditRankStatistical extends Statistical{
 
-        private IndustryStatistical(){}
+        private LoanCreditRankStatistical(){}
 
-        private String industryName;
+        private String creditLevel;
         private Integer debtNum;
         private Integer loanNum;
         private Double amount;
         private Double proportion;
         private Set<Long> borrowerSet = new HashSet<>();
 
-
-        public String getIndustryName() {
-            return industryName;
+        public Set<Long> getBorrowerSet() {
+            return borrowerSet;
         }
 
-        public void setIndustryName(String industryName) {
-            this.industryName = industryName;
+        public void setBorrowerSet(Set<Long> borrowerSet) {
+            this.borrowerSet = borrowerSet;
+        }
+
+        public String getCreditLevel() {
+            return creditLevel;
+        }
+
+        public void setCreditLevel(String creditLevel) {
+            this.creditLevel = creditLevel;
         }
 
         public Integer getDebtNum() {
@@ -73,14 +76,6 @@ public final class IndustryDistribution extends Distribution{
 
         public void setProportion(Double proportion) {
             this.proportion = proportion;
-        }
-
-        public Set<Long> getBorrowerSet() {
-            return borrowerSet;
-        }
-
-        public void setBorrowerSet(Set<Long> borrowerSet) {
-            this.borrowerSet = borrowerSet;
         }
     }
 }

@@ -13,6 +13,8 @@ public class AssetPool {
 
     private Portfolio portfolio;
 
+    private AssetPoolSummaryResult assetPoolSummaryResult;
+
     private List<LoanRecord> loanRecords;
 
     public AssetPoolInfo getAssetPoolInfo() {
@@ -38,4 +40,13 @@ public class AssetPool {
     public void setLoanRecords(List<LoanRecord> loanRecords) {
         this.loanRecords = loanRecords;
     }
+
+    public AssetPoolSummaryResult getAssetPoolSummaryResult() {
+        return assetPoolSummaryResult;
+    }
+
+    public void setAssetPoolSummaryResult(AssetPoolSummaryResult assetPoolSummaryResult) {
+        this.assetPoolSummaryResult = assetPoolSummaryResult;
+    }
+
 }

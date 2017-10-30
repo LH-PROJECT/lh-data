@@ -4,43 +4,37 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 行业分布
+ * 区域分布
  * @author wangyongxin
- * @createAt 2017-10-19 下午5:48
+ * @createAt 2017-10-23 下午5:52
  **/
-public final class IndustryDistribution extends Distribution{
+public final class AreaDistribution extends Distribution{
 
     @Override
     protected String[] getHeader() {
-        return new String[]{INDUSTRY,DEBT_NUM,LOAN_NUM,LOAN_BALANCE,PROPORTION};
+        return new String[]{AREA,DEBT_NUM,LOAN_NUM,LOAN_BALANCE,PROPORTION};
     }
 
     @Override
     protected Statistical createStatisticalInternal() {
-        return new IndustryStatistical();
+        return new AreaStatistical();
     }
 
-    /**
-     * 行业统计
-     */
-    public class IndustryStatistical extends Statistical{
-
-        private IndustryStatistical(){}
-
-        private String industryName;
+    public class AreaStatistical extends Statistical{
+        private AreaStatistical(){}
+        private String areaName;
         private Integer debtNum;
         private Integer loanNum;
         private Double amount;
         private Double proportion;
         private Set<Long> borrowerSet = new HashSet<>();
 
-
-        public String getIndustryName() {
-            return industryName;
+        public String getAreaName() {
+            return areaName;
         }
 
-        public void setIndustryName(String industryName) {
-            this.industryName = industryName;
+        public void setAreaName(String areaName) {
+            this.areaName = areaName;
         }
 
         public Integer getDebtNum() {

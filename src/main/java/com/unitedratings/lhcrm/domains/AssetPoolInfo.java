@@ -104,6 +104,16 @@ public class AssetPoolInfo {
      */
     private double[] loanPD;
 
+    private double weightedDebtorSelfRecoverRate;
+
+    public double getWeightedDebtorSelfRecoverRate() {
+        return weightedDebtorSelfRecoverRate;
+    }
+
+    public void setWeightedDebtorSelfRecoverRate(double weightedDebtorSelfRecoverRate) {
+        this.weightedDebtorSelfRecoverRate = weightedDebtorSelfRecoverRate;
+    }
+
     public long[] getLoanSerial() {
         return loanSerial;
     }

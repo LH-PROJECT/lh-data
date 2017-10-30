@@ -333,6 +333,7 @@ public class AssetAnalysisUtil {
             //设置最终回收率
             debtorInfo.setFinalRecoveryRate(finalRecoveryRate[i]);
         }
+        assetPoolInfo.setWeightedDebtorSelfRecoverRate(wars);
         assetPoolInfo.setFinalRecoveryRate(finalRecoveryRate);
     }
 
@@ -512,6 +513,52 @@ public class AssetAnalysisUtil {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * 量化加权信用等级
+     * @param perfectDefaultRate
+     * @param weightedAverageMaturity
+     * @param war
+     * @return
+     */
+    public static Integer portfolioRating(Matrix perfectDefaultRate, double weightedAverageMaturity, double war) {
+        int result = 0;
+        while (true){
+            double rdp = 0;
+            if(weightedAverageMaturity<=1){
+                rdp = perfectDefaultRate.getAsDouble(0,result);
+            }else {
+                int floor = (int) Math.floor(weightedAverageMaturity);
+                int ceil = (int) Math.ceil(weightedAverageMaturity);
+                double dr_l = perfectDefaultRate.getAsDouble(floor-1, result);
+                double dr_u = perfectDefaultRate.getAsDouble(ceil-1, result);
+                if(dr_l == dr_u){
+                    rdp = dr_l;
+                }else {
+                    rdp = dr_l + (weightedAverageMaturity-floor)*(dr_u-dr_l)/(ceil-floor);
+                }
+            }
+            if(rdp>war||result>19){
+                break;
+            }
+            result++;
+        }
+        return result;
+    }
+
+    /**
+     * 量化加权信用等级
+     * @param creditLevelList
+     * @param rankNum
+     * @return
+     */
+    public static String numToCreditLevel(List<SysDictionary> creditLevelList, int rankNum) {
+        if(rankNum==0){
+            return creditLevelList.get(rankNum).getParamCode();
+        }else {
+            return creditLevelList.get(rankNum-1).getParamCode()+"/"+creditLevelList.get(rankNum).getParamCode();
         }
     }
 }
