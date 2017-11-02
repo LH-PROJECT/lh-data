@@ -25,6 +25,7 @@ public class LargeAmountTestCalculateTest {
         LargeAmountResult result = largeAmountTestCalculate.calculate(53L, "AAA");
         System.out.println(result.getGrossAmountList());
         System.out.println(result.getGrossAmountListAfter5PercentRecovery());
+        System.out.println(result.getLevelDifference());
         System.out.println(result.getMinimumSupport());
     }
 

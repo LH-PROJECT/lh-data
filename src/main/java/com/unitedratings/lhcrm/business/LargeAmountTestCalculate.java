@@ -87,16 +87,17 @@ public class LargeAmountTestCalculate {
                 double amount = 0;
                 double rate = 0;
                 for(LoanRecord record:list){
-                    amount += record.getDebtorInfo().getLoanBalance();
-                    rate += record.getDebtorInfo().getMortgageRecoveryRate();
+                    Double loanBalance = record.getDebtorInfo().getLoanBalance();
+                    amount += loanBalance;
+                    rate += loanBalance * record.getDebtorInfo().getMortgageRecoveryRate();
                 }
                 largeAmountLoan.setLoanAmount(amount);
                 DebtorInfo debtorInfo = list.get(0).getDebtorInfo();
                 largeAmountLoan.setDebtorCreditLevel(debtorInfo.getDebtLevel());
                 largeAmountLoan.setDebtorCreditLevelCode(getNumRatingCreditCode(debtorInfo.getDebtLevel()));
-                String mortgageLoan = "抵押贷款";
-                largeAmountLoan.setCollateralRecoveryRate(rate/list.size());
-                /*if(mortgageLoan.equals(list.get(0).getGuarantorInfo().getGuaranteeMode())){
+                largeAmountLoan.setCollateralRecoveryRate(rate/amount);
+                /*String mortgageLoan = "抵押贷款";
+                if(mortgageLoan.equals(list.get(0).getGuarantorInfo().getGuaranteeMode())){
                     largeAmountLoan.setCollateralRecoveryRate(debtorInfo.getMortgageRecoveryRate());
                 }else {
                     largeAmountLoan.setCollateralRecoveryRate(0.0);
@@ -138,7 +139,6 @@ public class LargeAmountTestCalculate {
                     }
                     System.out.println("排序前："+orderedAmountList);
                     orderedAmountList.sort(Comparator.reverseOrder());
-                    System.out.println("排序后："+orderedAmountList);
                     double grossAmount = 0;
                     int count = 0;
                     while (count<offset){
@@ -148,7 +148,6 @@ public class LargeAmountTestCalculate {
                     grossAmountList.add(grossAmount);
                     grossAmountWith5PercentList.add(grossAmount*0.95);
                 }
-                System.out.println(levelOffset);
                 result.setLevelDifference(levelOffset);
                 result.setGrossAmountList(grossAmountList);
                 result.setGrossAmountListAfter5PercentRecovery(grossAmountWith5PercentList);
