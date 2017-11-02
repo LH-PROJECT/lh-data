@@ -126,95 +126,112 @@ public class ExcelUtil {
 
     private static void outputDistribution(AssetPoolSummaryResult assetPoolSummaryResult, XSSFSheet sheet) {
         IndustryDistribution industryDistribution = assetPoolSummaryResult.getIndustryDistribution();
-        List<? extends Distribution.Statistical> details = industryDistribution.getDetails();
-        for(int i = 0; i< details.size(); i++){
-            IndustryDistribution.IndustryStatistical statistical = (IndustryDistribution.IndustryStatistical) details.get(i);
-            XSSFRow row = sheet.getRow(24 + i);
-            row.getCell(1).setCellValue(statistical.getIndustryName());
-            row.getCell(3).setCellValue(statistical.getDebtNum());
-            row.getCell(4).setCellValue(statistical.getLoanNum());
-            row.getCell(5).setCellValue(statistical.getAmount());
-            row.getCell(6).setCellValue(statistical.getProportion());
+        List<? extends Distribution.Statistical> details = null;
+        if(industryDistribution!=null){
+            details = industryDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                IndustryDistribution.IndustryStatistical statistical = (IndustryDistribution.IndustryStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(1).setCellValue(statistical.getIndustryName());
+                row.getCell(3).setCellValue(statistical.getDebtNum());
+                row.getCell(4).setCellValue(statistical.getLoanNum());
+                row.getCell(5).setCellValue(statistical.getAmount());
+                row.getCell(6).setCellValue(statistical.getProportion());
+            }
         }
         AreaDistribution areaDistribution = assetPoolSummaryResult.getAreaDistribution();
-        details = areaDistribution.getDetails();
-        for(int i = 0; i< details.size(); i++){
-            AreaDistribution.AreaStatistical statistical = (AreaDistribution.AreaStatistical) details.get(i);
-            XSSFRow row = sheet.getRow(24 + i);
-            row.getCell(8).setCellValue(statistical.getAreaName());
-            row.getCell(9).setCellValue(statistical.getDebtNum());
-            row.getCell(10).setCellValue(statistical.getLoanNum());
-            row.getCell(11).setCellValue(statistical.getAmount());
-            row.getCell(12).setCellValue(statistical.getProportion());
+        if(areaDistribution!=null){
+            details = areaDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                AreaDistribution.AreaStatistical statistical = (AreaDistribution.AreaStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(8).setCellValue(statistical.getAreaName());
+                row.getCell(9).setCellValue(statistical.getDebtNum());
+                row.getCell(10).setCellValue(statistical.getLoanNum());
+                row.getCell(11).setCellValue(statistical.getAmount());
+                row.getCell(12).setCellValue(statistical.getProportion());
+            }
         }
         DebtorCreditRankDistribution debtorCreditRankDistribution = assetPoolSummaryResult.getDebtorCreditRankDistribution();
-        details = debtorCreditRankDistribution.getDetails();
-        for(int i = 0; i< details.size(); i++){
-            DebtorCreditRankDistribution.DebtorCreditRankStatistical statistical = (DebtorCreditRankDistribution.DebtorCreditRankStatistical) details.get(i);
-            XSSFRow row = sheet.getRow(24 + i);
-            row.getCell(14).setCellValue(statistical.getCreditLevel());
-            row.getCell(15).setCellValue(statistical.getDebtNum());
-            row.getCell(16).setCellValue(statistical.getLoanNum());
-            row.getCell(17).setCellValue(statistical.getAmount());
-            row.getCell(18).setCellValue(statistical.getProportion());
+        if(debtorCreditRankDistribution!=null){
+            details = debtorCreditRankDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                DebtorCreditRankDistribution.DebtorCreditRankStatistical statistical = (DebtorCreditRankDistribution.DebtorCreditRankStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(14).setCellValue(statistical.getCreditLevel());
+                row.getCell(15).setCellValue(statistical.getDebtNum());
+                row.getCell(16).setCellValue(statistical.getLoanNum());
+                row.getCell(17).setCellValue(statistical.getAmount());
+                row.getCell(18).setCellValue(statistical.getProportion());
+            }
         }
         ResidualMaturityDistribution residualMaturityDistribution = assetPoolSummaryResult.getResidualMaturityDistribution();
-        details = residualMaturityDistribution.getDetails();
-        for(int i = 0; i< details.size(); i++){
-            ResidualMaturityDistribution.ResidualMaturityStatistical statistical = (ResidualMaturityDistribution.ResidualMaturityStatistical) details.get(i);
-            XSSFRow row = sheet.getRow(24 + i);
-            row.getCell(20).setCellValue(statistical.getResidualMaturity());
-            row.getCell(21).setCellValue(statistical.getDebtNum());
-            row.getCell(22).setCellValue(statistical.getLoanNum());
-            row.getCell(23).setCellValue(statistical.getAmount());
-            row.getCell(24).setCellValue(statistical.getProportion());
+        if(residualMaturityDistribution!=null){
+            details = residualMaturityDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                ResidualMaturityDistribution.ResidualMaturityStatistical statistical = (ResidualMaturityDistribution.ResidualMaturityStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(20).setCellValue(statistical.getResidualMaturity());
+                row.getCell(21).setCellValue(statistical.getDebtNum());
+                row.getCell(22).setCellValue(statistical.getLoanNum());
+                row.getCell(23).setCellValue(statistical.getAmount());
+                row.getCell(24).setCellValue(statistical.getProportion());
+            }
         }
         GuaranteeModeDistribution guaranteeModeDistribution = assetPoolSummaryResult.getGuaranteeModeDistribution();
-        details = guaranteeModeDistribution.getDetails();
-        for(int i = 0; i< details.size(); i++){
-            GuaranteeModeDistribution.GuaranteeModeStatistical statistical = (GuaranteeModeDistribution.GuaranteeModeStatistical) details.get(i);
-            XSSFRow row = sheet.getRow(24 + i);
-            row.getCell(26).setCellValue(statistical.getGuaranteeMode());
-            row.getCell(27).setCellValue(statistical.getDebtNum());
-            row.getCell(28).setCellValue(statistical.getLoanNum());
-            row.getCell(29).setCellValue(statistical.getAmount());
-            row.getCell(30).setCellValue(statistical.getProportion());
+        if(guaranteeModeDistribution!=null){
+            details = guaranteeModeDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                GuaranteeModeDistribution.GuaranteeModeStatistical statistical = (GuaranteeModeDistribution.GuaranteeModeStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(26).setCellValue(statistical.getGuaranteeMode());
+                row.getCell(27).setCellValue(statistical.getDebtNum());
+                row.getCell(28).setCellValue(statistical.getLoanNum());
+                row.getCell(29).setCellValue(statistical.getAmount());
+                row.getCell(30).setCellValue(statistical.getProportion());
+            }
         }
         DebtorDistribution debtorDistribution = assetPoolSummaryResult.getDebtorDistribution();
-        details = debtorDistribution.getDetails();
-        for(int i = 0; i< details.size(); i++){
-            DebtorDistribution.DebtorStatistical statistical = (DebtorDistribution.DebtorStatistical) details.get(i);
-            XSSFRow row = sheet.getRow(24 + i);
-            row.getCell(32).setCellValue(statistical.getLoanSerial());
-            row.getCell(33).setCellValue(statistical.getBorrower());
-            row.getCell(34).setCellValue(statistical.getLoanNum());
-            row.getCell(35).setCellValue(statistical.getCreditLevel());
-            row.getCell(36).setCellValue(statistical.getIndustryName());
-            row.getCell(37).setCellValue(statistical.getAreaName());
-            row.getCell(38).setCellValue(statistical.getAmount());
-            row.getCell(39).setCellValue(statistical.getProportion());
+        if(debtorDistribution!=null){
+            details = debtorDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                DebtorDistribution.DebtorStatistical statistical = (DebtorDistribution.DebtorStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(32).setCellValue(statistical.getLoanSerial());
+                row.getCell(33).setCellValue(statistical.getBorrower());
+                row.getCell(34).setCellValue(statistical.getLoanNum());
+                row.getCell(35).setCellValue(statistical.getCreditLevel());
+                row.getCell(36).setCellValue(statistical.getIndustryName());
+                row.getCell(37).setCellValue(statistical.getAreaName());
+                row.getCell(38).setCellValue(statistical.getAmount());
+                row.getCell(39).setCellValue(statistical.getProportion());
+            }
         }
         GuaranteeCreditRankDistribution guaranteeCreditRankDistribution = assetPoolSummaryResult.getGuaranteeCreditRankDistribution();
-        details = guaranteeCreditRankDistribution.getDetails();
-        for(int i = 0; i< details.size(); i++){
-            GuaranteeCreditRankDistribution.GuaranteeCreditRankStatistical statistical = (GuaranteeCreditRankDistribution.GuaranteeCreditRankStatistical) details.get(i);
-            XSSFRow row = sheet.getRow(24 + i);
-            row.getCell(41).setCellValue(statistical.getCreditLevel());
-            row.getCell(42).setCellValue(statistical.getGuaranteeNum());
-            row.getCell(43).setCellValue(statistical.getGuaranteeLoanNum());
-            row.getCell(44).setCellValue(statistical.getAmount());
-            row.getCell(45).setCellValue(statistical.getProportion());
+        if(guaranteeCreditRankDistribution!=null){
+            details = guaranteeCreditRankDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                GuaranteeCreditRankDistribution.GuaranteeCreditRankStatistical statistical = (GuaranteeCreditRankDistribution.GuaranteeCreditRankStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(41).setCellValue(statistical.getCreditLevel());
+                row.getCell(42).setCellValue(statistical.getGuaranteeNum());
+                row.getCell(43).setCellValue(statistical.getGuaranteeLoanNum());
+                row.getCell(44).setCellValue(statistical.getAmount());
+                row.getCell(45).setCellValue(statistical.getProportion());
+            }
         }
         LoanCreditRankDistribution loanCreditRankDistribution = assetPoolSummaryResult.getLoanCreditRankDistribution();
-        details = loanCreditRankDistribution.getDetails();
-        for(int i = 0; i< details.size(); i++){
-            LoanCreditRankDistribution.LoanCreditRankStatistical statistical = (LoanCreditRankDistribution.LoanCreditRankStatistical) details.get(i);
-            XSSFRow row = sheet.getRow(24 + i);
-            row.getCell(47).setCellValue(statistical.getCreditLevel());
-            row.getCell(48).setCellValue(statistical.getDebtNum());
-            row.getCell(49).setCellValue(statistical.getLoanNum());
-            row.getCell(50).setCellValue(statistical.getAmount());
-            row.getCell(51).setCellValue(statistical.getProportion());
+        if(loanCreditRankDistribution!=null){
+            details = loanCreditRankDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                LoanCreditRankDistribution.LoanCreditRankStatistical statistical = (LoanCreditRankDistribution.LoanCreditRankStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(47).setCellValue(statistical.getCreditLevel());
+                row.getCell(48).setCellValue(statistical.getDebtNum());
+                row.getCell(49).setCellValue(statistical.getLoanNum());
+                row.getCell(50).setCellValue(statistical.getAmount());
+                row.getCell(51).setCellValue(statistical.getProportion());
+            }
         }
     }
 
