@@ -85,13 +85,8 @@ public class AssetAnalysisUtil {
         defaultDistribution[0] = result.getDefaultRate()[0]/num;
         lossDistribution[0] = result.getLossRate()[0]/num;
         for(int i = 1;i<size;i++){
-            if(i==size-1){
-                defaultDistribution[i] = StatUtils.sum(result.getDefaultRate(),(i-1)*interval*100+1,interval*100-1)/num;
-                lossDistribution[i] = StatUtils.sum(result.getLossRate(),(i-1)*interval*100+1,interval*100-1)/num;
-            }else {
-                defaultDistribution[i] = StatUtils.sum(result.getDefaultRate(),(i-1)*interval*100+1,interval*100)/num;
-                lossDistribution[i] = StatUtils.sum(result.getLossRate(),(i-1)*interval*100+1,interval*100)/num;
-            }
+            defaultDistribution[i] = StatUtils.sum(result.getDefaultRate(),(i-1)*interval*100+1,interval*100)/num;
+            lossDistribution[i] = StatUtils.sum(result.getLossRate(),(i-1)*interval*100+1,interval*100)/num;
         }
         PortfolioDefaultDistribution distribution = new PortfolioDefaultDistribution();
         distribution.setDefaultProbability(defaultDistribution);
