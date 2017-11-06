@@ -170,7 +170,9 @@ public class PortfolioDataCalculate {
                     String[] amortizationArr = amortizationStr.split(",");
                     int ceil = (int) Math.ceil(info.getMaturity()[i]);
                     for(int j=0;j<ceil;j++){
-                        amortizationMatrix.setAsDouble(Double.parseDouble(amortizationArr[j]),i,j);
+                        if(j<amortizationArr.length){
+                            amortizationMatrix.setAsDouble(Double.parseDouble(amortizationArr[j]),i,j);
+                        }
                     }
                 }
             }
