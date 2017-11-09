@@ -25,8 +25,6 @@ public class AnalysisResultHandler extends LoopThread {
 
     private static final ConcurrentLinkedQueue<AnalysisResult> queue = new ConcurrentLinkedQueue();
 
-    private static final ConcurrentHashMap<Long,PortfolioStatisticalResult> resultMap = new ConcurrentHashMap();
-
     private volatile AnalysisResultHandler handler;
 
     public static volatile boolean initFlag = false;
@@ -72,7 +70,6 @@ public class AnalysisResultHandler extends LoopThread {
                     SimulationRecord record = analysisResult.getRecord();
                     Future<PortfolioStatisticalResult> monteResultFuture = executorEngine.submit(new AnalysisResultMerge(record,parallelThreadNum,beginMultiThreadThreshold,fileConfig));
                     PortfolioStatisticalResult portfolioStatisticalResult = monteResultFuture.get();
-                    resultMap.put(record.getId(),portfolioStatisticalResult);
                     analysisResult.setResult(portfolioStatisticalResult);
                     record.setResult(portfolioStatisticalResult);
                     long end = System.currentTimeMillis();
@@ -92,10 +89,6 @@ public class AnalysisResultHandler extends LoopThread {
         ApplicationContext applicationContext = SpringApplicationContextUtil.getContext();
         SimulationRecordServiceSV simulationRecordService = applicationContext.getBean(SimulationRecordServiceSV.class);
         simulationRecordService.updateSimulationRecord(record);
-    }
-
-    public static PortfolioStatisticalResult getPortfolioStatisticalResult(Long id){
-        return resultMap.remove(id);
     }
 
     public static void setParallelThreadNum(int parallelThreadNum) {

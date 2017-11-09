@@ -4,13 +4,17 @@ import com.unitedratings.lhcrm.dao.*;
 import com.unitedratings.lhcrm.domains.LoanRecord;
 import com.unitedratings.lhcrm.entity.*;
 import com.unitedratings.lhcrm.service.interfaces.PortfolioServiceSV;
+import com.unitedratings.lhcrm.web.model.PageModel;
+import com.unitedratings.lhcrm.web.model.PortfolioQuery;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -84,5 +88,37 @@ public class PortfolioServiceSVImpl implements PortfolioServiceSV {
             debtorInfoDao.save(record.getDebtorInfo());
             guarantorInfoDao.save(record.getGuarantorInfo());
         }
+    }
+
+    @Override
+    public Page<Portfolio> getPortfolioList(PageModel<PortfolioQuery> query) {
+        PortfolioQuery portfolioQuery = query.getQuery();
+        Portfolio portfolio = new Portfolio();
+        if(portfolioQuery!=null){
+            if(!StringUtils.isEmpty(portfolioQuery.getPortfolioName())){
+                portfolio.setPortfolioName(portfolioQuery.getPortfolioName());
+            }
+            if(portfolioQuery.getUserId()!=null){
+                portfolio.setUserId(portfolioQuery.getUserId());
+            }
+        }
+        return portfolioDao.findAll(Example.of(portfolio), new PageRequest(query.getPageNo()-1, query.getPageSize(), Sort.Direction.DESC,"createTime"));
+    }
+
+    @Override
+    public boolean deletePortfolioById(Long id) {
+        Portfolio portfolio = portfolioDao.findOne(id);
+        if(portfolio!=null){
+            debtorInfoDao.deleteInBatch(debtorInfoDao.findByPortfolioId(id));
+            guarantorInfoDao.deleteInBatch(guarantorInfoDao.findByPortfolioId(id));
+            List<AmortizationInfo> amortizationInfos = amortizationInfoDao.findByPortfolioId(id);
+            if(!CollectionUtils.isEmpty(amortizationInfos)){
+                amortizationInfoDao.deleteInBatch(amortizationInfos);
+            }
+            amortizationDao.delete(id);
+            portfolioDao.delete(id);
+            return true;
+        }
+        return false;
     }
 }

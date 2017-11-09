@@ -94,7 +94,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
         } catch (BusinessException e) {
             throw e;
         } catch (Exception e){
-            throw new BusinessException("000004","蒙特卡洛模拟记过处理输出过程异常",e);
+            throw new BusinessException("000004","蒙特卡洛模拟结果处理输出过程异常",e);
         }
         return portfolioStatisticalResult;
     }

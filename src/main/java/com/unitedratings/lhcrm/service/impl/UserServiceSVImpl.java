@@ -47,4 +47,9 @@ public class UserServiceSVImpl implements UserServiceSV {
     public List<User> getAllUser() {
         return userDao.findAll();
     }
+
+    @Override
+    public User getUserById(Integer userId) {
+        return userDao.findOne(userId);
+    }
 }

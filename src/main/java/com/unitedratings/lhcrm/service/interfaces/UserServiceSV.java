@@ -34,4 +34,11 @@ public interface UserServiceSV {
      * @return
      */
     List<User> getAllUser();
+
+    /**
+     * 根据id查询用户
+     * @param userId
+     * @return
+     */
+    User getUserById(Integer userId);
 }
