@@ -10,10 +10,7 @@ import com.unitedratings.lhcrm.entity.PortfolioAnalysisResult;
 import com.unitedratings.lhcrm.entity.SimulationRecord;
 import com.unitedratings.lhcrm.exception.BusinessException;
 import com.unitedratings.lhcrm.service.interfaces.PortfolioAnalysisServiceSV;
-import com.unitedratings.lhcrm.utils.AssetAnalysisUtil;
-import com.unitedratings.lhcrm.utils.ExcelUtil;
-import com.unitedratings.lhcrm.utils.MathUtil;
-import com.unitedratings.lhcrm.utils.SpringApplicationContextUtil;
+import com.unitedratings.lhcrm.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -149,8 +146,13 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
     private FinalMonteResult monteCarloSimulation(AssetPoolInfo info, Integer num) throws BusinessException {
         MonteResult result = null;
         try {
+            Matrix chol = info.getCorrelation().chol();
+            Matrix conMatrix = MatrixUtil.calculateConditionProbability(info);
+            if(conMatrix!=null){
+                return null;
+            }
             if(num<threshold){
-                Future<MonteResult> future = ExecutorEngine.getExecutorEngine().submit(new CreditPortfolioRiskAnalysis(info, num, alreadyNum, Constant.PRECISION));
+                Future<MonteResult> future = ExecutorEngine.getExecutorEngine().submit(new CreditPortfolioRiskAnalysis(info, num, alreadyNum, Constant.PRECISION,conMatrix,chol));
                 result = future.get();
             }else {
                 result = new MonteResult();
@@ -159,7 +161,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
                     parallelNum *= 2;
                 }
                 for(int i=0;i<parallelNum;i++){
-                    taskList.add(new CreditPortfolioRiskAnalysis(info, num/parallelNum, alreadyNum,Constant.PRECISION));
+                    taskList.add(new CreditPortfolioRiskAnalysis(info, num/parallelNum, alreadyNum,Constant.PRECISION,conMatrix,chol));
                 }
                 List<Future<MonteResult>> futures = ExecutorEngine.getExecutorEngine().invokeAll(taskList);
                 double[] defaultRate = new double[Constant.PRECISION];
