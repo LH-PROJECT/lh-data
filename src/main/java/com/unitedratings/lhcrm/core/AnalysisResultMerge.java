@@ -11,6 +11,7 @@ import com.unitedratings.lhcrm.entity.SimulationRecord;
 import com.unitedratings.lhcrm.exception.BusinessException;
 import com.unitedratings.lhcrm.service.interfaces.PortfolioAnalysisServiceSV;
 import com.unitedratings.lhcrm.utils.*;
+import org.apache.commons.math3.stat.StatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -38,19 +39,15 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
 
     private int parallelNum = 4;
 
-    private int threshold = 400000;
+    private int threshold = 2000;
 
     private FileConfig config;
 
     public AnalysisResultMerge(SimulationRecord simulationRecord,int parallel,int threshold,FileConfig fileConfig){
         this.record = simulationRecord;
         this.config = fileConfig;
-        if(parallel>1){
-            this.parallelNum = parallel;
-        }
-        if(threshold>Constant.PRECISION){
-            this.threshold = threshold;
-        }
+        this.parallelNum = parallel;
+        this.threshold = threshold;
     }
 
     @Override
@@ -64,7 +61,7 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
         //2、蒙特卡洛模拟
         AssetPoolInfo info = assetPool.getAssetPoolInfo();
         assetPool.getAssetPoolSummaryResult().getStatisticalResult().setSimulationTimes(num.longValue());
-        FinalMonteResult result = monteCarloSimulation(info, num);
+        FinalMonteResult result = monteCarloSimulation(info);
         long t3 = System.currentTimeMillis();
         LOGGER.info("模拟过程消耗{}ms",t3-t2);
         PortfolioStatisticalResult portfolioStatisticalResult = null;
@@ -140,28 +137,23 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
     /**
      * 蒙特卡洛模拟
      * @param info
-     * @param num
      * @return
      */
-    private FinalMonteResult monteCarloSimulation(AssetPoolInfo info, Integer num) throws BusinessException {
+    private FinalMonteResult monteCarloSimulation(AssetPoolInfo info) throws BusinessException {
         MonteResult result = null;
         try {
             Matrix chol = info.getCorrelation().chol();
             Matrix conMatrix = MatrixUtil.calculateConditionProbability(info);
-            if(conMatrix!=null){
-                return null;
-            }
-            if(num<threshold){
-                Future<MonteResult> future = ExecutorEngine.getExecutorEngine().submit(new CreditPortfolioRiskAnalysis(info, num, alreadyNum, Constant.PRECISION,conMatrix,chol));
+            parallelNum = getPerfectParallelThreadNum(info,record.getNum());
+            final int simulationNum = record.getNum() * 10000;
+            if(parallelNum <= 1 ){
+                Future<MonteResult> future = ExecutorEngine.getExecutorEngine().submit(new CreditPortfolioRiskAnalysis(info, simulationNum, alreadyNum, Constant.PRECISION,conMatrix,chol));
                 result = future.get();
             }else {
                 result = new MonteResult();
                 List<CreditPortfolioRiskAnalysis> taskList = new ArrayList<>();
-                if(num>=threshold*10){//超过400w次，并行数加倍
-                    parallelNum *= 2;
-                }
                 for(int i=0;i<parallelNum;i++){
-                    taskList.add(new CreditPortfolioRiskAnalysis(info, num/parallelNum, alreadyNum,Constant.PRECISION,conMatrix,chol));
+                    taskList.add(new CreditPortfolioRiskAnalysis(info, simulationNum, alreadyNum,Constant.PRECISION,conMatrix,chol));
                 }
                 List<Future<MonteResult>> futures = ExecutorEngine.getExecutorEngine().invokeAll(taskList);
                 double[] defaultRate = new double[Constant.PRECISION];
@@ -246,5 +238,18 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
         }
 
         return null;
+    }
+
+    /**
+     * 获取并行最佳线程数量
+     * @param info
+     * @param num
+     * @return
+     */
+    private int getPerfectParallelThreadNum(AssetPoolInfo info, Integer num) {
+        int times = (int) StatUtils.mean(info.getMaturity()) * num * info.getLoanNum();
+        final int maxThread = Runtime.getRuntime().availableProcessors();
+        int threadNum = (int) Math.ceil((double) times / threshold);
+        return threadNum > maxThread ? maxThread : threadNum;
     }
 }

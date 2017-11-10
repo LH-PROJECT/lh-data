@@ -3,8 +3,8 @@ file:
   result-path: /data/applications/lhcdo/files/result
   template-path: /data/applications/lhcdo/files/template
 task:
-  parallel-thread-num: 8
-  begin-multi-thread-threshold: 400000
+  parallel-thread-num: 4
+  begin-multi-thread-threshold: 2000
 executor:
   core-pool-size: 10
   max-pool-size: 100

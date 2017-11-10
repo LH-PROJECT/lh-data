@@ -11,9 +11,7 @@ import com.unitedratings.lhcrm.utils.DateUtil;
 import com.unitedratings.lhcrm.utils.FileUtil;
 import com.unitedratings.lhcrm.web.model.*;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.BeanCurrentlyInCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -114,7 +112,7 @@ public class AssetCreditAnalysisController {
                     if(!AnalysisResultHandler.initFlag){
                         AnalysisResultHandler.setFileConfig(fileConfig);
                         AnalysisResultHandler.setParallelThreadNum(taskExecutorConfig.getParallelThreadNum());
-                        AnalysisResultHandler.setBeginMultiThreadThreshold(taskExecutorConfig.getParallelThreadNum());
+                        AnalysisResultHandler.setBeginMultiThreadThreshold(taskExecutorConfig.getBeginMultiThreadThreshold());
                         AnalysisResultHandler.initFlag = true;
                     }
                 }
