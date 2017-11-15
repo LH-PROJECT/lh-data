@@ -133,18 +133,7 @@ public class AssetCreditAnalysisController {
     public ResponseEntity<byte[]> downloadAnalysisResult(@PathVariable("id") Long id) throws Exception {
         PortfolioAnalysisResult analysisResult = analysisService.findLastAnalysisResultByPortfolioId(id);
         if(analysisResult!=null){
-            String resultFilePath = analysisResult.getResultFilePath();
-            String realFileName = FileUtil.extractFileName(resultFilePath);
-            //String fileName = new String(realFileName.getBytes("utf-8"),"ISO-8859-1");
-            File file = new File(fileConfig.getResultPath() + File.separator + resultFilePath);
-            if(file.exists()){
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentDispositionFormData("attachment",realFileName, Charset.forName("UTF-8"));
-                headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-                return new ResponseEntity<>(FileCopyUtils.copyToByteArray(file),headers, HttpStatus.CREATED);
-            }else {
-                throw new FileNotFoundException("要下载的文件不存在");
-            }
+            return downloadFile(analysisResult);
         }else {
            throw new Exception("下载出错");
         }
@@ -195,6 +184,54 @@ public class AssetCreditAnalysisController {
             return new ResponseData<>(ResponseData.AJAX_STATUS_SUCCESS,"删除成功");
         }
         return new ResponseData<>(ResponseData.AJAX_STATUS_FAILURE,"删除失败,数据不存在");
+    }
+
+    /**
+     * 查询资产池信息
+     * @param id
+     * @return
+     */
+    @GetMapping("/portfolio/{id}")
+    public ResponseData<Portfolio> queryPortfolioDetail(@PathVariable("id") Long id){
+        Portfolio portfolio = portfolioService.getPortfolioById(id);
+        return new ResponseData<>(ResponseData.AJAX_STATUS_SUCCESS,"查询资产池详情成功",portfolio);
+    }
+
+    /**
+     * 分析结果下载
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    @NoNeedCheckLogin
+    @GetMapping("/result/{id}")
+    public ResponseEntity<byte[]> downloadResultById(@PathVariable("id") Long id) throws Exception {
+        PortfolioAnalysisResult analysisResult = analysisService.findAnalysisResultById(id);
+        if(analysisResult!=null){
+            return downloadFile(analysisResult);
+        }else {
+            throw new Exception("下载出错");
+        }
+    }
+
+    /**
+     * 文件下载
+     * @param analysisResult
+     * @return
+     * @throws IOException
+     */
+    private ResponseEntity<byte[]> downloadFile(PortfolioAnalysisResult analysisResult) throws IOException {
+        String resultFilePath = analysisResult.getResultFilePath();
+        String realFileName = FileUtil.extractFileName(resultFilePath);
+        File file = new File(fileConfig.getResultPath() + File.separator + resultFilePath);
+        if(file.exists()){
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentDispositionFormData("attachment",realFileName, Charset.forName("UTF-8"));
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            return new ResponseEntity<>(FileCopyUtils.copyToByteArray(file),headers, HttpStatus.CREATED);
+        }else {
+            throw new FileNotFoundException("要下载的文件不存在");
+        }
     }
 
     /**

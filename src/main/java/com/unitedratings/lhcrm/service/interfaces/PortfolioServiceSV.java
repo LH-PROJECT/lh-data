@@ -2,10 +2,9 @@ package com.unitedratings.lhcrm.service.interfaces;
 
 import com.unitedratings.lhcrm.entity.Portfolio;
 import com.unitedratings.lhcrm.web.model.PageModel;
+import com.unitedratings.lhcrm.web.model.PageResult;
 import com.unitedratings.lhcrm.web.model.PortfolioQuery;
 import org.springframework.data.domain.Page;
-
-import java.util.List;
 
 /**
  * @author wangyongxin
@@ -26,7 +25,7 @@ public interface PortfolioServiceSV {
     Portfolio getPortfolioById(Long attachableId);
 
     /**
-     * 跟新资产池信息
+     * 更新资产池信息
      * @param portfolio
      */
     void updatePortfolio(Portfolio portfolio);
@@ -43,4 +42,11 @@ public interface PortfolioServiceSV {
      * @param id
      */
     boolean deletePortfolioById(Long id);
+
+    /**
+     * 根据资产池模拟记录分页查询资产池信息
+     * @param query
+     * @return
+     */
+    PageResult<Portfolio> getPortfolioListOnSimulationRecord(PageModel<PortfolioQuery> query);
 }

@@ -5,16 +5,19 @@ import com.unitedratings.lhcrm.domains.LoanRecord;
 import com.unitedratings.lhcrm.entity.*;
 import com.unitedratings.lhcrm.service.interfaces.PortfolioServiceSV;
 import com.unitedratings.lhcrm.web.model.PageModel;
+import com.unitedratings.lhcrm.web.model.PageResult;
 import com.unitedratings.lhcrm.web.model.PortfolioQuery;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -102,6 +105,7 @@ public class PortfolioServiceSVImpl implements PortfolioServiceSV {
                 portfolio.setUserId(portfolioQuery.getUserId());
             }
         }
+
         return portfolioDao.findAll(Example.of(portfolio), new PageRequest(query.getPageNo()-1, query.getPageSize(), Sort.Direction.DESC,"createTime"));
     }
 
@@ -120,5 +124,39 @@ public class PortfolioServiceSVImpl implements PortfolioServiceSV {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public PageResult<Portfolio> getPortfolioListOnSimulationRecord(PageModel<PortfolioQuery> query) {
+        PortfolioQuery portfolioQuery = query.getQuery();
+        List<Portfolio> list;
+        PageResult<Portfolio> result= new PageResult<>();
+        int count = 0;
+        if(portfolioQuery.getUserId()!=null){
+            if(!StringUtils.isEmpty(portfolioQuery.getPortfolioName())){
+                list = portfolioDao.findPageByUserIdAndPortfolioName(portfolioQuery.getUserId(),portfolioQuery.getPortfolioName(),(query.getPageNo()-1)*query.getPageSize(),query.getPageSize());
+                count = portfolioDao.countBySimulationNumGreaterThanAndUserIdAndPortfolioNameLike(0, portfolioQuery.getUserId(), portfolioQuery.getPortfolioName());
+            } else {
+                list = portfolioDao.findPageByUserId(portfolioQuery.getUserId(),(query.getPageNo()-1)*query.getPageSize(),query.getPageSize());
+                count = portfolioDao.countBySimulationNumGreaterThanAndUserId(0,portfolioQuery.getUserId());
+            }
+        }else {
+            if(!StringUtils.isEmpty(portfolioQuery.getPortfolioName())){
+                list = portfolioDao.findPageByPortfolioName(portfolioQuery.getPortfolioName(),(query.getPageNo()-1)*query.getPageSize(),query.getPageSize());
+                count = portfolioDao.countBySimulationNumGreaterThanAndPortfolioNameLike(0,portfolioQuery.getPortfolioName());
+            } else {
+                list = portfolioDao.findPageOrderByCreateTime((query.getPageNo()-1)*query.getPageSize(),query.getPageSize());
+                count = portfolioDao.countBySimulationNumGreaterThan(0);
+            }
+        }
+        if(count>0){
+            result.setTotalRecords(count);
+            result.setData(list);
+            result.setPageNo(query.getPageNo());
+            result.setPageSize(query.getPageSize());
+            return result;
+        }
+
+        return null;
     }
 }
