@@ -161,17 +161,22 @@ public class PortfolioDataCalculate {
         List<AmortizationInfo> infoList = amortizationService.getAmortizationInfoListByPortfolioId(portfolio.getId());
         int loanNum = info.getLoanNum();
         Matrix amortizationMatrix = new DefaultDenseDoubleMatrix2D(loanNum,MathUtil.getMaxQuarter(info.getMaturity()));
+        amortizationMatrix.setLabel("分期摊还信息矩阵");
         if(!CollectionUtils.isEmpty(infoList)){
-            amortizationMatrix.setLabel("分期摊还信息矩阵");
+            List<LoanRecord> recordList = portfolio.getRecordList();
             for(int i=0;i<loanNum;i++){
-                AmortizationInfo amortizationInfo = infoList.get(i);
-                String amortizationStr = amortizationInfo.getAmortization();
-                if(!StringUtils.isEmpty(amortizationStr)){
-                    String[] amortizationArr = amortizationStr.split(",");
-                    int ceil = (int) Math.ceil(info.getMaturity()[i]);
-                    for(int j=0;j<ceil;j++){
-                        if(j<amortizationArr.length){
-                            amortizationMatrix.setAsDouble(Double.parseDouble(amortizationArr[j]),i,j);
+                DebtorInfo debtorInfo = recordList.get(i).getDebtorInfo();
+                if(debtorInfo.getAmortize()){
+                    //是分期摊还，处理封装分期摊还信息；不是分期摊还的贷款，不作处理即默认为0
+                    AmortizationInfo amortizationInfo = infoList.get(i);
+                    String amortizationStr = amortizationInfo.getAmortization();
+                    if(!StringUtils.isEmpty(amortizationStr)){
+                        String[] amortizationArr = amortizationStr.split(",");
+                        int ceil = (int) Math.ceil(info.getMaturity()[i]);
+                        for(int j=0;j<ceil;j++){
+                            if(j<amortizationArr.length){
+                                amortizationMatrix.setAsDouble(Double.parseDouble(amortizationArr[j]),i,j);
+                            }
                         }
                     }
                 }
