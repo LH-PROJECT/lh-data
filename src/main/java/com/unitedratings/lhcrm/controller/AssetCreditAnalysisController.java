@@ -6,6 +6,7 @@ import com.unitedratings.lhcrm.config.TaskExecutorConfig;
 import com.unitedratings.lhcrm.core.AnalysisResultHandler;
 import com.unitedratings.lhcrm.entity.*;
 import com.unitedratings.lhcrm.excelprocess.AssetsExcelProcess;
+import com.unitedratings.lhcrm.exception.BusinessException;
 import com.unitedratings.lhcrm.service.interfaces.*;
 import com.unitedratings.lhcrm.utils.DateUtil;
 import com.unitedratings.lhcrm.utils.FileUtil;
@@ -193,8 +194,39 @@ public class AssetCreditAnalysisController {
      */
     @GetMapping("/portfolio/{id}")
     public ResponseData<Portfolio> queryPortfolioDetail(@PathVariable("id") Long id){
-        Portfolio portfolio = portfolioService.getPortfolioById(id);
+        Portfolio portfolio = portfolioService.getFullPortfolioInfoById(id);
         return new ResponseData<>(ResponseData.AJAX_STATUS_SUCCESS,"查询资产池详情成功",portfolio);
+    }
+
+
+    /**
+     * 更新资产池贷款记录
+     * @param recordVo
+     * @return
+     */
+    @PostMapping("/updatePortfolio")
+    public ResponseData<String> updatePortfolio(@RequestBody LoanRecordVo recordVo) throws BusinessException {
+        if(recordVo.getDebtInfoId()!=null&&recordVo.getGuarantorInfoId()!=null){
+            if(portfolioService.updateLoanRecord(recordVo)){
+                return new ResponseData<>(ResponseData.AJAX_STATUS_SUCCESS,"更新贷款记录成功");
+            }
+        }
+        return new ResponseData<>(ResponseData.AJAX_STATUS_FAILURE,"更新贷款记录失败");
+    }
+
+    /**
+     * 更新资产池贷款分期摊还信息
+     * @param info
+     * @return
+     */
+    @PostMapping("/updateAmortization")
+    public ResponseData<String> updateAmortization(@RequestBody AmortizationInfo info){
+        if(info.getId()!=null){
+            if(portfolioService.updateAmortization(info)){
+                return new ResponseData<>(ResponseData.AJAX_STATUS_SUCCESS,"更新分期摊还记录成功");
+            }
+        }
+        return new ResponseData<>(ResponseData.AJAX_STATUS_FAILURE,"更新分期摊还记录失败");
     }
 
     /**

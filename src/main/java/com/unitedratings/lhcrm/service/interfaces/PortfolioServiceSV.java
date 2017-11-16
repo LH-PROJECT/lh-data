@@ -1,6 +1,9 @@
 package com.unitedratings.lhcrm.service.interfaces;
 
+import com.unitedratings.lhcrm.entity.AmortizationInfo;
 import com.unitedratings.lhcrm.entity.Portfolio;
+import com.unitedratings.lhcrm.exception.BusinessException;
+import com.unitedratings.lhcrm.web.model.LoanRecordVo;
 import com.unitedratings.lhcrm.web.model.PageModel;
 import com.unitedratings.lhcrm.web.model.PageResult;
 import com.unitedratings.lhcrm.web.model.PortfolioQuery;
@@ -49,4 +52,23 @@ public interface PortfolioServiceSV {
      * @return
      */
     PageResult<Portfolio> getPortfolioListOnSimulationRecord(PageModel<PortfolioQuery> query);
+
+    /**
+     * 获取完整的资产池信息（包括贷款记录，分期摊还信息）
+     * @param id
+     * @return
+     */
+    Portfolio getFullPortfolioInfoById(Long id);
+
+    /**
+     * 更新资产池贷款记录信息
+     * @param recordVo
+     */
+    boolean updateLoanRecord(LoanRecordVo recordVo) throws BusinessException;
+
+    /**
+     * 更新资产池贷款记录分期摊还信息
+     * @param info
+     */
+    boolean updateAmortization(AmortizationInfo info);
 }

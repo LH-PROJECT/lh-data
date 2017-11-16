@@ -38,7 +38,7 @@ public interface PortfolioDao extends JpaRepository<Portfolio,Long>{
      * @param size
      * @return
      */
-    @Query(value = "SELECT p.* FROM portfolio p WHERE p.simulation_num > 0 AND (p.portfolio_name LIKE concat(?1,'%') OR p.portfolio_name LIKE '%'+?1) ORDER BY p.create_time LIMIT ?2,?3 ", nativeQuery = true)
+    @Query(value = "SELECT p.* FROM portfolio p WHERE p.simulation_num > 0 AND p.portfolio_name LIKE concat('%',?1,'%') ORDER BY p.create_time LIMIT ?2,?3 ", nativeQuery = true)
     List<Portfolio> findPageByPortfolioName(String portfolioName,int begin,int size);
 
     /**
@@ -49,7 +49,7 @@ public interface PortfolioDao extends JpaRepository<Portfolio,Long>{
      * @param size
      * @return
      */
-    @Query(value = "SELECT p.* FROM portfolio p WHERE p.simulation_num > 0 AND p.user_id = ?1 AND (p.portfolio_name LIKE concat(?2,'%') OR p.portfolio_name LIKE '%'+?2) ORDER BY p.create_time LIMIT ?3,?4 ", nativeQuery = true)
+    @Query(value = "SELECT p.* FROM portfolio p WHERE p.simulation_num > 0 AND p.user_id = ?1 AND p.portfolio_name LIKE concat('%',?2,'%') ORDER BY p.create_time LIMIT ?3,?4 ", nativeQuery = true)
     List<Portfolio> findPageByUserIdAndPortfolioName(Integer userId ,String portfolioName,int begin,int size);
 
     /**
