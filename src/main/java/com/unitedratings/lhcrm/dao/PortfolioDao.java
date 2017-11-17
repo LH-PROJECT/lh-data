@@ -1,11 +1,11 @@
 package com.unitedratings.lhcrm.dao;
 
 import com.unitedratings.lhcrm.entity.Portfolio;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-
-import java.util.List;
 
 /**
  * @author wangyongxin
@@ -34,43 +34,35 @@ public interface PortfolioDao extends JpaRepository<Portfolio,Long>{
     /**
      * 根据资产池名称模糊查询并分页
      * @param portfolioName
-     * @param begin
-     * @param size
+     * @param num
+     * @param pageable
      * @return
      */
-    @Query(value = "SELECT p.* FROM portfolio p WHERE p.simulation_num > 0 AND p.portfolio_name LIKE concat('%',?1,'%') ORDER BY p.create_time LIMIT ?2,?3 ", nativeQuery = true)
-    List<Portfolio> findPageByPortfolioName(String portfolioName,int begin,int size);
-
+    Page<Portfolio> findByPortfolioNameContainsAndSimulationNumGreaterThanOrderByCreateTimeDesc(String portfolioName, int num, Pageable pageable);
     /**
      * 根据资产池名称模糊、用户id查询并分页
      * @param userId
      * @param portfolioName
-     * @param begin
-     * @param size
+     * @param num
+     * @param pageable
      * @return
      */
-    @Query(value = "SELECT p.* FROM portfolio p WHERE p.simulation_num > 0 AND p.user_id = ?1 AND p.portfolio_name LIKE concat('%',?2,'%') ORDER BY p.create_time LIMIT ?3,?4 ", nativeQuery = true)
-    List<Portfolio> findPageByUserIdAndPortfolioName(Integer userId ,String portfolioName,int begin,int size);
-
+    Page<Portfolio> findByUserIdAndPortfolioNameContainsAndSimulationNumGreaterThanOrderByCreateTimeDesc(Integer userId , String portfolioName, int num, Pageable pageable);
     /**
      * 根据用户id查询并分页
      * @param userId
-     * @param begin
-     * @param pageSize
+     * @param num
+     * @param pageable
      * @return
      */
-    @Query(value = "SELECT p.* FROM portfolio p WHERE p.simulation_num > 0 AND p.user_id = ?1 ORDER BY p.create_time LIMIT ?2,?3 ", nativeQuery = true)
-    List<Portfolio> findPageByUserId(Integer userId, int begin, Integer pageSize);
-
+    Page<Portfolio> findByUserIdAndSimulationNumGreaterThanOrderByCreateTimeDesc(Integer userId,int num,Pageable pageable);
     /**
      * 分页查询有模拟记录的资产池列表
-     * @param begin
-     * @param pageSize
+     * @param num
+     * @param pageable
      * @return
      */
-    @Query(value = "SELECT p.* FROM portfolio p WHERE p.simulation_num > 0 ORDER BY p.create_time LIMIT ?1,?2 ", nativeQuery = true)
-    List<Portfolio> findPageOrderByCreateTime(int begin, Integer pageSize);
-
+    Page<Portfolio> findBySimulationNumGreaterThanOrderByCreateTimeDesc(int num,Pageable pageable);
     /**
      * 根据条件统计记录数
      * @param simulationNum

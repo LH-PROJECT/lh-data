@@ -9,6 +9,7 @@ import com.unitedratings.lhcrm.service.interfaces.UserServiceSV;
 import com.unitedratings.lhcrm.web.model.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,17 +40,13 @@ public class SimulationRecordController {
      */
     @PostMapping("/portfolioList")
     public ResponseData<PageResult<PortfolioVo>> portfolioList(@RequestBody PageModel<PortfolioQuery> query){
-        PageResult<Portfolio> result = portfolioService.getPortfolioListOnSimulationRecord(query);
-        if(result!=null&&result.getTotalRecords()>0){
+        Page<Portfolio> result = portfolioService.getPortfolioListOnSimulationRecord(query);
+        if(result!=null){
             PageResult<PortfolioVo> pageResult = new PageResult<>();
-            pageResult.setPageSize(result.getPageSize());
-            pageResult.setPageNo(result.getPageNo());
-            pageResult.setTotalRecords(result.getTotalRecords());
-            List<PortfolioVo> vos =  new ArrayList<>();
-            result.getData().forEach(portfolio -> {
+            Page<PortfolioVo> portfolioVos = result.map(portfolio -> {
                 PortfolioVo portfolioVo = new PortfolioVo();
-                BeanUtils.copyProperties(portfolio,portfolioVo);
-                if(portfolio.getUserId()!=null){
+                BeanUtils.copyProperties(portfolio, portfolioVo);
+                if (portfolio.getUserId() != null) {
                     User user = userService.getUserById(portfolio.getUserId());
                     if (user != null) {
                         UserModel userModel = new UserModel();
@@ -59,9 +56,12 @@ public class SimulationRecordController {
                         portfolioVo.setUser(userModel);
                     }
                 }
-                vos.add(portfolioVo);
+                return portfolioVo;
             });
-            pageResult.setData(vos);
+            pageResult.setData(portfolioVos.getContent());
+            pageResult.setTotalRecords((int) portfolioVos.getTotalElements());
+            pageResult.setPageNo(portfolioVos.getNumber()+1);
+            pageResult.setPageSize(portfolioVos.getSize());
             return new ResponseData<>(ResponseData.AJAX_STATUS_SUCCESS,"结果查询成功",pageResult);
         }else {
             return new ResponseData<>(ResponseData.AJAX_STATUS_SUCCESS,"未查询到符合条件的记录",null);

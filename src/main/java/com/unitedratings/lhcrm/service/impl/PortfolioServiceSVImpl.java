@@ -135,37 +135,21 @@ public class PortfolioServiceSVImpl implements PortfolioServiceSV {
     }
 
     @Override
-    public PageResult<Portfolio> getPortfolioListOnSimulationRecord(PageModel<PortfolioQuery> query) {
+    public Page<Portfolio> getPortfolioListOnSimulationRecord(PageModel<PortfolioQuery> query) {
         PortfolioQuery portfolioQuery = query.getQuery();
-        List<Portfolio> list;
-        PageResult<Portfolio> result= new PageResult<>();
-        int count = 0;
         if(portfolioQuery.getUserId()!=null){
             if(!StringUtils.isEmpty(portfolioQuery.getPortfolioName())){
-                list = portfolioDao.findPageByUserIdAndPortfolioName(portfolioQuery.getUserId(),portfolioQuery.getPortfolioName(),(query.getPageNo()-1)*query.getPageSize(),query.getPageSize());
-                count = portfolioDao.countBySimulationNumGreaterThanAndUserIdAndPortfolioNameLike(0, portfolioQuery.getUserId(), portfolioQuery.getPortfolioName());
+                return portfolioDao.findByUserIdAndPortfolioNameContainsAndSimulationNumGreaterThanOrderByCreateTimeDesc(portfolioQuery.getUserId(), portfolioQuery.getPortfolioName(), 0, new PageRequest(query.getPageNo() - 1, query.getPageSize()));
             } else {
-                list = portfolioDao.findPageByUserId(portfolioQuery.getUserId(),(query.getPageNo()-1)*query.getPageSize(),query.getPageSize());
-                count = portfolioDao.countBySimulationNumGreaterThanAndUserId(0,portfolioQuery.getUserId());
+                return portfolioDao.findByUserIdAndSimulationNumGreaterThanOrderByCreateTimeDesc(portfolioQuery.getUserId(),0,new PageRequest(query.getPageNo() - 1, query.getPageSize()));
             }
         }else {
             if(!StringUtils.isEmpty(portfolioQuery.getPortfolioName())){
-                list = portfolioDao.findPageByPortfolioName(portfolioQuery.getPortfolioName(),(query.getPageNo()-1)*query.getPageSize(),query.getPageSize());
-                count = portfolioDao.countBySimulationNumGreaterThanAndPortfolioNameLike(0,portfolioQuery.getPortfolioName());
+                return portfolioDao.findByPortfolioNameContainsAndSimulationNumGreaterThanOrderByCreateTimeDesc(portfolioQuery.getPortfolioName(),0,new PageRequest(query.getPageNo() - 1, query.getPageSize()));
             } else {
-                list = portfolioDao.findPageOrderByCreateTime((query.getPageNo()-1)*query.getPageSize(),query.getPageSize());
-                count = portfolioDao.countBySimulationNumGreaterThan(0);
+                return portfolioDao.findBySimulationNumGreaterThanOrderByCreateTimeDesc(0,new PageRequest(query.getPageNo() - 1, query.getPageSize()));
             }
         }
-        if(count>0){
-            result.setTotalRecords(count);
-            result.setData(list);
-            result.setPageNo(query.getPageNo());
-            result.setPageSize(query.getPageSize());
-            return result;
-        }
-
-        return null;
     }
 
     @Override

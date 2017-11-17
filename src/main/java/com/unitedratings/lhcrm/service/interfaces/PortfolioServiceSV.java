@@ -5,7 +5,6 @@ import com.unitedratings.lhcrm.entity.Portfolio;
 import com.unitedratings.lhcrm.exception.BusinessException;
 import com.unitedratings.lhcrm.web.model.LoanRecordVo;
 import com.unitedratings.lhcrm.web.model.PageModel;
-import com.unitedratings.lhcrm.web.model.PageResult;
 import com.unitedratings.lhcrm.web.model.PortfolioQuery;
 import org.springframework.data.domain.Page;
 
@@ -51,7 +50,7 @@ public interface PortfolioServiceSV {
      * @param query
      * @return
      */
-    PageResult<Portfolio> getPortfolioListOnSimulationRecord(PageModel<PortfolioQuery> query);
+    Page<Portfolio> getPortfolioListOnSimulationRecord(PageModel<PortfolioQuery> query);
 
     /**
      * 获取完整的资产池信息（包括贷款记录，分期摊还信息）
