@@ -82,8 +82,6 @@ public class AssetCreditAnalysisController {
                 portfolio.setPortfolioName(originalFilename.substring(0, originalFilename.lastIndexOf('.')));
             }
             //当前资产池已模拟次数
-            String originalFilename = file.getOriginalFilename();
-            portfolio.setPortfolioName(originalFilename.substring(0, originalFilename.lastIndexOf('.')));
             portfolio.setSimulationNum(0);
             portfolio.setCurrentState("begin");
             portfolio.setCreateTime(uploadTime);

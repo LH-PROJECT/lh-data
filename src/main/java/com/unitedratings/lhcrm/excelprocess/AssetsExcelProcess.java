@@ -33,13 +33,11 @@ import java.io.*;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 /**
  * 资产池违约概率模型excel模板处理类
@@ -573,7 +571,7 @@ public class AssetsExcelProcess {
      * @throws SAXException
      * @throws IOException
      */
-    public static List<Matrix> processMassRandomSheet() throws OpenXML4JException, SAXException, IOException {
+    public static List<Matrix> processMassRandomSheet() throws OpenXML4JException, IOException, SAXException {
         File file = new File("/Users/wangyongxin/Desktop/random1.xlsx");
         OPCPackage p = OPCPackage.open(file, PackageAccess.READ);
         MassExcelDataRead massExcelDataRead = new MassExcelDataRead(p,60,8);

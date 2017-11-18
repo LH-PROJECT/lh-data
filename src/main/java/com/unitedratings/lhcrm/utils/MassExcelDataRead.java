@@ -38,8 +38,14 @@ public class MassExcelDataRead {
 
     private final List<Matrix> matrices = new ArrayList<>();
 
+    /**
+     * 矩阵行数
+     */
     private final int rowSize;
 
+    /**
+     * 矩阵列数
+     */
     private final int colSize;
 
     /**

@@ -7,7 +7,6 @@ import com.unitedratings.lhcrm.entity.DebtorInfo;
 import com.unitedratings.lhcrm.entity.GuarantorInfo;
 import com.unitedratings.lhcrm.entity.Portfolio;
 import com.unitedratings.lhcrm.entity.SysDictionary;
-import com.unitedratings.lhcrm.excelprocess.AssetsExcelProcess;
 import com.unitedratings.lhcrm.service.interfaces.SysDictionaryServiceSV;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.StatUtils;
@@ -17,7 +16,6 @@ import org.springframework.util.StringUtils;
 import org.ujmp.core.Matrix;
 import org.ujmp.core.doublematrix.impl.DefaultDenseDoubleMatrix2D;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
