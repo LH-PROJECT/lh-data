@@ -1,42 +1,27 @@
-package com.unitedratings.lhcrm.entity;
+package com.unitedratings.lhcrm.web.model;
 
-import com.unitedratings.lhcrm.domains.LoanRecord;
+import com.unitedratings.lhcrm.entity.User;
 
-import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author wangyongxin
- */
-@Entity
-public class Portfolio {
+ * @createAt 2017-11-08 下午2:22
+ **/
+public class PortfolioVo {
 
-    @Id
-    @GeneratedValue
     private Long id;
-    private Long projectId;
-    @Column(length = 50)
-    private String projectName;
-    @Column(length = 50)
     private String portfolioName;
-    private Long uploadRecordId;
     private Date beginCalculateDate;
     private Double reservesMoney;
     private Integer simulationNum;
-    @Column(length = 20)
-    private String currentState;
     private Double multiplier;
     private Integer sponsorId;
-    @Column(length = 20)
     private String sponsorName;
     private Integer idealDefaultId;
-    private Integer userId;
+    private Long uploadRecordId;
     private Date createTime;
-    @Transient
-    private List<LoanRecord> recordList;
-    @Transient
-    private Amortization amortization;
+    private UserModel user;
 
     public Long getId() {
         return id;
@@ -46,20 +31,20 @@ public class Portfolio {
         this.id = id;
     }
 
-    public String getPortfolioName() {
-        return portfolioName;
-    }
-
-    public void setPortfolioName(String portfolioName) {
-        this.portfolioName = portfolioName;
-    }
-
     public Long getUploadRecordId() {
         return uploadRecordId;
     }
 
     public void setUploadRecordId(Long uploadRecordId) {
         this.uploadRecordId = uploadRecordId;
+    }
+
+    public String getPortfolioName() {
+        return portfolioName;
+    }
+
+    public void setPortfolioName(String portfolioName) {
+        this.portfolioName = portfolioName;
     }
 
     public Date getBeginCalculateDate() {
@@ -86,12 +71,12 @@ public class Portfolio {
         this.simulationNum = simulationNum;
     }
 
-    public String getCurrentState() {
-        return currentState;
+    public Double getMultiplier() {
+        return multiplier;
     }
 
-    public void setCurrentState(String currentState) {
-        this.currentState = currentState;
+    public void setMultiplier(Double multiplier) {
+        this.multiplier = multiplier;
     }
 
     public Integer getSponsorId() {
@@ -110,30 +95,6 @@ public class Portfolio {
         this.sponsorName = sponsorName;
     }
 
-    public Double getMultiplier() {
-        return multiplier;
-    }
-
-    public void setMultiplier(Double multiplier) {
-        this.multiplier = multiplier;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-    }
-
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
     public Integer getIdealDefaultId() {
         return idealDefaultId;
     }
@@ -142,28 +103,12 @@ public class Portfolio {
         this.idealDefaultId = idealDefaultId;
     }
 
-    public List<LoanRecord> getRecordList() {
-        return recordList;
+    public UserModel getUser() {
+        return user;
     }
 
-    public void setRecordList(List<LoanRecord> recordList) {
-        this.recordList = recordList;
-    }
-
-    public Amortization getAmortization() {
-        return amortization;
-    }
-
-    public void setAmortization(Amortization amortization) {
-        this.amortization = amortization;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUser(UserModel user) {
+        this.user = user;
     }
 
     public Date getCreateTime() {

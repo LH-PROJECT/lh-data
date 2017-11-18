@@ -4,6 +4,8 @@ import com.unitedratings.lhcrm.constants.Constant;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.FastMath;
 
+import java.util.List;
+
 /**
  * @author wangyongxin
  */
@@ -244,6 +246,21 @@ public class MathUtil {
         for(int i=0;i<arr.length-1;i++){
             if(s>arr[i+1]){
                 s = arr[i+1];
+            }
+        }
+        return s;
+    }
+
+    /**
+     * 求数组最大值
+     * @param arr
+     * @return
+     */
+    public static Double max(List<Double> arr) {
+        Double s = arr.get(0);
+        for(int i=0;i<arr.size()-1;i++){
+            if(s<arr.get(i+1)){
+                s = arr.get(i+1);
             }
         }
         return s;

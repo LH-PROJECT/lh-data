@@ -43,4 +43,9 @@ public class PortfolioAnalysisServiceSVImpl implements PortfolioAnalysisServiceS
         }
         return null;
     }
+
+    @Override
+    public PortfolioAnalysisResult findAnalysisResultById(Long id) {
+        return portfolioAnalysisResultDao.findOne(id);
+    }
 }

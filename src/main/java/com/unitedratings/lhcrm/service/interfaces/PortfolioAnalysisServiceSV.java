@@ -19,4 +19,11 @@ public interface PortfolioAnalysisServiceSV {
      * @return
      */
     PortfolioAnalysisResult findLastAnalysisResultByPortfolioId(Long id);
+
+    /**
+     * 根据id获取分析结果
+     * @param id
+     * @return
+     */
+    PortfolioAnalysisResult findAnalysisResultById(Long id);
 }

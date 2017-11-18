@@ -32,8 +32,12 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("index");
-        registry.addViewController("/calDefaultRate").setViewName("index");
+        registry.addViewController("/calculate/*").setViewName("index");
         registry.addViewController("/login").setViewName("index");
+        registry.addViewController("/result/*").setViewName("index");
+        registry.addViewController("/simulationRecordList/*").setViewName("index");
+        registry.addViewController("/portfolioInfo/*").setViewName("index");
+        registry.addViewController("/home").setViewName("index");
     }
 
 
