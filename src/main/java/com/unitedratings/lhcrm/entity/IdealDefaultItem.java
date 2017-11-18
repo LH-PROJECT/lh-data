@@ -2,6 +2,9 @@ package com.unitedratings.lhcrm.entity;
 
 import javax.persistence.*;
 
+/**
+ * @author wangyongxin
+ */
 @Entity
 @Table(indexes = {@Index(columnList = "idealDefaultId")})
 public class IdealDefaultItem {

@@ -1,9 +1,14 @@
 package com.unitedratings.lhcrm.utils;
 
+import com.unitedratings.lhcrm.constants.Constant;
 import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.util.FastMath;
 
+import java.util.List;
+
+/**
+ * @author wangyongxin
+ */
 public class MathUtil {
 
     private MathUtil(){}
@@ -67,14 +72,18 @@ public class MathUtil {
      * 计算标准差
      * @param defaultRate
      * @param num
+     * @param defaultRateMean
      * @return
      */
-    public static double calculateStandardDeviation(double[] defaultRate, Integer num) {
-        double[] actual = new double[defaultRate.length];
+    public static double calculateStandardDeviation(double[] defaultRate, Integer num, double defaultRateMean) {
+        double sum = 0;
         for(int i=0;i<defaultRate.length;i++){
-            actual[i] = defaultRate[i]*i/num;
+            if(defaultRate[i]>0){
+                double x = (double) i/(Constant.PRECISION - 1);
+                sum += (x-defaultRateMean)*(x-defaultRateMean)*defaultRate[i];
+            }
         }
-        return Math.sqrt(StatUtils.variance(actual));
+        return FastMath.sqrt(sum/(num-1));
     }
 
     /**
@@ -227,4 +236,33 @@ public class MathUtil {
         return result;
     }
 
+    /**
+     * 求数组最小值
+     * @param arr
+     * @return
+     */
+    public static Double min(double[] arr) {
+        Double s = arr[0];
+        for(int i=0;i<arr.length-1;i++){
+            if(s>arr[i+1]){
+                s = arr[i+1];
+            }
+        }
+        return s;
+    }
+
+    /**
+     * 求数组最大值
+     * @param arr
+     * @return
+     */
+    public static Double max(List<Double> arr) {
+        Double s = arr.get(0);
+        for(int i=0;i<arr.size()-1;i++){
+            if(s<arr.get(i+1)){
+                s = arr.get(i+1);
+            }
+        }
+        return s;
+    }
 }

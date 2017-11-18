@@ -3,6 +3,9 @@ package com.unitedratings.lhcrm.domains;
 import com.unitedratings.lhcrm.entity.DebtorInfo;
 import com.unitedratings.lhcrm.entity.GuarantorInfo;
 
+/**
+ * @author wangyongxin
+ */
 public class LoanRecord {
 
     private DebtorInfo debtorInfo;

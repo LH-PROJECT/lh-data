@@ -5,6 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
+/**
+ * @author wangyongxin
+ */
 public interface GuarantorInfoDao extends JpaRepository<GuarantorInfo,Long>{
-    List<GuarantorInfo> findByPortfolioId(Long id);
+    /**
+     * 根据资产池id查询保证人信息
+     * @param portfolioId
+     * @return
+     */
+    List<GuarantorInfo> findByPortfolioId(Long portfolioId);
 }

@@ -26,6 +26,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 public class Generic {
 
@@ -190,7 +193,25 @@ public class Generic {
 
     @Test
     public void testMath(){
-        System.out.println(Math.pow(10,-4));
+        //System.out.println(Math.pow(10,-4));
+        Random random = new Random();
+        /*for (int i=0;i<10;i++){
+            System.out.println(random.nextInt(42));
+        }*/
+        IntStream ints = random.ints(8, 10, 42);
+        ints.forEach(value -> System.out.println(value));
+    }
+
+    @Test
+    public void testReg(){
+        String s1 = "[11,12]";
+        String s2 = "[12,13]";
+        Pattern pattern = Pattern.compile("(?<=\\[)(\\d+)(?=,)");
+        Matcher matcher = pattern.matcher(s1);
+        while (matcher.find()){
+            System.out.println(matcher.group());
+        }
+        System.out.println(s1.compareTo(s2));
     }
 
 }

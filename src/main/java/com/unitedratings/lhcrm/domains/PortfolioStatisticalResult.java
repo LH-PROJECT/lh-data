@@ -4,6 +4,7 @@ import java.util.Date;
 
 /**
  * 组合分析统计实体
+ * @author wangyongxin
  */
 public class PortfolioStatisticalResult {
 
@@ -17,6 +18,10 @@ public class PortfolioStatisticalResult {
      * 平均违约概率
      */
     private double averageDefaultRate;
+    /**
+     * 平均回收概率
+     */
+    private double averageRecoveryRate;
 
     private MonteSummaryResult monteSummaryResult;
 
@@ -108,5 +113,13 @@ public class PortfolioStatisticalResult {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public double getAverageRecoveryRate() {
+        return averageRecoveryRate;
+    }
+
+    public void setAverageRecoveryRate(double averageRecoveryRate) {
+        this.averageRecoveryRate = averageRecoveryRate;
     }
 }

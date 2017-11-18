@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * @author wangyongxin
+ */
 @Service
 @Transactional
 public class SysDictionaryServiceSVImpl implements SysDictionaryServiceSV {
@@ -47,8 +50,8 @@ public class SysDictionaryServiceSVImpl implements SysDictionaryServiceSV {
     }
 
     @Override
-    public SysDictionary getDictionaryById(Integer sponsorId) {
-        return dictionaryDao.findOne(sponsorId);
+    public SysDictionary getDictionaryById(Integer id) {
+        return dictionaryDao.findOne(id);
     }
 
 }

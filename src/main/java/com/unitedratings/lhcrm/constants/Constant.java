@@ -1,5 +1,8 @@
 package com.unitedratings.lhcrm.constants;
 
+/**
+ * @author wangyongxin
+ */
 public class Constant {
 
     private Constant(){}

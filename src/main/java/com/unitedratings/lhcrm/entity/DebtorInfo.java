@@ -3,6 +3,9 @@ package com.unitedratings.lhcrm.entity;
 import javax.persistence.*;
 import java.util.Date;
 
+/**
+ * @author wangyongxin
+ */
 @Entity
 @Table(indexes = {@Index(columnList = "portfolioId")})
 public class DebtorInfo {

@@ -1,10 +1,15 @@
 package com.unitedratings.lhcrm.web.model;
 
+/**
+ * @author wangyongxin
+ */
 public class UserModel {
 
     private Integer id;
 
     private String username;
+
+    private String displayName;
 
     private String accessToken;
 
@@ -30,5 +35,13 @@ public class UserModel {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 }

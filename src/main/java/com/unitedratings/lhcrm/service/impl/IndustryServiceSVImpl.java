@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * @author wangyongxin
+ */
 @Service
 @Transactional
 public class IndustryServiceSVImpl implements IndustryServiceSV {

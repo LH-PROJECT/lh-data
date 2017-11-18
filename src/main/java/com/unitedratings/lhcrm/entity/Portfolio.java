@@ -6,6 +6,9 @@ import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @author wangyongxin
+ */
 @Entity
 public class Portfolio {
 
@@ -29,6 +32,7 @@ public class Portfolio {
     private String sponsorName;
     private Integer idealDefaultId;
     private Integer userId;
+    private Date createTime;
     @Transient
     private List<LoanRecord> recordList;
     @Transient
@@ -160,5 +164,13 @@ public class Portfolio {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 }

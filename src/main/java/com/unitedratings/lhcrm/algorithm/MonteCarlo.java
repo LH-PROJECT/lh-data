@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 蒙特卡洛模拟算法
+ * @author wangyongxin
  */
 public class MonteCarlo {
 
@@ -48,11 +49,13 @@ public class MonteCarlo {
         Matrix amortisation = assetPoolInfo.getAmortisation();
         final double totalPrincipal = StatUtils.sum(principal);
         double reservesMoney = assetPoolInfo.getReservesMoney();
-        double sumDefault = 0;//总违约金额
-        //double sumRecovery = 0;//总回收金额
-        double sumDefaultRate = 0;//总违约率
-        int count = 0;
-        while (count++ < num){
+        //总违约金额
+        double sumDefault = 0;
+        //总回收金额
+        double sumRecovery = 0;
+        //总违约率
+        double sumDefaultRate = 0;
+        while ( alreadyNum.getAndIncrement() < num){
             double[] balance = new double[loanNum];
             double[] balanceR = new double[loanNum];
             double[] balanceL = new double[loanNum];
@@ -73,7 +76,8 @@ public class MonteCarlo {
             for(int i = 0; i < loanNum; i++){
                 double p = principal[i];
                 int k = 0;
-                int ceil = (int) Math.ceil(maturity[i]);//需要计算的到期期限数，若为年，则表示期限年数
+                //需要计算的到期期限数，若为年，则表示期限年数
+                int ceil = (int) Math.ceil(maturity[i]);
                 boolean flag = true;
                 while (flag&&k<ceil){
                     if(randomM.getAsDouble(i,k) <= conInvM.getAsDouble(i,k)){
@@ -92,7 +96,7 @@ public class MonteCarlo {
             double balanceSum = StatUtils.sum(balance);
             double balanceRSum = StatUtils.sum(balanceR);
             sumDefault += balanceSum;
-            //sumRecovery += balanceRSum;
+            sumRecovery += balanceRSum;
             sumDefaultRate += balanceSum/totalPrincipal;
 
             Integer defaultRateIndex = MathUtil.round(balanceSum / totalPrincipal * (precision-1));
@@ -101,16 +105,14 @@ public class MonteCarlo {
             recoveryRate[recoveryRateIndex] += 1 ;
             Integer lossRateIndex = MathUtil.round(Math.max(0,StatUtils.sum(balanceL)-reservesMoney)/totalPrincipal*(precision-1));
             lossRate[lossRateIndex] += 1;
-
-            alreadyNum.incrementAndGet();
         }
-
         MonteResult monteResult = new MonteResult();
         monteResult.setDefaultRate(defaultRate);
         monteResult.setRecoveryRate(recoveryRate);
         monteResult.setLossRate(lossRate);
         monteResult.setDefaultRecordMatrix(record);
         monteResult.setSumDefault(sumDefault);
+        monteResult.setSumRecovery(sumRecovery);
         monteResult.setSumDefaultRate(sumDefaultRate);
         return monteResult;
     }

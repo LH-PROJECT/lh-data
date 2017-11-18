@@ -3,6 +3,9 @@ package com.unitedratings.lhcrm.entity;
 import javax.persistence.*;
 import java.util.List;
 
+/**
+ * @author wangyongxin
+ */
 @Entity
 public class Amortization {
 

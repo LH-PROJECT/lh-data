@@ -12,6 +12,9 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
+/**
+ * @author wangyongxin
+ */
 @Service
 @Transactional
 public class PortfolioAnalysisServiceSVImpl implements PortfolioAnalysisServiceSV {
@@ -39,5 +42,10 @@ public class PortfolioAnalysisServiceSVImpl implements PortfolioAnalysisServiceS
             return analysisResults.get(0);
         }
         return null;
+    }
+
+    @Override
+    public PortfolioAnalysisResult findAnalysisResultById(Long id) {
+        return portfolioAnalysisResultDao.findOne(id);
     }
 }

@@ -7,6 +7,9 @@ import javax.persistence.Transient;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @author wangyongxin
+ */
 @Entity
 public class IdealDefault {
 

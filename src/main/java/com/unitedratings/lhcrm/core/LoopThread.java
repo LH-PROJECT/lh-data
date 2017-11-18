@@ -1,5 +1,8 @@
 package com.unitedratings.lhcrm.core;
 
+/**
+ * @author wangyongxin
+ */
 public abstract class LoopThread extends Thread{
     private boolean exitFlag = false;
 

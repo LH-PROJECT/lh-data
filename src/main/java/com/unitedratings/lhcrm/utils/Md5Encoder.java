@@ -5,6 +5,9 @@ import org.apache.log4j.Logger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * @author wangyongxin
+ */
 public final class Md5Encoder {
 	private static final Logger LOG = Logger.getLogger(Md5Encoder.class);
     private Md5Encoder() {

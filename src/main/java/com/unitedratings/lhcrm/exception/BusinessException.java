@@ -1,5 +1,8 @@
 package com.unitedratings.lhcrm.exception;
 
+/**
+ * @author wangyongxin
+ */
 public class BusinessException extends Exception{
 
     private String errorCode;

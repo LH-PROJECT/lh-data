@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * @author wangyongxin
+ */
 @ControllerAdvice
 public class CommonControllerAdvice {
     private static Logger LOGGER = LoggerFactory.getLogger(CommonControllerAdvice.class);

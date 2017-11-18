@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+/**
+ * @author wangyongxin
+ */
 @Service
 @Transactional
 public class LoanRecordServiceSVImpl implements LoanRecordServiceSV {

@@ -4,11 +4,16 @@ import com.unitedratings.lhcrm.entity.Portfolio;
 
 import java.util.List;
 
+/**
+ * @author wangyongxin
+ */
 public class AssetPool {
 
     private AssetPoolInfo assetPoolInfo;
 
     private Portfolio portfolio;
+
+    private AssetPoolSummaryResult assetPoolSummaryResult;
 
     private List<LoanRecord> loanRecords;
 
@@ -35,4 +40,13 @@ public class AssetPool {
     public void setLoanRecords(List<LoanRecord> loanRecords) {
         this.loanRecords = loanRecords;
     }
+
+    public AssetPoolSummaryResult getAssetPoolSummaryResult() {
+        return assetPoolSummaryResult;
+    }
+
+    public void setAssetPoolSummaryResult(AssetPoolSummaryResult assetPoolSummaryResult) {
+        this.assetPoolSummaryResult = assetPoolSummaryResult;
+    }
+
 }

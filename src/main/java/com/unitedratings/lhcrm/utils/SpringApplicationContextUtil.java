@@ -2,6 +2,9 @@ package com.unitedratings.lhcrm.utils;
 
 import org.springframework.context.ApplicationContext;
 
+/**
+ * @author wangyongxin
+ */
 public class SpringApplicationContextUtil {
 
     private static ApplicationContext context;

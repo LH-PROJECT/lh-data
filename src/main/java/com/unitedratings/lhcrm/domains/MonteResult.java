@@ -4,6 +4,7 @@ import org.ujmp.core.Matrix;
 
 /**
  * 蒙特卡洛模拟结果实体
+ * @author wangyongxin
  */
 public class MonteResult {
 
@@ -28,6 +29,10 @@ public class MonteResult {
      * 总违约金额
      */
     private double sumDefault;
+    /**
+     * 总回收金额
+     */
+    private double sumRecovery;
     /**
      * 总违约率
      */
@@ -79,5 +84,13 @@ public class MonteResult {
 
     public void setSumDefaultRate(double sumDefaultRate) {
         this.sumDefaultRate = sumDefaultRate;
+    }
+
+    public double getSumRecovery() {
+        return sumRecovery;
+    }
+
+    public void setSumRecovery(double sumRecovery) {
+        this.sumRecovery = sumRecovery;
     }
 }

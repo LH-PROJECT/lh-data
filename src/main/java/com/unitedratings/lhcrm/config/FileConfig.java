@@ -3,6 +3,9 @@ package com.unitedratings.lhcrm.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author wangyongxin
+ */
 @Component
 @ConfigurationProperties(prefix = "file")
 public class FileConfig {

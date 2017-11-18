@@ -14,6 +14,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 
+/**
+ * @author wangyongxin
+ */
 @Component
 public class JsonReturnHandler implements HandlerMethodReturnValueHandler{
 

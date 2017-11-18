@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.util.StringUtils;
@@ -17,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author wangyongxin
@@ -78,12 +80,12 @@ public class ExcelUtil {
     /**
      * 输出资产池蒙特卡洛模拟结果
      * @param portfolioStatisticalResult
-     * @param info
+     * @param assetPool
      * @param num
      * @param config
      */
-    public static String outputPortfolioAnalysisResult(PortfolioStatisticalResult portfolioStatisticalResult, AssetPoolInfo info, Integer num, FileConfig config) throws IOException, InvalidFormatException {
-        //File template = ResourceUtils.getFile("classpath:输出模板.xlsx");
+    public static String outputPortfolioAnalysisResult(PortfolioStatisticalResult portfolioStatisticalResult, AssetPool assetPool, Integer num, FileConfig config) throws IOException, InvalidFormatException {
+        AssetPoolInfo info = assetPool.getAssetPoolInfo();
         File template = new File(config.getTemplatePath()+File.separator+"输出模板.xlsx");
         FileInputStream fis = new FileInputStream(template);
         XSSFWorkbook workbook = new XSSFWorkbook(fis);
@@ -94,6 +96,8 @@ public class ExcelUtil {
         //处理填充sheet1---组合风险缝隙结果输出
         PortfolioDefaultDistribution distribution = portfolioStatisticalResult.getPortfolioDefaultDistribution();
         processSheet1(workbook, distribution);
+        //处理填充sheet2---资产池统计量
+        processSheet2(workbook,assetPool.getAssetPoolSummaryResult());
         //输出
         String childPath = FileUtil.createChildPath(config.getResultPath());
         String fileName = info.getPortfolioName()+"_"+DateUtil.getTimestamp()+".xlsx";
@@ -105,6 +109,155 @@ public class ExcelUtil {
         os.close();
         fis.close();
         return filePath;
+    }
+
+    /**
+     * 将资产池统计量写入sheet2
+     * @param workbook
+     * @param assetPoolSummaryResult
+     */
+    private static void processSheet2(XSSFWorkbook workbook, AssetPoolSummaryResult assetPoolSummaryResult) {
+        XSSFSheet sheet = workbook.getSheetAt(2);
+        //输出统计量
+        outputStatisticResult(assetPoolSummaryResult.getStatisticalResult(), sheet);
+        //输出统计分布
+        outputDistribution(assetPoolSummaryResult, sheet);
+    }
+
+    private static void outputDistribution(AssetPoolSummaryResult assetPoolSummaryResult, XSSFSheet sheet) {
+        IndustryDistribution industryDistribution = assetPoolSummaryResult.getIndustryDistribution();
+        List<? extends Distribution.Statistical> details = null;
+        if(industryDistribution!=null){
+            details = industryDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                IndustryDistribution.IndustryStatistical statistical = (IndustryDistribution.IndustryStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(1).setCellValue(statistical.getIndustryName());
+                row.getCell(3).setCellValue(statistical.getDebtNum());
+                row.getCell(4).setCellValue(statistical.getLoanNum());
+                row.getCell(5).setCellValue(statistical.getAmount());
+                row.getCell(6).setCellValue(statistical.getProportion());
+            }
+        }
+        AreaDistribution areaDistribution = assetPoolSummaryResult.getAreaDistribution();
+        if(areaDistribution!=null){
+            details = areaDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                AreaDistribution.AreaStatistical statistical = (AreaDistribution.AreaStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(8).setCellValue(statistical.getAreaName());
+                row.getCell(9).setCellValue(statistical.getDebtNum());
+                row.getCell(10).setCellValue(statistical.getLoanNum());
+                row.getCell(11).setCellValue(statistical.getAmount());
+                row.getCell(12).setCellValue(statistical.getProportion());
+            }
+        }
+        DebtorCreditRankDistribution debtorCreditRankDistribution = assetPoolSummaryResult.getDebtorCreditRankDistribution();
+        if(debtorCreditRankDistribution!=null){
+            details = debtorCreditRankDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                DebtorCreditRankDistribution.DebtorCreditRankStatistical statistical = (DebtorCreditRankDistribution.DebtorCreditRankStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(14).setCellValue(statistical.getCreditLevel());
+                row.getCell(15).setCellValue(statistical.getDebtNum());
+                row.getCell(16).setCellValue(statistical.getLoanNum());
+                row.getCell(17).setCellValue(statistical.getAmount());
+                row.getCell(18).setCellValue(statistical.getProportion());
+            }
+        }
+        ResidualMaturityDistribution residualMaturityDistribution = assetPoolSummaryResult.getResidualMaturityDistribution();
+        if(residualMaturityDistribution!=null){
+            details = residualMaturityDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                ResidualMaturityDistribution.ResidualMaturityStatistical statistical = (ResidualMaturityDistribution.ResidualMaturityStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(20).setCellValue(statistical.getResidualMaturity());
+                row.getCell(21).setCellValue(statistical.getDebtNum());
+                row.getCell(22).setCellValue(statistical.getLoanNum());
+                row.getCell(23).setCellValue(statistical.getAmount());
+                row.getCell(24).setCellValue(statistical.getProportion());
+            }
+        }
+        GuaranteeModeDistribution guaranteeModeDistribution = assetPoolSummaryResult.getGuaranteeModeDistribution();
+        if(guaranteeModeDistribution!=null){
+            details = guaranteeModeDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                GuaranteeModeDistribution.GuaranteeModeStatistical statistical = (GuaranteeModeDistribution.GuaranteeModeStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(26).setCellValue(statistical.getGuaranteeMode());
+                row.getCell(27).setCellValue(statistical.getDebtNum());
+                row.getCell(28).setCellValue(statistical.getLoanNum());
+                row.getCell(29).setCellValue(statistical.getAmount());
+                row.getCell(30).setCellValue(statistical.getProportion());
+            }
+        }
+        DebtorDistribution debtorDistribution = assetPoolSummaryResult.getDebtorDistribution();
+        if(debtorDistribution!=null){
+            details = debtorDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                DebtorDistribution.DebtorStatistical statistical = (DebtorDistribution.DebtorStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(32).setCellValue(statistical.getLoanSerial());
+                row.getCell(33).setCellValue(statistical.getBorrower());
+                row.getCell(34).setCellValue(statistical.getLoanNum());
+                row.getCell(35).setCellValue(statistical.getCreditLevel());
+                row.getCell(36).setCellValue(statistical.getIndustryName());
+                row.getCell(37).setCellValue(statistical.getAreaName());
+                row.getCell(38).setCellValue(statistical.getAmount());
+                row.getCell(39).setCellValue(statistical.getProportion());
+            }
+        }
+        GuaranteeCreditRankDistribution guaranteeCreditRankDistribution = assetPoolSummaryResult.getGuaranteeCreditRankDistribution();
+        if(guaranteeCreditRankDistribution!=null){
+            details = guaranteeCreditRankDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                GuaranteeCreditRankDistribution.GuaranteeCreditRankStatistical statistical = (GuaranteeCreditRankDistribution.GuaranteeCreditRankStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(41).setCellValue(statistical.getCreditLevel());
+                row.getCell(42).setCellValue(statistical.getGuaranteeNum());
+                row.getCell(43).setCellValue(statistical.getGuaranteeLoanNum());
+                row.getCell(44).setCellValue(statistical.getAmount());
+                row.getCell(45).setCellValue(statistical.getProportion());
+            }
+        }
+        LoanCreditRankDistribution loanCreditRankDistribution = assetPoolSummaryResult.getLoanCreditRankDistribution();
+        if(loanCreditRankDistribution!=null){
+            details = loanCreditRankDistribution.getDetails();
+            for(int i = 0; i< details.size(); i++){
+                LoanCreditRankDistribution.LoanCreditRankStatistical statistical = (LoanCreditRankDistribution.LoanCreditRankStatistical) details.get(i);
+                XSSFRow row = sheet.getRow(24 + i);
+                row.getCell(47).setCellValue(statistical.getCreditLevel());
+                row.getCell(48).setCellValue(statistical.getDebtNum());
+                row.getCell(49).setCellValue(statistical.getLoanNum());
+                row.getCell(50).setCellValue(statistical.getAmount());
+                row.getCell(51).setCellValue(statistical.getProportion());
+            }
+        }
+    }
+
+    private static void outputStatisticResult(StatisticalResult statisticalResult, XSSFSheet sheet) {
+        sheet.getRow(4).getCell(3).setCellValue(statisticalResult.getTransactionName());
+        sheet.getRow(5).getCell(3).setCellValue(statisticalResult.getBeginCalculateDate());
+        sheet.getRow(6).getCell(3).setCellValue(statisticalResult.getSimulationTimes());
+        sheet.getRow(7).getCell(3).setCellValue(statisticalResult.getAssetServiceInstitution());
+        sheet.getRow(8).getCell(3).setCellValue(statisticalResult.getSponsorOrganization());
+        sheet.getRow(9).getCell(3).setCellValue(statisticalResult.getTrustInstitution());
+        sheet.getRow(10).getCell(3).setCellValue(statisticalResult.getLoanNum());
+        sheet.getRow(11).getCell(3).setCellValue(statisticalResult.getDebtorNum());
+        sheet.getRow(12).getCell(3).setCellValue(statisticalResult.getOutstandingPrincipal());
+        sheet.getRow(13).getCell(3).setCellValue(statisticalResult.getWeightedYearMaturity());
+        sheet.getRow(14).getCell(3).setCellValue(statisticalResult.getLongestMaturity());
+        sheet.getRow(15).getCell(3).setCellValue(statisticalResult.getShortestMaturity());
+        sheet.getRow(16).getCell(3).setCellValue(statisticalResult.getWeightedAverageRecoverRate());
+        sheet.getRow(17).getCell(3).setCellValue(statisticalResult.getWeightedDebtorCreditLevel());
+        sheet.getRow(18).getCell(3).setCellValue(statisticalResult.getWeightedDebtorDefaultRate());
+        sheet.getRow(19).getCell(3).setCellValue(statisticalResult.getWeightedLoanCreditLevel());
+        sheet.getRow(20).getCell(3).setCellValue(statisticalResult.getWeightedLoanDefaultRate());
+        sheet.getRow(14).getCell(6).setCellValue(statisticalResult.getAging());
+        sheet.getRow(15).getCell(6).setCellValue(statisticalResult.getWeightedAverageInterestRate());
+        sheet.getRow(16).getCell(6).setCellValue(statisticalResult.getWeightedDebtorSelfRecoverRate());
+        sheet.getRow(17).getCell(6).setCellValue(statisticalResult.getWeightedGuaranteePromotedRecoverRate());
+        sheet.getRow(18).getCell(6).setCellValue(statisticalResult.getWeightedCollateralAverageRecoverRate());
     }
 
     /**
@@ -160,13 +313,15 @@ public class ExcelUtil {
         cell5.setCellValue(portfolioStatisticalResult.getAverageDefaultRate());
         XSSFCell cell6 = sheet0.getRow(9).getCell(9);
         cell6.setCellValue(portfolioStatisticalResult.getStandardDeviation());
+        XSSFCell cell7 = sheet0.getRow(10).getCell(9);
+        cell7.setCellValue(portfolioStatisticalResult.getAverageRecoveryRate());
         for(int i=0;i<20;i++){
             XSSFCell cell_1 = sheet0.getRow(5 + i).getCell(3);
             cell_1.setCellValue(monteSummaryResult.getTargetDefaultProbability()[i]);
             XSSFCell cell_2 = sheet0.getRow(5 + i).getCell(4);
             cell_2.setCellValue(monteSummaryResult.getTargetDefaultRate()[i]);
-            XSSFCell cell_3 = sheet0.getRow(5 + i).getCell(5);
-            cell_3.setCellValue(monteSummaryResult.getTargetRecoveryRate()[i]);
+            /*XSSFCell cell_3 = sheet0.getRow(5 + i).getCell(5);
+            cell_3.setCellValue(monteSummaryResult.getTargetRecoveryRate()[i]);*/
             XSSFCell cell_4 = sheet0.getRow(5 + i).getCell(6);
             cell_4.setCellValue(monteSummaryResult.getTargetLossRate()[i]);
         }
