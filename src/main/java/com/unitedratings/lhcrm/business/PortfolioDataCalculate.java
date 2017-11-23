@@ -73,7 +73,7 @@ public class PortfolioDataCalculate {
      * 查询数据库封装资产池信息
      * @return
      */
-    private AssetPool assembleAssetPool(Long portfolioId,Integer summaryType) {
+    public AssetPool assembleAssetPool(Long portfolioId,Integer summaryType) {
         Portfolio portfolio = portfolioService.getPortfolioById(portfolioId);
         AssetPool assetPool = null;
         if(portfolio!=null){
@@ -137,7 +137,7 @@ public class PortfolioDataCalculate {
      * 封装资产相关系数矩阵
      * @param portfolio
      */
-    private Matrix assembleCorrelation(Portfolio portfolio) {
+    public Matrix assembleCorrelation(Portfolio portfolio) {
         SysDictionary dict = dictionaryService.getDictByCodeAndVersion("BASE_COEFFICIENT", 1.0);
         if(dict!=null){
             List<SysDictionary> assetCorrelationCoefficient = dictionaryService.getDictionaryListByParentId(dict.getId());

@@ -43,10 +43,10 @@ public class CreditPortfolioRiskAnalysisTest {
         assetPoolInfo.setBeginCalculateDate(Date.from(LocalDate.of(2017,5,1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
         assetPool.setAssetPoolInfo(assetPoolInfo);
         AssetsExcelProcess.processAssetsExcel(file,assetPool);
-        MonteResult result = MonteCarlo.AmortizedM(assetPoolInfo, assetPoolInfo.getCorrelation().chol(), assetPoolInfo.getConditionMatrix(), assetPoolInfo.getFinalRecoveryRate(), 900000, new AtomicInteger(0), 10000);
+        //MonteResult result = MonteCarlo.AmortizedM(assetPoolInfo, assetPoolInfo.getCorrelation().chol(), assetPoolInfo.getConditionMatrix(), assetPoolInfo.getFinalRecoveryRate(), 900000, new AtomicInteger(0), 10000);
         long t2= System.currentTimeMillis();
         System.out.println("消耗时间为"+(t2-t1)+"ms");
-        System.out.println(JSON.toJSONString(result));
+        //System.out.println(JSON.toJSONString(result));
     }
 
     @Test

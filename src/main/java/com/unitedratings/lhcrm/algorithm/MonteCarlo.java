@@ -4,6 +4,7 @@ import com.unitedratings.lhcrm.domains.AssetPoolInfo;
 import com.unitedratings.lhcrm.domains.MonteResult;
 import com.unitedratings.lhcrm.utils.MathUtil;
 import com.unitedratings.lhcrm.utils.MatrixUtil;
+import org.apache.commons.math3.distribution.AbstractMultivariateRealDistribution;
 import org.apache.commons.math3.stat.StatUtils;
 import org.ujmp.core.Matrix;
 import org.ujmp.core.enums.ValueType;
@@ -27,7 +28,7 @@ public class MonteCarlo {
      * @param alreadyNum 已经模拟次数
      * @param precision 违约分布统计精确度，10000表示精确到小数点后4位
      */
-    public static MonteResult AmortizedM(AssetPoolInfo assetPoolInfo, Matrix cov, Matrix conInvM, double[] rr, Integer num, AtomicInteger alreadyNum, Integer precision) {
+    public static MonteResult AmortizedM(AssetPoolInfo assetPoolInfo, AbstractMultivariateRealDistribution cov, Matrix conInvM, double[] rr, Integer num, AtomicInteger alreadyNum, Integer precision) {
         //获取到期期限
         double[] maturity = assetPoolInfo.getMaturity();
         //获取季度数
@@ -60,7 +61,7 @@ public class MonteCarlo {
             double[] balanceR = new double[loanNum];
             double[] balanceL = new double[loanNum];
             //获取随机相关系数矩阵
-            Matrix randomM = MatrixUtil.getRandomCovMatrix(cov, loanNum,quarterNum);
+            Matrix randomM = MatrixUtil.getRandomCovMatrixFromMulti(cov, loanNum,quarterNum);
             //统一同一贷款人在随机矩阵中的值
             long[] ids = assetPoolInfo.getIds();
             for(int i = 0; i< loanNum -1; i++){

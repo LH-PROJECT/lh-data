@@ -5,18 +5,17 @@ import com.unitedratings.lhcrm.constants.SummaryType;
 import com.unitedratings.lhcrm.domains.*;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -121,11 +120,14 @@ public class ExcelUtil {
         //输出统计量
         outputStatisticResult(assetPoolSummaryResult.getStatisticalResult(), sheet);
         //输出统计分布
-        outputDistribution(assetPoolSummaryResult, sheet);
+        outputDistribution(assetPoolSummaryResult, sheet,workbook);
     }
 
-    private static void outputDistribution(AssetPoolSummaryResult assetPoolSummaryResult, XSSFSheet sheet) {
+    private static void outputDistribution(AssetPoolSummaryResult assetPoolSummaryResult, XSSFSheet sheet, XSSFWorkbook workbook) {
         IndustryDistribution industryDistribution = assetPoolSummaryResult.getIndustryDistribution();
+        CellStyle defaultCellStyle = workbook.createCellStyle();
+        defaultCellStyle.setAlignment(CellStyle.ALIGN_CENTER);
+        defaultCellStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
         List<? extends Distribution.Statistical> details = null;
         if(industryDistribution!=null){
             details = industryDistribution.getDetails();
@@ -196,15 +198,15 @@ public class ExcelUtil {
             details = debtorDistribution.getDetails();
             for(int i = 0; i< details.size(); i++){
                 DebtorDistribution.DebtorStatistical statistical = (DebtorDistribution.DebtorStatistical) details.get(i);
-                XSSFRow row = sheet.getRow(24 + i);
-                row.getCell(32).setCellValue(statistical.getLoanSerial());
-                row.getCell(33).setCellValue(statistical.getBorrower());
-                row.getCell(34).setCellValue(statistical.getLoanNum());
-                row.getCell(35).setCellValue(statistical.getCreditLevel());
-                row.getCell(36).setCellValue(statistical.getIndustryName());
-                row.getCell(37).setCellValue(statistical.getAreaName());
-                row.getCell(38).setCellValue(statistical.getAmount());
-                row.getCell(39).setCellValue(statistical.getProportion());
+                int r = 24 + i;
+                silentSetCellValue(sheet, r,32,statistical.getLoanSerial(),defaultCellStyle);
+                silentSetCellValue(sheet, r,33,statistical.getBorrower(),defaultCellStyle);
+                silentSetCellValue(sheet, r,34,statistical.getLoanNum(),defaultCellStyle);
+                silentSetCellValue(sheet, r,35,statistical.getCreditLevel(),defaultCellStyle);
+                silentSetCellValue(sheet, r,36,statistical.getIndustryName(),defaultCellStyle);
+                silentSetCellValue(sheet, r,37,statistical.getAreaName(),defaultCellStyle);
+                silentSetCellValue(sheet, r,38,statistical.getAmount(),defaultCellStyle);
+                silentSetCellValue(sheet, r,39,statistical.getProportion(),defaultCellStyle);
             }
         }
         GuaranteeCreditRankDistribution guaranteeCreditRankDistribution = assetPoolSummaryResult.getGuaranteeCreditRankDistribution();
@@ -232,6 +234,59 @@ public class ExcelUtil {
                 row.getCell(50).setCellValue(statistical.getAmount());
                 row.getCell(51).setCellValue(statistical.getProportion());
             }
+        }
+    }
+
+    /**
+     * 给单元格设置值
+     * @param sheet
+     * @param r
+     * @param c
+     * @param value
+     * @param defaultCellStyle
+     */
+    public static void silentSetCellValue(XSSFSheet sheet, int r, int c, Object value, CellStyle defaultCellStyle) {
+        XSSFRow row = sheet.getRow(r);
+        if(value!=null){
+            if(row!=null){
+                XSSFCell cell = row.getCell(c);
+                if(cell==null){
+                    cell = row.createCell(c);
+                    cell.setCellStyle(defaultCellStyle);
+                }
+                setCellValueInternal(cell, value);
+            } else {
+                XSSFCell cell = sheet.createRow(r).createCell(c);
+                cell.setCellStyle(defaultCellStyle);
+                setCellValueInternal(cell, value);
+            }
+        }else {
+            if(row==null){
+                sheet.createRow(r).createCell(c,Cell.CELL_TYPE_BLANK);
+            }
+        }
+    }
+
+    /**
+     * 内部调用，处理设置cell值
+     * @param cell
+     * @param value
+     */
+    private static void setCellValueInternal(XSSFCell cell, Object value) {
+        if(Number.class.isAssignableFrom(value.getClass())){
+            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            if(value instanceof Integer){
+                cell.setCellValue((Integer)value);
+            }else if(value instanceof Long){
+                cell.setCellValue((Long)value);
+            }else if(value instanceof Double){
+                cell.setCellValue((Double) value);
+            }else if(value instanceof Date){
+                cell.setCellValue((Date) value);
+            }
+        }else if(value instanceof String){
+            cell.setCellType(Cell.CELL_TYPE_STRING);
+            cell.setCellValue((String)value);
         }
     }
 

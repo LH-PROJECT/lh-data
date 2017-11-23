@@ -584,8 +584,8 @@ public class AssetsExcelProcess {
      * 输出矩阵至excel
      * @param matrixs
      */
-    public static void outputMatrixToExcel(List<Matrix> matrixs) {
-        if(!CollectionUtils.isEmpty(matrixs)){
+    public static void outputMatrixToExcel(Matrix... matrixs) {
+        if(matrixs!=null&&matrixs.length>0){
             OutputStream os = null;
             try {
                 String fileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))+".xlsx";
@@ -596,9 +596,8 @@ public class AssetsExcelProcess {
                 }
                 if (created){
                     Workbook workbook = new XSSFWorkbook();
-                    Iterator<Matrix> iterator = matrixs.iterator();
-                    while (iterator.hasNext()){
-                        createSheet(workbook, iterator.next());
+                    for(int i=0;i<matrixs.length;i++){
+                        createSheet(workbook, matrixs[i]);
                     }
                     os = new BufferedOutputStream(new FileOutputStream(file));
                     workbook.write(os);
@@ -614,40 +613,6 @@ public class AssetsExcelProcess {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }
-            }
-        }
-    }
-
-    /**
-     * 输出矩阵至excel
-     * @param matrix
-     */
-    public static void outputMatrixToExcel(Matrix matrix) {
-        OutputStream os = null;
-        try {
-            String fileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))+".xlsx";
-            File file = new File("/Users/wangyongxin/Desktop/"+fileName);
-            boolean created = false;
-            if(!file.exists()){
-                created = file.createNewFile();
-            }
-            if (created){
-                Workbook workbook = new XSSFWorkbook();
-                createSheet(workbook, matrix);
-                os = new BufferedOutputStream(new FileOutputStream(file));
-                workbook.write(os);
-                os.flush();
-                os.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if(os!=null){
-                try {
-                    os.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
         }

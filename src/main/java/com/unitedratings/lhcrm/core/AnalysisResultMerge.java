@@ -142,18 +142,18 @@ public class AnalysisResultMerge implements Callable<PortfolioStatisticalResult>
     private FinalMonteResult monteCarloSimulation(AssetPoolInfo info) throws BusinessException {
         MonteResult result = null;
         try {
-            Matrix chol = info.getCorrelation().chol();
+            CustomMultivariateNormalDistribution covSampleDistribution = new CustomMultivariateNormalDistribution(new double[info.getLoanNum()],info.getCorrelation().toDoubleArray());
             Matrix conMatrix = MatrixUtil.calculateConditionProbability(info);
             parallelNum = getPerfectParallelThreadNum(info,record.getNum());
             final int simulationNum = record.getNum() * 10000;
             if(parallelNum <= 1 ){
-                Future<MonteResult> future = ExecutorEngine.getExecutorEngine().submit(new CreditPortfolioRiskAnalysis(info, simulationNum, alreadyNum, Constant.PRECISION,conMatrix,chol));
+                Future<MonteResult> future = ExecutorEngine.getExecutorEngine().submit(new CreditPortfolioRiskAnalysis(info, simulationNum, alreadyNum, Constant.PRECISION,conMatrix,covSampleDistribution));
                 result = future.get();
             }else {
                 result = new MonteResult();
                 List<CreditPortfolioRiskAnalysis> taskList = new ArrayList<>();
                 for(int i=0;i<parallelNum;i++){
-                    taskList.add(new CreditPortfolioRiskAnalysis(info, simulationNum, alreadyNum,Constant.PRECISION,conMatrix,chol));
+                    taskList.add(new CreditPortfolioRiskAnalysis(info, simulationNum, alreadyNum,Constant.PRECISION,conMatrix,covSampleDistribution));
                 }
                 List<Future<MonteResult>> futures = ExecutorEngine.getExecutorEngine().invokeAll(taskList);
                 double[] defaultRate = new double[Constant.PRECISION];

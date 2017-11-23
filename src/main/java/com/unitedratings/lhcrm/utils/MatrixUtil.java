@@ -1,13 +1,14 @@
 package com.unitedratings.lhcrm.utils;
 
 import com.unitedratings.lhcrm.domains.AssetPoolInfo;
+import org.apache.commons.math3.distribution.AbstractMultivariateRealDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
 import org.ujmp.core.DenseMatrix;
 import org.ujmp.core.Matrix;
 import org.ujmp.core.calculation.Calculation;
 import org.ujmp.core.doublematrix.impl.DefaultDenseDoubleMatrix2D;
-
-import java.util.Random;
 
 /**
  * @author wangyongxin
@@ -15,6 +16,8 @@ import java.util.Random;
 public class MatrixUtil {
 
     private MatrixUtil(){}
+
+    public static final RandomGenerator randomGenerator = new Well19937c();
 
     /**
      * 获取相关随机数矩阵
@@ -25,14 +28,30 @@ public class MatrixUtil {
      */
     public static Matrix getRandomCovMatrix(Matrix cov, Integer loanNum, Integer quarterNum) {
         DenseMatrix matrix = Matrix.Factory.zeros(loanNum, quarterNum);
-        Random random = new Random();
-        //NormalDistributionRandomGenerator random = new NormalDistributionRandomGenerator();
         for(int i=0;i<loanNum;i++){
             for(int j = 0;j<quarterNum;j++){
-                matrix.setAsDouble(random.nextGaussian(),i,j);
+                matrix.setAsDouble(randomGenerator.nextGaussian(),i,j);
             }
         }
         return cov.mtimes(Calculation.Ret.NEW,true,matrix);
+    }
+
+    /**
+     * 从多维正态分布中获取随机相关系数变幻矩阵
+     * @param covSampleDistribution
+     * @param loanNum
+     * @param quarterNum
+     * @return
+     */
+    public static Matrix getRandomCovMatrixFromMulti(AbstractMultivariateRealDistribution covSampleDistribution, Integer loanNum, Integer quarterNum) {
+        DenseMatrix matrix = Matrix.Factory.zeros(loanNum, quarterNum);
+        for(int i=0;i<quarterNum;i++){
+            double[] sample = covSampleDistribution.sample();
+            for(int j=0;j<sample.length;j++){
+                matrix.setAsDouble(sample[j],j,i);
+            }
+        }
+        return matrix;
     }
 
     /**
@@ -49,7 +68,6 @@ public class MatrixUtil {
             double value = conditionMatrix.getAsDouble(c);
             if(value>0){
                 matrix.setAsDouble(normal.inverseCumulativeProbability(value),c);
-                //matrix.setAsDouble(MathUtil.inverseCumulativeProbability(value),c);
             }
         }
         return matrix;
