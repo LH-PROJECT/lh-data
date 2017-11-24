@@ -195,11 +195,19 @@ public class PortfolioDataCalculate {
             info.setIdealDefaultId(idealDefault.getId());
             List<IdealDefaultItem> defaultItems = idealService.getIdealDefaultItemListByIdealDefaultId(idealDefault.getId());
             if(!CollectionUtils.isEmpty(defaultItems)){
-                int col = defaultItems.size()/10;
-                Matrix perfectDefaultRate = new DefaultDenseDoubleMatrix2D(10,col);
-                for(int i=0;i<10;i++){
+                Integer maxRow = MathUtil.getMaxQuarter(info.getYearMaturity());
+                final int originRow = 10;
+                final int actualRow = maxRow>10?maxRow:originRow;
+                int col = defaultItems.size()/originRow;
+                Matrix perfectDefaultRate = new DefaultDenseDoubleMatrix2D(actualRow,col);
+                for(int i=0;i<actualRow;i++){
                     for(int j=0;j < col;j++){
-                        perfectDefaultRate.setAsDouble(defaultItems.get(i*col+j).getDefaultRate(),i,j);
+                        if(i<10){
+                            perfectDefaultRate.setAsDouble(defaultItems.get(i * col + j).getDefaultRate(),i,j);
+                        } else {
+                            //如果实际期限大于10年，后续年限理想违约率均按照最后一年（即第10年）计算
+                            perfectDefaultRate.setAsDouble(defaultItems.get((originRow-1) * col + j).getDefaultRate(),i,j);
+                        }
                     }
                 }
                 perfectDefaultRate.setLabel("理想违约率表");
@@ -276,8 +284,13 @@ public class PortfolioDataCalculate {
                     debtorInfo.setDebtLevel(dictionary.getParamCode());
                     debtorInfo.setDebtLevelCode(dictionary.getId());
                 }
+                Portfolio portfolio = assetPool.getPortfolio();
+                SysDictionary sponsorDict = dictionaryService.getDictionaryById(portfolio.getSponsorId());
                 //1、计算违约放大倍数
-                AssetAnalysisUtil.calDefaultMagnification(assetPool,numRating,scRating,loanRating);
+                if(sponsorDict!=null){
+                    portfolio.setSponsorName(sponsorDict.getParamDesc());
+                    AssetAnalysisUtil.calDefaultMagnification(portfolio.getRecordList(),assetPool.getAssetPoolInfo(),sponsorDict,numRating);
+                }
                 //2、计算基础资产、担保人违约概率
                 AssetAnalysisUtil.calAssetAndGuaranteeDefaultRate(assetPool,numRating,scRating,loanRating);
                 //3、计算条件违约率

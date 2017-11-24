@@ -36,36 +36,30 @@ public class DateUtil {
         final LocalDate begin = LocalDateTime.ofInstant(beginCalculateDate.toInstant(), ZoneId.systemDefault()).toLocalDate();
         final LocalDate end = LocalDateTime.ofInstant(endDate.toInstant(), ZoneId.systemDefault()).toLocalDate();
         final long days = end.toEpochDay() - begin.toEpochDay();
-        //final Period p = Period.between(begin, end);
-        if(days<0){
+        final Period p = Period.between(begin, end);
+        if(days<=0){
             return 0;
         }
         double period = 0;
         switch (summaryType){
-            case 1://按年
-                period = (double) days/365;
+            case 1:
+                //按年
+                period = p.getYears() + (double) end.getDayOfYear()/end.lengthOfYear();
                 break;
-            case 2://按季度
-                period = (double) days/90;
-                /*if(p.getYears()>0){
-                    period = p.getYears()*4;
-                }
-                if(p.getMonths()%3==0){
-                    period += p.getMonths()/3;
-                    if(p.getDays()>0){
-                        period += 1;
-                    }
-                }else {
-                    period += p.getMonths()/3 + 1;
-                }*/
+            case 2:
+                //按季度
+                period = calculateQuarterInternal(begin, end, p);
                 break;
-            case 3://按月
-                period = (double) days/30;
+            case 3:
+                //按月
+                period = p.toTotalMonths() + (double) p.getDays()/end.lengthOfMonth();
                 break;
-            case 4://按周
+            case 4:
+                //按周
                 period = (double) days/7;
                 break;
-            case 5://按天
+            case 5:
+                //按天
                 period = days;
                 break;
             default:
@@ -75,33 +69,23 @@ public class DateUtil {
     }
 
     /**
-     * 获取相差季度数
-     * @param beginCalculateDate
-     * @param endDate
+     * 计算季度数
+     * @param begin
+     * @param end
+     * @param p
      * @return
      */
-    public static double calculateQuarter(Date beginCalculateDate, Date endDate) {
-        if(beginCalculateDate==null||endDate==null){
-            return 0;
-        }
-
-        final LocalDate begin = LocalDateTime.ofInstant(beginCalculateDate.toInstant(), ZoneId.systemDefault()).toLocalDate();
-        final LocalDate end = LocalDateTime.ofInstant(endDate.toInstant(), ZoneId.systemDefault()).toLocalDate();
-        final Period p = Period.between(begin, end);
-
-        double period = 0;
-
-        if(p.getYears()>0){
-            period = p.getYears()*4;
-        }
-
-        if(p.getMonths()%3==0){
-            period += p.getMonths()/3;
-            if(p.getDays()>0){
-                period += 1;
-            }
-        }else {
-            period += p.getMonths()/3 + 1;
+    private static double calculateQuarterInternal(LocalDate begin, LocalDate end, final Period p) {
+        double period;
+        int totalMonths = (int) p.toTotalMonths();
+        int quarter = totalMonths/3;
+        int remainder = totalMonths%3;
+        if(remainder==0){
+            period = quarter + (double) p.getDays() / end.lengthOfMonth();
+        } else {
+            LocalDate lowDate = begin.plusMonths( quarter*3);
+            LocalDate upDate = begin.plusMonths((quarter+1)*3);
+            period = quarter + (double) (begin.toEpochDay()-lowDate.toEpochDay())/(upDate.toEpochDay()-lowDate.toEpochDay());
         }
         return period;
     }
@@ -143,5 +127,18 @@ public class DateUtil {
     public static String formatDate(Date date, String pattern) {
         DateFormat dateFormat = new SimpleDateFormat(pattern);
         return dateFormat.format(date);
+    }
+
+    /**
+     * 计算两个日期之间的季度数
+     * @param beginDate 开始日期
+     * @param endDate 结束日期
+     * @return 间隔季度数
+     */
+    public static double calculateQuarterNum(LocalDate beginDate, LocalDate endDate) {
+        if(beginDate.isAfter(endDate)){
+            return 0;
+        }
+        return calculateQuarterInternal(beginDate,endDate,Period.between(beginDate, endDate));
     }
 }

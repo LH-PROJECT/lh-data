@@ -382,9 +382,12 @@ public class ExcelUtil {
         }
         //输出按季度违约概率
         if(SummaryType.QUARTER.getValue().equals(info.getSummaryType())){
+            CellStyle defaultCellStyle = workbook.createCellStyle();
+            defaultCellStyle.setAlignment(CellStyle.ALIGN_CENTER);
+            defaultCellStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
             double[] defaultRateByPeriod = monteResult.getDefaultRateByPeriod();
             for(int i=0;i<defaultRateByPeriod.length;i++){
-                sheet0.getRow(13+i).getCell(9).setCellValue(defaultRateByPeriod[i]);
+                silentSetCellValue(sheet0,13+i,9,defaultRateByPeriod[i],defaultCellStyle);
             }
         }
 

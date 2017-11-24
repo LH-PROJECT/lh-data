@@ -33,10 +33,11 @@ import java.io.*;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -463,21 +464,45 @@ public class AssetsExcelProcess {
         Amortization amortization = null;
         try {
             amortization = new Amortization();
-            XSSFRow row = sheet.getRow(1);
             final int dataBeginRow = 2;
             final int dataBeginCol = 6;
             //确定有效行列
             int[] validRowAndColSize = ExcelUtil.getRegularValidRowAndColSize(sheet, dataBeginRow, dataBeginCol,true);
             int validRowSize = validRowAndColSize[0];
             int validColSize = validRowAndColSize[1];
-            StringBuilder dateStr = new StringBuilder();
-            for(int i=dataBeginCol;i<dataBeginCol+validColSize;i++){
-                XSSFCell cell = row.getCell(i);
-                if(cell!=null){
-                    dateStr.append(DateUtil.formatDate(cell.getDateCellValue(),"yyyy-MM-dd")).append(",");
+            //1.处理分期摊还日期title信息
+            if(!CollectionUtils.isEmpty(portfolio.getRecordList())){
+                //资产池贷款记录已经封装好，自己计算分期摊还日期头信息
+                LocalDate maxDate = null;
+                for(LoanRecord loanRecord:portfolio.getRecordList()){
+                    LocalDate maturityDate = loanRecord.getDebtorInfo().getMaturityDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    if(maxDate==null||maxDate.isBefore(maturityDate)){
+                        maxDate = maturityDate;
+                    }
                 }
-                if(i==dataBeginCol+validColSize-1){
-                    amortization.setAmortizationDate(dateStr.substring(0, dateStr.length() - 1));
+                LocalDate beginDate = portfolio.getBeginCalculateDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                int quarterNum = (int) Math.ceil(DateUtil.calculateQuarterNum(beginDate, maxDate));
+                StringBuilder dateStr = new StringBuilder();
+                for(int i=0;i<quarterNum;i++){
+                    if(i==quarterNum-1){
+                        dateStr.append(beginDate.plusMonths((i + 1) * 3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+                    } else {
+                        dateStr.append(beginDate.plusMonths((i + 1) * 3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))+",");
+                    }
+                }
+                amortization.setAmortizationDate(dateStr.toString());
+            } else {
+                //资产池贷款记录为准备好，解析上传excel中的头信息
+                XSSFRow dateTitleRow = sheet.getRow(1);
+                StringBuilder dateStr = new StringBuilder();
+                for(int i=dataBeginCol;i<dataBeginCol+validColSize;i++){
+                    XSSFCell cell = dateTitleRow.getCell(i);
+                    if(cell!=null){
+                        dateStr.append(DateUtil.formatDate(cell.getDateCellValue(),"yyyy-MM-dd")).append(",");
+                    }
+                    if(i==dataBeginCol+validColSize-1){
+                        amortization.setAmortizationDate(dateStr.substring(0, dateStr.length() - 1));
+                    }
                 }
             }
             //处理数据

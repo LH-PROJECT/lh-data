@@ -7,10 +7,9 @@ import com.unitedratings.lhcrm.entity.DebtorInfo;
 import com.unitedratings.lhcrm.entity.GuarantorInfo;
 import com.unitedratings.lhcrm.entity.Portfolio;
 import com.unitedratings.lhcrm.entity.SysDictionary;
-import com.unitedratings.lhcrm.service.interfaces.SysDictionaryServiceSV;
+import com.unitedratings.lhcrm.excelprocess.AssetsExcelProcess;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.StatUtils;
-import org.springframework.context.ApplicationContext;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.ujmp.core.Matrix;
@@ -175,10 +174,13 @@ public class AssetAnalysisUtil {
         Matrix yearConMatrix = getConMatrix(numRating, loanRecords, assetPoolInfo, yearMaturity,perfectDefaultRate,SummaryType.YEAR.getValue());
         yearConMatrix.setLabel("按年条件违约率");
         if(SummaryType.QUARTER.getValue().equals(assetPoolInfo.getSummaryType())){
-            Matrix quarterPerfectDefaultRate = new DefaultDenseDoubleMatrix2D(40,(int)perfectDefaultRate.getColumnCount());
+            Integer maxRow = MathUtil.getMaxQuarter(assetPoolInfo.getMaturity());
+            final int originRow = 40;
+            final int actualRow = maxRow>originRow?maxRow:originRow;
+            Matrix quarterPerfectDefaultRate = new DefaultDenseDoubleMatrix2D(actualRow,(int)perfectDefaultRate.getColumnCount());
             quarterPerfectDefaultRate.setLabel("按季度季度理想违约率");
             for(int i=0;i<perfectDefaultRate.getColumnCount();i++){
-                for(int j=1;j<=40;j++){
+                for(int j=1;j<=actualRow;j++){
                     int ceil = (int) Math.ceil((double) j / 4);
                     double rate = 0;
                     if(ceil<=1){
@@ -192,6 +194,7 @@ public class AssetAnalysisUtil {
             Matrix quarterConMatrix = getConMatrix(numRating, loanRecords, assetPoolInfo, assetPoolInfo.getMaturity(), quarterPerfectDefaultRate,assetPoolInfo.getSummaryType());
             quarterConMatrix.setLabel("按季度条件违约率");
             assetPoolInfo.setConditionMatrix(quarterConMatrix);
+            AssetsExcelProcess.outputMatrixToExcel(perfectDefaultRate,yearConMatrix,quarterPerfectDefaultRate,quarterConMatrix);
         }else {
             assetPoolInfo.setConditionMatrix(yearConMatrix);
         }
@@ -346,7 +349,11 @@ public class AssetAnalysisUtil {
             DebtorInfo debtorInfo_i = portfolio.getRecordList().get(i).getDebtorInfo();
             for (int j=0;j<loanNum;j++){
                 DebtorInfo debtorInfo_j = portfolio.getRecordList().get(j).getDebtorInfo();
-                double coefficient = 0;
+                if(i==j||debtorInfo_i.getBorrowerSerial().equals(debtorInfo_j.getBorrowerSerial())){
+                    matrix.setAsDouble(1,i,j);
+                    break;
+                }
+                double coefficient;
                 if(debtorInfo_i.getIndustryCode().equals(debtorInfo_j.getIndustryCode())){
                     if(debtorInfo_i.getBorrowerArea().equals(debtorInfo_j.getBorrowerArea())){
                         coefficient = assetCorrelationCoefficient.get("sameArea_sameIndustry")*portfolio.getMultiplier();
@@ -360,9 +367,6 @@ public class AssetAnalysisUtil {
                         coefficient = assetCorrelationCoefficient.get("diffArea_diffIndustry");
                     }
                 }
-                if(i==j){
-                    coefficient = 1;
-                }
                 matrix.setAsDouble(coefficient,i,j);
             }
         }
@@ -371,138 +375,129 @@ public class AssetAnalysisUtil {
 
     /**
      * 计算违约放大倍数
-     * @param assetPool
+     * @param recordList
+     * @param assetPoolInfo
+     * @param sponsorDict
      * @param numRating
-     * @param scRating
-     * @param loanRating
      */
-    public static void calDefaultMagnification(AssetPool assetPool, int[] numRating, int[] scRating, int[] loanRating) {
-        ApplicationContext applicationContext = SpringApplicationContextUtil.getContext();
-        SysDictionaryServiceSV dictionaryService = applicationContext.getBean(SysDictionaryServiceSV.class);
-        Portfolio portfolio = assetPool.getPortfolio();
-        AssetPoolInfo assetPoolInfo = assetPool.getAssetPoolInfo();
-        List<LoanRecord> recordList = portfolio.getRecordList();
+    public static void calDefaultMagnification(List<LoanRecord> recordList, AssetPoolInfo assetPoolInfo, SysDictionary sponsorDict, int[] numRating) {
         if(!CollectionUtils.isEmpty(recordList)){
-            SysDictionary dictionary = dictionaryService.getDictionaryById(portfolio.getSponsorId());
-            if(dictionary!=null){
-                portfolio.setSponsorName(dictionary.getParamDesc());
-                double serviceM = 0;
-                switch (dictionary.getParamValue()){
-                    case "1":
-                        serviceM = 0.6;
-                        break;
-                    case "2":
-                        serviceM = 0.7;
-                        break;
-                    case "3":
-                        serviceM = 0.8;
-                        break;
-                    case "4":
-                        serviceM = 0.9;
-                        break;
-                    case "5":
-                        serviceM = 1.0;
-                        break;
-                    default:
-                        break;
-                }
-                if(serviceM>0){
-                    double pSum = StatUtils.sum(assetPoolInfo.getPrincipal());
-                    String[] area = new String[recordList.size()];
-                    Long[] industry = new Long[recordList.size()];
-                    Long[] borrower = new Long[recordList.size()];
-                    for(int i = 0;i<recordList.size();i++) {
-                        int level = (numRating[i] - 1) / 3;
-                        double defaultMagnification = serviceM;
-                        if (level >= 5) {
-                            defaultMagnification = 1 + 0.5 * defaultMagnification;
-                        } else {
-                            defaultMagnification = 1 + 0.1 * level * defaultMagnification;
-                        }
-                        DebtorInfo debtorInfo = recordList.get(i).getDebtorInfo();
-                        debtorInfo.setDefaultMagnification(defaultMagnification);
-                        area[i] = debtorInfo.getBorrowerArea();
-                        industry[i] = debtorInfo.getIndustryCode();
-                        borrower[i] = debtorInfo.getBorrowerSerial();
+            double serviceM = 0;
+            switch (sponsorDict.getParamValue()){
+                case "1":
+                    serviceM = 0.6;
+                    break;
+                case "2":
+                    serviceM = 0.7;
+                    break;
+                case "3":
+                    serviceM = 0.8;
+                    break;
+                case "4":
+                    serviceM = 0.9;
+                    break;
+                case "5":
+                    serviceM = 1.0;
+                    break;
+                default:
+                    break;
+            }
+            if(serviceM>0){
+                double pSum = StatUtils.sum(assetPoolInfo.getPrincipal());
+                String[] area = new String[recordList.size()];
+                Long[] industry = new Long[recordList.size()];
+                Long[] borrower = new Long[recordList.size()];
+                for(int i = 0;i<recordList.size();i++) {
+                    int level = (numRating[i] - 1) / 3;
+                    double defaultMagnification = serviceM;
+                    if (level >= 5) {
+                        defaultMagnification = 1 + 0.5 * defaultMagnification;
+                    } else {
+                        defaultMagnification = 1 + 0.1 * level * defaultMagnification;
                     }
-                    for(int i = 0;i<recordList.size();i++){
-                        DebtorInfo debtorInfo_i = recordList.get(i).getDebtorInfo();
-                        //对地区集中度进行放大
-                        double areaSum = debtorInfo_i.getLoanBalance();
-                        for(int j=i+1;j<recordList.size();j++){
+                    DebtorInfo debtorInfo = recordList.get(i).getDebtorInfo();
+                    debtorInfo.setDefaultMagnification(defaultMagnification);
+                    area[i] = debtorInfo.getBorrowerArea();
+                    industry[i] = debtorInfo.getIndustryCode();
+                    borrower[i] = debtorInfo.getBorrowerSerial();
+                }
+                for(int i = 0;i<recordList.size();i++){
+                    DebtorInfo debtorInfo_i = recordList.get(i).getDebtorInfo();
+                    //对地区集中度进行放大
+                    double areaSum = debtorInfo_i.getLoanBalance();
+                    for(int j=i+1;j<recordList.size();j++){
+                        DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
+                        if(debtorInfo_j.getBorrowerArea().equals(area[i])&&area[i]!=null){
+                            areaSum += debtorInfo_j.getLoanBalance();
+                            area[j] = null;
+                        }
+                    }
+                    double mtp_area = 0;
+                    double rat = areaSum / pSum;
+                    if(rat>=0.15){
+                        if(rat>=0.3){
+                            mtp_area  = 1+0.5*serviceM;
+                        }else if(rat<0.3&&rat>=0.2){
+                            mtp_area = 1+0.25*serviceM+2.5*serviceM*(rat-0.2);
+                        }else {
+                            mtp_area = 1+0.1*serviceM+3*serviceM*(rat-0.15);
+                        }
+                        for(int j = i;j<recordList.size();j++){
                             DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
-                            if(debtorInfo_j.getBorrowerArea().equals(area[i])&&area[i]!=null){
-                                areaSum += debtorInfo_j.getLoanBalance();
-                                area[j] = null;
+                            if(debtorInfo_j.getBorrowerArea().equals(debtorInfo_i.getBorrowerArea())){
+                                debtorInfo_j.setDefaultMagnification(Math.max(mtp_area,debtorInfo_j.getDefaultMagnification()));
                             }
                         }
-                        double mtp_area = 0;
-                        double rat = areaSum / pSum;
+                    }
+                    //对行业集中度进行放大
+                    double industrySum = debtorInfo_i.getLoanBalance();
+                    for(int j=i+1;j<recordList.size();j++){
+                        DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
+                        if(debtorInfo_j.getIndustryCode().equals(industry[i])&&industry[i]!=null){
+                            industrySum += debtorInfo_j.getLoanBalance();
+                            industry[j] = null;
+                        }
+                    }
+                    double mtp_ind = 0;
+                    rat = industrySum/pSum;
+                    if(rat>=0.15){
+                        if(rat>=0.3){
+                            mtp_ind  = 1+0.5*serviceM;
+                        }else if(rat<0.3&&rat>=0.2){
+                            mtp_ind = 1+0.25*serviceM+2.5*serviceM*(rat-0.2);
+                        }else {
+                            mtp_ind = 1+0.1*serviceM+3*serviceM*(rat-0.15);
+                        }
+                        for(int j = i;j<recordList.size();j++){
+                            DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
+                            if(debtorInfo_j.getIndustryCode().equals(debtorInfo_i.getIndustryCode())){
+                                debtorInfo_j.setDefaultMagnification(Math.max(mtp_ind,debtorInfo_j.getDefaultMagnification()));
+                            }
+                        }
+                    }
+                    //对前5大借款人进行放大
+                    double obligorSum = debtorInfo_i.getLoanBalance();
+                    for(int j=i+1;j<recordList.size();j++){
+                        DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
+                        if(debtorInfo_j.getBorrowerSerial().equals(borrower[i])&&borrower[i]!=null){
+                            obligorSum += debtorInfo_j.getLoanBalance();
+                            borrower[j] = null;
+                        }
+                    }
+                    rat = obligorSum/pSum;
+                    double mtp_obg = 0;
+                    if(rat>=0.05){
                         if(rat>=0.15){
-                            if(rat>=0.3){
-                                mtp_area  = 1+0.5*serviceM;
-                            }else if(rat<0.3&&rat>=0.2){
-                                mtp_area = 1+0.25*serviceM+2.5*serviceM*(rat-0.2);
-                            }else {
-                                mtp_area = 1+0.1*serviceM+3*serviceM*(rat-0.15);
-                            }
-                            for(int j = i;j<recordList.size();j++){
-                                DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
-                                if(debtorInfo_j.getBorrowerArea().equals(debtorInfo_i.getBorrowerArea())){
-                                    debtorInfo_j.setDefaultMagnification(Math.max(mtp_area,debtorInfo_j.getDefaultMagnification()));
-                                }
-                            }
+                            mtp_obg  = 1+1.5*serviceM;
+                        }else if(rat<0.15&&rat>=0.1){
+                            mtp_obg = 1+serviceM+10*serviceM*(rat-0.1);
+                        }else {
+                            mtp_obg = 1+0.5*serviceM+10*serviceM*(rat-0.05);
                         }
-                        //对行业集中度进行放大
-                        double industrySum = debtorInfo_i.getLoanBalance();
-                        for(int j=i+1;j<recordList.size();j++){
+                        for(int j = i;j<recordList.size();j++){
                             DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
-                            if(debtorInfo_j.getIndustryCode().equals(industry[i])&&industry[i]!=null){
-                                industrySum += debtorInfo_j.getLoanBalance();
-                                industry[j] = null;
-                            }
-                        }
-                        double mtp_ind = 0;
-                        rat = industrySum/pSum;
-                        if(rat>=0.15){
-                            if(rat>=0.3){
-                                mtp_ind  = 1+0.5*serviceM;
-                            }else if(rat<0.3&&rat>=0.2){
-                                mtp_ind = 1+0.25*serviceM+2.5*serviceM*(rat-0.2);
-                            }else {
-                                mtp_ind = 1+0.1*serviceM+3*serviceM*(rat-0.15);
-                            }
-                            for(int j = i;j<recordList.size();j++){
-                                DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
-                                if(debtorInfo_j.getIndustryCode().equals(debtorInfo_i.getIndustryCode())){
-                                    debtorInfo_j.setDefaultMagnification(Math.max(mtp_ind,debtorInfo_j.getDefaultMagnification()));
-                                }
-                            }
-                        }
-                        //对前5大借款人进行放大
-                        double obligorSum = debtorInfo_i.getLoanBalance();
-                        for(int j=i+1;j<recordList.size();j++){
-                            DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
-                            if(debtorInfo_j.getBorrowerSerial().equals(borrower[i])&&borrower[i]!=null){
-                                obligorSum += debtorInfo_j.getLoanBalance();
-                                borrower[j] = null;
-                            }
-                        }
-                        rat = obligorSum/pSum;
-                        double mtp_obg = 0;
-                        if(rat>=0.05){
-                            if(rat>=0.15){
-                                mtp_obg  = 1+1.5*serviceM;
-                            }else if(rat<0.15&&rat>=0.1){
-                                mtp_obg = 1+serviceM+10*serviceM*(rat-0.1);
-                            }else {
-                                mtp_obg = 1+0.5*serviceM+10*serviceM*(rat-0.05);
-                            }
-                            for(int j = i;j<recordList.size();j++){
-                                DebtorInfo debtorInfo_j = recordList.get(j).getDebtorInfo();
-                                if(debtorInfo_j.getBorrowerSerial().equals(debtorInfo_i.getBorrowerSerial())){
-                                    debtorInfo_j.setDefaultMagnification(Math.max(mtp_obg,debtorInfo_j.getDefaultMagnification()));
-                                }
+                            if(debtorInfo_j.getBorrowerSerial().equals(debtorInfo_i.getBorrowerSerial())){
+                                debtorInfo_j.setDefaultMagnification(Math.max(mtp_obg,debtorInfo_j.getDefaultMagnification()));
                             }
                         }
                     }

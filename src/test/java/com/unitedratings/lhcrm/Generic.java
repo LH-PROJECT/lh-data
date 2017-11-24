@@ -1,6 +1,5 @@
 package com.unitedratings.lhcrm;
 
-import com.unitedratings.lhcrm.utils.DateUtil;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -155,13 +154,14 @@ public class Generic {
     @Test
     public void testDate(){
         LocalDate date = LocalDate.of(2019,6,15);
+        System.out.println(date.getDayOfYear());
         System.out.println(date.minusDays(43631));
         System.out.println(LocalDateTime.now());
         System.out.println(ZoneId.systemDefault());
         System.out.println(Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-        System.out.println(DateUtil.calculateQuarter(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()),Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())));
         Period period = Period.between(LocalDate.now(), date);
         System.out.println(period.getYears()+":"+period.getMonths()+":"+period.getDays());
+        System.out.println(LocalDate.now().plusMonths(18));
     }
 
     @Test
