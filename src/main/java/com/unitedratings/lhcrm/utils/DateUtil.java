@@ -85,7 +85,7 @@ public class DateUtil {
         } else {
             LocalDate lowDate = begin.plusMonths( quarter*3);
             LocalDate upDate = begin.plusMonths((quarter+1)*3);
-            period = quarter + (double) (begin.toEpochDay()-lowDate.toEpochDay())/(upDate.toEpochDay()-lowDate.toEpochDay());
+            period = quarter + (double) (end.toEpochDay()-lowDate.toEpochDay())/(upDate.toEpochDay()-lowDate.toEpochDay());
         }
         return period;
     }

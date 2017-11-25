@@ -62,6 +62,17 @@ public class MonteCarlo {
             double[] balanceL = new double[loanNum];
             //获取随机相关系数矩阵
             Matrix randomM = MatrixUtil.getRandomCovMatrixFromMulti(cov, loanNum,quarterNum);
+            //统一同一贷款人在随机矩阵中的值
+            long[] ids = assetPoolInfo.getIds();
+            for(int i = 0; i< loanNum -1; i++){
+                for(int c = i+1; c< loanNum; c++){
+                    if(ids[i]==ids[c]){
+                        for(int k = 0;k<randomM.getColumnCount();k++){
+                            randomM.setAsDouble(randomM.getAsDouble(i,k),c,k);
+                        }
+                    }
+                }
+            }
             //判定每笔资产
             for(int i = 0; i < loanNum; i++){
                 double p = principal[i];

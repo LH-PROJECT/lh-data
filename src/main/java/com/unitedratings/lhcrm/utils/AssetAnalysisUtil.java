@@ -7,7 +7,6 @@ import com.unitedratings.lhcrm.entity.DebtorInfo;
 import com.unitedratings.lhcrm.entity.GuarantorInfo;
 import com.unitedratings.lhcrm.entity.Portfolio;
 import com.unitedratings.lhcrm.entity.SysDictionary;
-import com.unitedratings.lhcrm.excelprocess.AssetsExcelProcess;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.StatUtils;
 import org.springframework.util.CollectionUtils;
@@ -174,13 +173,10 @@ public class AssetAnalysisUtil {
         Matrix yearConMatrix = getConMatrix(numRating, loanRecords, assetPoolInfo, yearMaturity,perfectDefaultRate,SummaryType.YEAR.getValue());
         yearConMatrix.setLabel("按年条件违约率");
         if(SummaryType.QUARTER.getValue().equals(assetPoolInfo.getSummaryType())){
-            Integer maxRow = MathUtil.getMaxQuarter(assetPoolInfo.getMaturity());
-            final int originRow = 40;
-            final int actualRow = maxRow>originRow?maxRow:originRow;
-            Matrix quarterPerfectDefaultRate = new DefaultDenseDoubleMatrix2D(actualRow,(int)perfectDefaultRate.getColumnCount());
+            Matrix quarterPerfectDefaultRate = new DefaultDenseDoubleMatrix2D(40,(int)perfectDefaultRate.getColumnCount());
             quarterPerfectDefaultRate.setLabel("按季度季度理想违约率");
             for(int i=0;i<perfectDefaultRate.getColumnCount();i++){
-                for(int j=1;j<=actualRow;j++){
+                for(int j=1;j<=40;j++){
                     int ceil = (int) Math.ceil((double) j / 4);
                     double rate = 0;
                     if(ceil<=1){
@@ -194,7 +190,6 @@ public class AssetAnalysisUtil {
             Matrix quarterConMatrix = getConMatrix(numRating, loanRecords, assetPoolInfo, assetPoolInfo.getMaturity(), quarterPerfectDefaultRate,assetPoolInfo.getSummaryType());
             quarterConMatrix.setLabel("按季度条件违约率");
             assetPoolInfo.setConditionMatrix(quarterConMatrix);
-            AssetsExcelProcess.outputMatrixToExcel(perfectDefaultRate,yearConMatrix,quarterPerfectDefaultRate,quarterConMatrix);
         }else {
             assetPoolInfo.setConditionMatrix(yearConMatrix);
         }
@@ -233,25 +228,49 @@ public class AssetAnalysisUtil {
                 debtorInfo.setDefaultRateBySection(String.valueOf(defaultRate));
             }else {
                 //处理其他年
+                int limit;
+                switch(summaryType){
+                    case 1:
+                        limit = 10;
+                        break;
+                    case 2:
+                        limit = 40;
+                        break;
+                    case 3:
+                        limit = 120;
+                        break;
+                    default:
+                        limit = 40;
+                        break;
+                }
                 int ceil = (int) Math.ceil(maturity[i]);
                 for(int j=1;j<ceil;j++){
-                    double up = perfectDefaultRate.getAsDouble(j, numRating[i]-1);
-                    double low = perfectDefaultRate.getAsDouble(j-1, numRating[i]-1);
-                    //处理最后一年/季度
-                    if(SummaryType.YEAR.getValue().equals(summaryType)&&j==ceil-1){
-                        up = low + (up-low)*(maturity[i]-j);
-                    }
+                    if(j<limit){
+                        double up = perfectDefaultRate.getAsDouble(j, numRating[i]-1);
+                        double low = perfectDefaultRate.getAsDouble(j-1, numRating[i]-1);
+                        //处理最后一年/季度
+                        if(SummaryType.YEAR.getValue().equals(summaryType)&&j==ceil-1){
+                            up = low + (up-low)*(maturity[i]-j);
+                        }
 
-                    if(defaultMagnification !=null){
-                        up = up * defaultMagnification;
-                        low = low * defaultMagnification;
+                        if(defaultMagnification !=null){
+                            up = up * defaultMagnification;
+                            low = low * defaultMagnification;
+                        }
+                        double min = Math.min((up - low) / (1 - low), 0.99999);
+                        if(min<0){
+                            min = 0.99999;
+                        }
+                        conMatrix.setAsDouble(min,i,j);
+                        defaultRateBySection.append(",").append(min);
+                    } else {
+                        double prob = conMatrix.getAsDouble(i, limit - 1);
+                        if(j==ceil-1){
+                            prob = prob * (maturity[i]-j);
+                        }
+                        conMatrix.setAsDouble(prob,i,j);
+                        defaultRateBySection.append(",").append(prob);
                     }
-                    double min = Math.min((up - low) / (1 - low), 0.99999);
-                    if(min<0){
-                        min = 0.99999;
-                    }
-                    conMatrix.setAsDouble(min,i,j);
-                    defaultRateBySection.append(",").append(min);
                 }
                 if(StringUtils.isEmpty(debtorInfo.getDefaultRateBySection())){
                     debtorInfo.setDefaultRateBySection(defaultRateBySection.toString());
@@ -349,9 +368,9 @@ public class AssetAnalysisUtil {
             DebtorInfo debtorInfo_i = portfolio.getRecordList().get(i).getDebtorInfo();
             for (int j=0;j<loanNum;j++){
                 DebtorInfo debtorInfo_j = portfolio.getRecordList().get(j).getDebtorInfo();
-                if(i==j||debtorInfo_i.getBorrowerSerial().equals(debtorInfo_j.getBorrowerSerial())){
+                if(i==j){
                     matrix.setAsDouble(1,i,j);
-                    break;
+                    continue;
                 }
                 double coefficient;
                 if(debtorInfo_i.getIndustryCode().equals(debtorInfo_j.getIndustryCode())){

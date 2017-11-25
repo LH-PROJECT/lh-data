@@ -195,19 +195,11 @@ public class PortfolioDataCalculate {
             info.setIdealDefaultId(idealDefault.getId());
             List<IdealDefaultItem> defaultItems = idealService.getIdealDefaultItemListByIdealDefaultId(idealDefault.getId());
             if(!CollectionUtils.isEmpty(defaultItems)){
-                Integer maxRow = MathUtil.getMaxQuarter(info.getYearMaturity());
-                final int originRow = 10;
-                final int actualRow = maxRow>10?maxRow:originRow;
-                int col = defaultItems.size()/originRow;
-                Matrix perfectDefaultRate = new DefaultDenseDoubleMatrix2D(actualRow,col);
-                for(int i=0;i<actualRow;i++){
+                int col = defaultItems.size()/10;
+                Matrix perfectDefaultRate = new DefaultDenseDoubleMatrix2D(10,col);
+                for(int i=0;i<10;i++){
                     for(int j=0;j < col;j++){
-                        if(i<10){
-                            perfectDefaultRate.setAsDouble(defaultItems.get(i * col + j).getDefaultRate(),i,j);
-                        } else {
-                            //如果实际期限大于10年，后续年限理想违约率均按照最后一年（即第10年）计算
-                            perfectDefaultRate.setAsDouble(defaultItems.get((originRow-1) * col + j).getDefaultRate(),i,j);
-                        }
+                        perfectDefaultRate.setAsDouble(defaultItems.get(i*col+j).getDefaultRate(),i,j);
                     }
                 }
                 perfectDefaultRate.setLabel("理想违约率表");
